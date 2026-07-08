@@ -1,14 +1,16 @@
 /* =========================================================
-   Word Match Puzzle - Game Logic (Fixed Version)
+   Word Match Puzzle - Game Logic (Final Version)
    ========================================================= */
 
 (() => {
   'use strict';
 
   // ---------- ค่าคงที่ ----------
-  const WORDS_PER_GAME = 20;
   const POINTS_PER_CORRECT = 10;
   const STORAGE_KEY = 'wordPuzzleHighScore';
+
+  // SVG ไอคอนลำโพง
+  const SPEAKER_SVG = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>`;
 
   // ---------- State ----------
   const state = {
@@ -18,14 +20,15 @@
     matched: new Map(),
     wrongCount: 0,
     score: 0,
+    wordsPerGame: 20,
     startTime: 0,
     timerInterval: null,
     isDrawing: false,
     drawingLine: null,
     dragStartId: null,
     dragStartEl: null,
-    startX: 0,
-    startY: 0
+    gameDateTime: null,
+    gameResults: []
   };
 
   // ---------- DOM ----------
@@ -37,25 +40,28 @@
     result: $('screen-result')
   };
   const dom = {
-    highScore:     $('high-score'),
-    btnStart:      $('btn-start'),
-    btnGoGame:     $('btn-go-game'),
-    learnList:     $('learn-list'),
-    timer:         $('timer'),
-    score:         $('score'),
-    progress:      $('progress'),
-    leftList:      $('left-list'),
-    rightList:     $('right-list'),
-    linesSvg:      $('lines-svg'),
-    gameArea:      $('game-area'),
-    finalScore:    $('final-score'),
-    totalScore:    $('total-score'),
-    correctCount:  $('correct-count'),
-    wrongCount:    $('wrong-count'),
-    finalTime:     $('final-time'),
-    resultTitle:   $('result-title'),
-    btnRestart:    $('btn-restart'),
-    btnHome:       $('btn-home')
+    highScore:      $('high-score'),
+    btnStart:       $('btn-start'),
+    btnGoGame:      $('btn-go-game'),
+    learnList:      $('learn-list'),
+    timer:          $('timer'),
+    score:          $('score'),
+    progress:       $('progress'),
+    leftList:       $('left-list'),
+    rightList:      $('right-list'),
+    linesSvg:       $('lines-svg'),
+    gameArea:       $('game-area'),
+    finalScore:     $('final-score'),
+    totalScore:     $('total-score'),
+    correctCount:   $('correct-count'),
+    wrongCount:     $('wrong-count'),
+    finalTime:      $('final-time'),
+    resultTitle:    $('result-title'),
+    resultDateTime: $('result-datetime-text'),
+    wordReviewList: $('word-review-list'),
+    btnRestart:     $('btn-restart'),
+    btnShare:       $('btn-share'),
+    btnHome:        $('btn-home')
   };
 
   // ---------- Utility ----------
@@ -74,9 +80,40 @@
     return `${m}:${s}`;
   }
 
+  function formatDateTime(date) {
+    const options = {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    };
+    return date.toLocaleDateString('th-TH', options);
+  }
+
   function showScreen(name) {
     Object.values(screens).forEach(s => s.classList.remove('active'));
     screens[name].classList.add('active');
+  }
+
+  function showToast(message) {
+    const existing = document.querySelector('.toast');
+    if (existing) existing.remove();
+
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = message;
+    document.body.appendChild(toast);
+
+    requestAnimationFrame(() => {
+      toast.classList.add('show');
+    });
+
+    setTimeout(() => {
+      toast.classList.remove('show');
+      setTimeout(() => toast.remove(), 300);
+    }, 2000);
   }
 
   // ---------- Load Words ----------
@@ -125,13 +162,32 @@
     window.speechSynthesis.speak(utter);
   }
 
+  // ---------- Word Count Selection ----------
+  function setupWordCountButtons() {
+    const buttons = document.querySelectorAll('.count-btn');
+    buttons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        buttons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        state.wordsPerGame = parseInt(btn.dataset.count, 10);
+        console.log(`🎲 เลือกจำนวนคำ: ${state.wordsPerGame} คำ`);
+      });
+    });
+  }
+
   // ---------- Learn Screen ----------
   function renderLearnScreen() {
     dom.learnList.innerHTML = '';
     state.currentWords.forEach(w => {
       const item = document.createElement('div');
       item.className = 'learn-item';
-      item.innerHTML = `<button class="speak-btn" aria-label="ฟังเสียง">🔊</button><div class="word-text"><div class="en">${w.word}</div><div class="th">${w.thai}</div></div>`;
+      item.innerHTML = `
+        <button class="speak-btn" aria-label="ฟังเสียง">${SPEAKER_SVG}</button>
+        <div class="word-text">
+          <div class="en">${w.word}</div>
+          <div class="th">${w.thai}</div>
+        </div>
+      `;
       item.querySelector('.speak-btn').addEventListener('click', (e) => {
         e.stopPropagation();
         speak(w.word);
@@ -142,16 +198,17 @@
 
   // ---------- Game Setup ----------
   function startNewGame() {
-    if (state.allWords.length < WORDS_PER_GAME) {
-      alert(`❌ คำศัพท์ไม่พอ (ต้องมีอย่างน้อย ${WORDS_PER_GAME} คำ)\nมีอยู่: ${state.allWords.length} คำ`);
+    if (state.allWords.length < state.wordsPerGame) {
+      alert(`❌ คำศัพท์ไม่พอ (ต้องมีอย่างน้อย ${state.wordsPerGame} คำ)\nมีอยู่: ${state.allWords.length} คำ`);
       return;
     }
 
-    state.currentWords = shuffle(state.allWords).slice(0, WORDS_PER_GAME);
+    state.currentWords = shuffle(state.allWords).slice(0, state.wordsPerGame);
     state.rightOrder = shuffle(state.currentWords);
     state.matched = new Map();
     state.wrongCount = 0;
     state.score = 0;
+    state.gameResults = [];
 
     renderGameBoard();
     resetTimer();
@@ -181,7 +238,10 @@
     row.className = 'word-row';
     row.dataset.id = word.id;
     row.dataset.side = 'left';
-    row.innerHTML = `<button class="speak-btn" aria-label="ฟังเสียง">🔊</button><div class="word-text">${word.word}</div>`;
+    row.innerHTML = `
+      <div class="word-text">${word.word}</div>
+      <button class="speak-btn" aria-label="ฟังเสียง">${SPEAKER_SVG}</button>
+    `;
     const btn = row.querySelector('.speak-btn');
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -195,7 +255,10 @@
     row.className = 'word-row';
     row.dataset.id = word.id;
     row.dataset.side = 'right';
-    row.innerHTML = `<div class="word-text">${word.thai}</div>`;
+    row.innerHTML = `
+      <div class="drop-target" data-id="${word.id}"></div>
+      <div class="word-text">${word.thai}</div>
+    `;
     return row;
   }
 
@@ -220,7 +283,7 @@
   // ---------- Score UI ----------
   function updateScoreUI() {
     dom.score.textContent = state.score;
-    dom.progress.textContent = `${state.matched.size}/${WORDS_PER_GAME}`;
+    dom.progress.textContent = `${state.matched.size}/${state.wordsPerGame}`;
   }
 
   // ---------- Drag & Drop Matching ----------
@@ -229,10 +292,10 @@
 
     area.addEventListener('mousedown', onPointerDown);
     area.addEventListener('touchstart', onPointerDown, { passive: false });
-    
+
     area.addEventListener('mousemove', onPointerMove);
     area.addEventListener('touchmove', onPointerMove, { passive: false });
-    
+
     area.addEventListener('mouseup', onPointerUp);
     area.addEventListener('touchend', onPointerUp);
     area.addEventListener('touchcancel', onPointerUp);
@@ -242,16 +305,16 @@
     if (e.touches && e.touches.length > 0) {
       return { x: e.touches[0].clientX, y: e.touches[0].clientY };
     }
+    if (e.changedTouches && e.changedTouches.length > 0) {
+      return { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
+    }
     return { x: e.clientX, y: e.clientY };
   }
 
   function onPointerDown(e) {
-    let target = e.target;
-    if (target.tagName === 'TEXT') target = target.parentElement;
-    
-    const btn = target.closest('.speak-btn');
+    const btn = e.target.closest('.speak-btn');
     if (!btn) return;
-    
+
     const row = btn.closest('.word-row');
     if (!row || row.dataset.side !== 'left') return;
     if (row.classList.contains('matched')) return;
@@ -263,10 +326,6 @@
     state.dragStartId = row.dataset.id;
     state.dragStartEl = btn;
     btn.classList.add('dragging');
-
-    const coords = getClientCoords(e);
-    state.startX = coords.x;
-    state.startY = coords.y;
 
     const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
     line.setAttribute('class', 'line-drawing');
@@ -283,15 +342,32 @@
   function onPointerMove(e) {
     if (!state.isDrawing || !state.drawingLine) return;
     e.preventDefault();
-    
+
     const coords = getClientCoords(e);
     const areaRect = dom.gameArea.getBoundingClientRect();
-    
+
     const x2 = coords.x - areaRect.left;
     const y2 = coords.y - areaRect.top;
-    
+
     state.drawingLine.setAttribute('x2', x2);
     state.drawingLine.setAttribute('y2', y2);
+
+    highlightNearestDropTarget(coords.x, coords.y);
+  }
+
+  function highlightNearestDropTarget(clientX, clientY) {
+    document.querySelectorAll('.drop-target.highlight').forEach(el => {
+      el.classList.remove('highlight');
+    });
+
+    dom.linesSvg.style.display = 'none';
+    const target = document.elementFromPoint(clientX, clientY);
+    dom.linesSvg.style.display = 'block';
+
+    const dropTarget = target?.closest?.('.drop-target');
+    if (dropTarget && !dropTarget.classList.contains('matched-dot')) {
+      dropTarget.classList.add('highlight');
+    }
   }
 
   function onPointerUp(e) {
@@ -307,8 +383,12 @@
       state.drawingLine = null;
     }
 
+    document.querySelectorAll('.drop-target.highlight').forEach(el => {
+      el.classList.remove('highlight');
+    });
+
     const coords = getClientCoords(e);
-    
+
     dom.linesSvg.style.display = 'none';
     const target = document.elementFromPoint(coords.x, coords.y);
     dom.linesSvg.style.display = 'block';
@@ -336,7 +416,7 @@
 
   function handleMatch(leftId, rightId, rightRow) {
     if (state.matched.has(leftId)) return;
-    
+
     for (const [lid, rid] of state.matched.entries()) {
       if (rid === rightId) return;
     }
@@ -349,10 +429,19 @@
       state.score += POINTS_PER_CORRECT;
       leftRow.classList.add('matched');
       rightRow.classList.add('matched');
+
+      const dropTarget = rightRow.querySelector('.drop-target');
+      if (dropTarget) dropTarget.classList.add('matched-dot');
+
       drawPermanentLine(leftRow, rightRow);
       updateScoreUI();
 
-      if (state.matched.size === WORDS_PER_GAME) {
+      const word = state.currentWords.find(w => w.id === leftId);
+      if (word) {
+        state.gameResults.push({ word: word.word, thai: word.thai, correct: true });
+      }
+
+      if (state.matched.size === state.wordsPerGame) {
         setTimeout(endGame, 500);
       }
     } else {
@@ -369,7 +458,7 @@
 
   function drawPermanentLine(leftRow, rightRow) {
     const p1 = getElementCenter(leftRow.querySelector('.speak-btn'));
-    const p2 = getElementCenter(rightRow);
+    const p2 = getElementCenter(rightRow.querySelector('.drop-target'));
     const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
     line.setAttribute('class', 'line-correct');
     line.setAttribute('x1', p1.x);
@@ -381,7 +470,7 @@
 
   function drawWrongLine(leftRow, rightRow) {
     const p1 = getElementCenter(leftRow.querySelector('.speak-btn'));
-    const p2 = getElementCenter(rightRow);
+    const p2 = getElementCenter(rightRow.querySelector('.drop-target'));
     const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
     line.setAttribute('class', 'line-wrong');
     line.setAttribute('x1', p1.x);
@@ -398,7 +487,9 @@
     const elapsed = getElapsedSeconds();
     const correct = state.matched.size;
     const wrong = state.wrongCount;
-    const total = WORDS_PER_GAME * POINTS_PER_CORRECT;
+    const total = state.wordsPerGame * POINTS_PER_CORRECT;
+
+    state.gameDateTime = new Date();
 
     dom.finalScore.textContent = state.score;
     dom.totalScore.textContent = total;
@@ -406,7 +497,11 @@
     dom.wrongCount.textContent = wrong;
     dom.finalTime.textContent = formatTime(elapsed);
 
-    const percent = (correct / WORDS_PER_GAME) * 100;
+    dom.resultDateTime.textContent = formatDateTime(state.gameDateTime);
+
+    renderWordReview();
+
+    const percent = (correct / state.wordsPerGame) * 100;
     if (percent === 100) {
       dom.resultTitle.textContent = '🏆 ยอดเยี่ยม! Perfect Score!';
     } else if (percent >= 80) {
@@ -421,17 +516,95 @@
     showScreen('result');
   }
 
+  // ---------- Render Word Review ----------
+  function renderWordReview() {
+    dom.wordReviewList.innerHTML = '';
+
+    const sortedResults = [
+      ...state.gameResults.filter(r => r.correct),
+      ...state.currentWords.filter(w => !state.gameResults.find(r => r.word === w.word)).map(w => ({ word: w.word, thai: w.thai, correct: false }))
+    ];
+
+    sortedResults.forEach((item, index) => {
+      const div = document.createElement('div');
+      div.className = `word-review-item ${item.correct ? 'correct' : 'wrong'}`;
+      div.innerHTML = `
+        <span class="word-review-status">${item.correct ? '✅' : '❌'}</span>
+        <span class="word-review-en">${index + 1}. ${item.word}</span>
+        <span class="word-review-arrow">=</span>
+        <span class="word-review-th">${item.thai}</span>
+      `;
+      dom.wordReviewList.appendChild(div);
+    });
+  }
+
+  // ---------- Share Result ----------
+  function shareResult() {
+    const correct = state.matched.size;
+    const wrong = state.wrongCount;
+    const total = state.wordsPerGame * POINTS_PER_CORRECT;
+    const elapsed = getElapsedSeconds();
+
+    const shareText = `🎯 Word Match Puzzle\n` +
+      `📅 ${formatDateTime(state.gameDateTime)}\n` +
+      `⭐ คะแนน: ${state.score}/${total}\n` +
+      `✅ ตอบถูก: ${correct} คำ\n` +
+      `❌ ตอบผิด: ${wrong} คำ\n` +
+      `⏱️ เวลา: ${formatTime(elapsed)}\n` +
+      `🎲 จำนวนคำ: ${state.wordsPerGame} คำ\n` +
+      `ลองเล่นดูสิ!`;
+
+    if (navigator.share) {
+      navigator.share({
+        title: 'Word Match Puzzle - ผลคะแนนของฉัน',
+        text: shareText
+      }).catch(() => {
+        copyToClipboard(shareText);
+      });
+    } else {
+      copyToClipboard(shareText);
+    }
+  }
+
+  function copyToClipboard(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('📋 คัดลอกผลคะแนนแล้ว!');
+      }).catch(() => {
+        fallbackCopy(text);
+      });
+    } else {
+      fallbackCopy(text);
+    }
+  }
+
+  function fallbackCopy(text) {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+    try {
+      document.execCommand('copy');
+      showToast('📋 คัดลอกผลคะแนนแล้ว!');
+    } catch (err) {
+      showToast(' คัดลอกไม่ได้ ลองใหม่นะ');
+    }
+    document.body.removeChild(textarea);
+  }
+
   // ---------- Event Listeners ----------
   function bindEvents() {
     dom.btnStart.addEventListener('click', () => {
       console.log('🔵 ปุ่มเริ่มเกมถูกกด');
       console.log('📚 จำนวนคำศัพท์:', state.allWords.length);
-      
-      if (state.allWords.length < WORDS_PER_GAME) {
-        alert('❌ คำศัพท์ไม่พอ (ต้องมีอย่างน้อย ' + WORDS_PER_GAME + ' คำ)');
+
+      if (state.allWords.length < state.wordsPerGame) {
+        alert('❌ คำศัพท์ไม่พอ (ต้องมีอย่างน้อย ' + state.wordsPerGame + ' คำ)');
         return;
       }
-      
+
       renderLearnScreen();
       showScreen('learn');
     });
@@ -444,6 +617,10 @@
       startNewGame();
     });
 
+    dom.btnShare.addEventListener('click', () => {
+      shareResult();
+    });
+
     dom.btnHome.addEventListener('click', () => {
       renderHighScore();
       showScreen('start');
@@ -454,6 +631,7 @@
   async function init() {
     renderHighScore();
     await loadWords();
+    setupWordCountButtons();
     setupDragListeners();
     bindEvents();
     console.log('✅ เกมพร้อมใช้งาน');

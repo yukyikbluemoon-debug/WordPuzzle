@@ -84,6 +84,51 @@ html, body {
   line-height: 1.8;
 }
 
+/* ===== Word Count Selection ===== */
+.word-count-section {
+  margin: 20px 0;
+  text-align: center;
+}
+
+.section-label {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 12px;
+}
+
+.word-count-options {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.count-btn {
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: bold;
+  border: 2px solid #e0e7ff;
+  border-radius: 12px;
+  background: #fff;
+  color: #667eea;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.count-btn:hover {
+  border-color: #667eea;
+  background: #f0f4ff;
+}
+
+.count-btn.active {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+  border-color: #667eea;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
 .high-score-box {
   text-align: center;
   font-size: 1.2rem;
@@ -127,6 +172,17 @@ html, body {
 
 .btn-secondary:hover {
   background: #e0e0e0;
+}
+
+.btn-share {
+  background: linear-gradient(135deg, #4caf50, #45a049);
+  color: #fff;
+  box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+}
+
+.btn-share:hover, .btn-share:active {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(76, 175, 80, 0.6);
 }
 
 /* ===== Learn Screen ===== */
@@ -246,6 +302,7 @@ html, body {
   flex: 1;
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .column h3 {
@@ -270,18 +327,19 @@ html, body {
   background: #f8f9ff;
   border: 2px solid #e0e7ff;
   border-radius: 12px;
-  padding: 8px 10px;
-  gap: 8px;
+  padding: 8px 12px;
+  gap: 10px;
   transition: all 0.2s;
-  min-height: 50px;
+  min-height: 44px;
   position: relative;
   z-index: 2;
+  width: 85%;
+  max-width: 280px;
 }
 
 .word-row.matched {
   background: #d4f5d4;
   border-color: #4caf50;
-  opacity: 0.85;
 }
 
 .word-row.wrong-flash {
@@ -296,20 +354,41 @@ html, body {
   75% { transform: translateX(6px); }
 }
 
+.column-left .word-row {
+  align-self: flex-start;
+  justify-content: space-between;
+}
+
+.column-right .word-row {
+  align-self: flex-end;
+  justify-content: flex-start;
+}
+
+/* ===== Speak Button ===== */
 .speak-btn {
   background: #667eea;
   color: #fff;
   border: none;
-  width: 38px;
-  height: 38px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   cursor: pointer;
-  font-size: 1.1rem;
   flex-shrink: 0;
-  transition: transform 0.15s;
+  transition: all 0.2s;
   touch-action: manipulation;
   position: relative;
   z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.speak-btn svg {
+  width: 14px;
+  height: 14px;
+  fill: #fff;
+  pointer-events: none;
 }
 
 .speak-btn:active {
@@ -318,20 +397,74 @@ html, body {
 
 .speak-btn.dragging {
   background: #764ba2;
-  transform: scale(1.1);
+  transform: scale(1.15);
+  box-shadow: 0 0 0 4px rgba(118, 75, 162, 0.3);
 }
 
+/* ===== Word Text ===== */
 .word-text {
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 500;
   color: #333;
   flex: 1;
   word-break: break-word;
+  min-width: 0;
 }
 
-.column-right .word-row {
-  justify-content: flex-end;
+.column-left .word-text {
+  text-align: left;
+}
+
+.column-right .word-text {
   text-align: right;
+}
+
+/* ===== Drop Target ===== */
+.drop-target {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2.5px solid #667eea;
+  flex-shrink: 0;
+  transition: all 0.2s;
+  position: relative;
+  z-index: 10;
+}
+
+.drop-target::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #667eea;
+  transition: all 0.2s;
+}
+
+.drop-target.highlight {
+  background: #c7d2fe;
+  border-color: #4f46e5;
+  transform: scale(1.3);
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.2);
+}
+
+.drop-target.highlight::before {
+  background: #4f46e5;
+  width: 8px;
+  height: 8px;
+}
+
+.drop-target.matched-dot {
+  background: #4caf50;
+  border-color: #4caf50;
+}
+
+.drop-target.matched-dot::before {
+  background: #fff;
 }
 
 /* ===== SVG Lines ===== */
@@ -348,7 +481,7 @@ html, body {
 
 .line-correct {
   stroke: #4caf50;
-  stroke-width: 4;
+  stroke-width: 3;
   fill: none;
   stroke-linecap: round;
   filter: drop-shadow(0 2px 4px rgba(76, 175, 80, 0.4));
@@ -364,7 +497,7 @@ html, body {
 
 .line-wrong {
   stroke: #f44336;
-  stroke-width: 4;
+  stroke-width: 3;
   fill: none;
   stroke-linecap: round;
   animation: fadeOutLine 0.8s forwards;
@@ -385,6 +518,23 @@ html, body {
   color: #667eea;
   font-size: 2rem;
   margin-bottom: 20px;
+}
+
+.result-datetime {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #f0f4ff;
+  padding: 10px 16px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  font-size: 1rem;
+  color: #555;
+}
+
+.datetime-icon {
+  font-size: 1.2rem;
 }
 
 .result-score {
@@ -439,33 +589,142 @@ html, body {
   margin-top: 4px;
 }
 
+.word-review-section {
+  margin: 24px 0;
+  text-align: left;
+}
+
+.word-review-section h3 {
+  text-align: center;
+  color: #667eea;
+  margin-bottom: 12px;
+  font-size: 1.2rem;
+}
+
+.word-review-list {
+  max-height: 400px;
+  overflow-y: auto;
+  border: 2px solid #e0e7ff;
+  border-radius: 12px;
+  padding: 12px;
+  background: #f8f9ff;
+}
+
+.word-review-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  margin-bottom: 6px;
+  border-radius: 8px;
+  background: #fff;
+  border-left: 4px solid #ddd;
+  gap: 10px;
+  transition: all 0.2s;
+}
+
+.word-review-item:last-child {
+  margin-bottom: 0;
+}
+
+.word-review-item.correct {
+  border-left-color: #4caf50;
+  background: #f1f8e9;
+}
+
+.word-review-item.wrong {
+  border-left-color: #f44336;
+  background: #ffebee;
+}
+
+.word-review-status {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+  width: 24px;
+  text-align: center;
+}
+
+.word-review-en {
+  font-weight: bold;
+  color: #333;
+  flex: 1;
+  min-width: 0;
+  word-break: break-word;
+}
+
+.word-review-th {
+  color: #666;
+  flex: 1;
+  min-width: 0;
+  word-break: break-word;
+  text-align: right;
+}
+
+.word-review-arrow {
+  color: #999;
+  flex-shrink: 0;
+}
+
 .result-buttons {
   display: flex;
   gap: 12px;
   justify-content: center;
   flex-wrap: wrap;
+  margin-top: 20px;
 }
 
 .result-buttons .btn {
   flex: 1;
-  min-width: 140px;
+  min-width: 120px;
+}
+
+/* ===== Toast Notification ===== */
+.toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: #333;
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 50px;
+  font-size: 1rem;
+  font-weight: bold;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  transition: all 0.3s ease;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }
 
 /* ===== Responsive ===== */
 @media (max-width: 600px) {
   .game-title { font-size: 1.8rem; }
   .card { padding: 18px; }
-  .word-row { padding: 6px 8px; min-height: 44px; }
-  .speak-btn { width: 34px; height: 34px; font-size: 1rem; }
-  .word-text { font-size: 0.9rem; }
+  .word-row { padding: 6px 10px; min-height: 40px; width: 90%; max-width: 220px; }
+  .speak-btn { width: 26px; height: 26px; }
+  .speak-btn svg { width: 12px; height: 12px; }
+  .drop-target { width: 16px; height: 16px; border-width: 2px; }
+  .drop-target::before { width: 5px; height: 5px; }
+  .word-text { font-size: 0.85rem; }
   .column h3 { font-size: 0.95rem; }
   .score-big { font-size: 2.5rem; }
   .stat { font-size: 1rem; }
   .learn-list { grid-template-columns: 1fr; }
   .game-area { padding: 10px; gap: 8px; }
+  .word-review-item { padding: 6px 10px; font-size: 0.9rem; }
+  .word-review-en, .word-review-th { font-size: 0.85rem; }
+  .count-btn { padding: 10px 18px; font-size: 0.9rem; }
+  .result-buttons .btn { min-width: 100px; font-size: 1rem; padding: 12px 20px; }
 }
 
 @media (max-width: 380px) {
   .word-text { font-size: 0.8rem; }
-  .speak-btn { width: 30px; height: 30px; font-size: 0.9rem; }
+  .word-row { width: 95%; max-width: 180px; }
+  .speak-btn { width: 24px; height: 24px; }
+  .drop-target { width: 14px; height: 14px; }
 }
