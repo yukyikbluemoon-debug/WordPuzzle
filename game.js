@@ -410,11 +410,11 @@
     if (percent === 100) {
       dom.resultTitle.textContent = '🏆 ยอดเยี่ยม! Perfect Score!';
     } else if (percent >= 80) {
-      dom.resultTitle.textContent = '🎉 เก่งมาก!';
+      dom.resultTitle.textContent = ' เก่งมาก!';
     } else if (percent >= 60) {
       dom.resultTitle.textContent = '👍 ดีมาก!';
     } else {
-      dom.resultTitle.textContent = '💪 ลองใหม่อีกครั้งนะ!';
+      dom.resultTitle.textContent = ' ลองใหม่อีกครั้งนะ!';
     }
 
     saveHighScore(state.score);
