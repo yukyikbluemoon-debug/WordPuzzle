@@ -6,7 +6,7 @@
   'use strict';
 
   // ---------- ค่าคงที่ ----------
-  const WORDS_PER_GAME = 20;
+  const WORDS_PER_GAME = 10;
   const POINTS_PER_CORRECT = 10;
   const STORAGE_KEY = 'wordPuzzleHighScore';
 
