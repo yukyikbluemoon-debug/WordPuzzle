@@ -230,7 +230,7 @@ html, body {
   font-size: 1.3rem;
 }
 
-/* ===== Game Area ===== */
+/* Game Area - ใช้ Flexbox */
 .game-area {
   position: relative;
   background: #fff;
