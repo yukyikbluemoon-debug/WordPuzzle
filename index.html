@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Word Match Puzzle - เกมฝึกคำศัพท์</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="images/icon/icon-192.png" />
+  <meta name="theme-color" content="#667eea" />
+  <meta name="description" content="เกมฝึกคำศัพท์ภาษาอังกฤษ-ไทย สำหรับเด็ก" />
+</head>
+<body>
+  <div id="app">
+
+    <!-- หน้าจอเริ่มเกม -->
+    <section id="screen-start" class="screen active">
+      <div class="card start-card">
+        <h1 class="game-title">🎯 Word Match Puzzle</h1>
+        <p class="subtitle">เกมฝึกคำศัพท์ภาษาอังกฤษสำหรับเด็ก</p>
+
+        <div class="info-box">
+          <p>📚 <strong>วิธีเล่น</strong></p>
+          <ol>
+            <li>เลือกจำนวนคำศัพท์ที่ต้องการเล่น</li>
+            <li>เรียนคำศัพท์ก่อนเริ่มเกม</li>
+            <li>ลากเส้นจากคำอังกฤษไปหาคำแปลไทย</li>
+            <li>ตอบถูก = เส้นเขียว ✅ | ตอบผิด = เส้นแดง ❌</li>
+          </ol>
+        </div>
+
+        <div class="word-count-section">
+          <p class="section-label">🎲 เลือกจำนวนคำศัพท์:</p>
+          <div class="word-count-options">
+            <button class="count-btn" data-count="10">10 คำ</button>
+            <button class="count-btn" data-count="15">15 คำ</button>
+            <button class="count-btn active" data-count="20">20 คำ</button>
+            <button class="count-btn" data-count="30">30 คำ</button>
+          </div>
+        </div>
+
+        <div class="high-score-box">
+          <p>🏆 คะแนนสูงสุด: <span id="high-score">0</span></p>
+        </div>
+
+        <button id="btn-start" class="btn btn-primary">🎮 เริ่มเกม</button>
+      </div>
+    </section>
+
+    <!-- หน้าจอเรียนคำศัพท์ -->
+    <section id="screen-learn" class="screen">
+      <div class="card learn-card">
+        <h2>📖 เรียนคำศัพท์ก่อนเริ่มเกม</h2>
+        <p class="learn-hint">กดปุ่ม 🔊 เพื่อฟังเสียงอ่าน</p>
+        <div id="learn-list" class="learn-list"></div>
+        <button id="btn-go-game" class="btn btn-primary"> เริ่มเล่นเลย!</button>
+      </div>
+    </section>
+
+    <!-- หน้าจอเล่นเกม -->
+    <section id="screen-game" class="screen">
+      <header class="game-header">
+        <div class="stat">
+          <span class="stat-icon">⏱️</span>
+          <span id="timer">00:00</span>
+        </div>
+        <div class="stat">
+          <span class="stat-icon">⭐</span>
+          <span id="score">0</span>
+        </div>
+        <div class="stat">
+          <span class="stat-icon">📝</span>
+          <span id="progress">0/20</span>
+        </div>
+      </header>
+
+      <div id="game-area" class="game-area">
+        <div class="column column-left">
+          <h3>English</h3>
+          <div id="left-list" class="word-list"></div>
+        </div>
+        <div class="column column-right">
+          <h3>ภาษาไทย</h3>
+          <div id="right-list" class="word-list"></div>
+        </div>
+        <svg id="lines-svg" class="lines-svg"></svg>
+      </div>
+    </section>
+
+    <!-- หน้าจอสรุปผล -->
+    <section id="screen-result" class="screen">
+      <div class="card result-card">
+        <h2 id="result-title">🎉 จบเกม!</h2>
+
+        <div class="result-datetime">
+          <span class="datetime-icon">📅</span>
+          <span id="result-datetime-text">-</span>
+        </div>
+
+        <div class="result-score">
+          <div class="score-big"><span id="final-score">0</span> / <span id="total-score">200</span></div>
+          <p class="score-label">คะแนน</p>
+        </div>
+        <div class="result-stats">
+          <div class="stat-item correct">
+            <div class="stat-num" id="correct-count">0</div>
+            <div class="stat-label">✅ ตอบถูก</div>
+          </div>
+          <div class="stat-item wrong">
+            <div class="stat-num" id="wrong-count">0</div>
+            <div class="stat-label">❌ ตอบผิด</div>
+          </div>
+          <div class="stat-item time">
+            <div class="stat-num" id="final-time">00:00</div>
+            <div class="stat-label">⏱️ เวลาที่ใช้</div>
+          </div>
+        </div>
+
+        <div class="word-review-section">
+          <h3>📋 คำศัพท์ในชุดนี้</h3>
+          <div id="word-review-list" class="word-review-list"></div>
+        </div>
+
+        <div class="result-buttons">
+          <button id="btn-restart" class="btn btn-primary">🔄 เล่นใหม่</button>
+          <button id="btn-share" class="btn btn-share">📤 แชร์ผล</button>
+          <button id="btn-home" class="btn btn-secondary">🏠 หน้าหลัก</button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <script src="game.js"></script>
+  <script>
+    // ลงทะเบียน Service Worker สำหรับ PWA
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(reg => console.log('✅ Service Worker registered:', reg.scope))
+          .catch(err => console.log('⚠️ SW registration failed:', err));
+      });
+    }
+  </script>
+</body>
+</html>
