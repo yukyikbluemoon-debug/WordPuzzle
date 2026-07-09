@@ -134,31 +134,39 @@ function speak(text) {
   
   if ('speechSynthesis' in window) {
     try {
+      // Cancel any ongoing speech to prevent conflicts
       window.speechSynthesis.cancel();
-      const utter = new SpeechSynthesisUtterance(text);
+      
+      const utter = new SpeechSynthesisUtterance(text.trim());
       utter.lang = 'en-US';
       utter.rate = 0.9;
       utter.pitch = 1.1;
       
+      // Wait for voices to load (browser dependent)
       const voices = window.speechSynthesis.getVoices();
       if (voices.length > 0) {
         const enVoice = voices.find(v => v.lang.startsWith('en'));
         if (enVoice) utter.voice = enVoice;
       }
       
+      // Log errors but don't propagate them
       utter.onerror = (event) => {
-        console.warn('⚠️ Web Speech API error:', event.error);
+        console.warn('⚠️ Web Speech API error:', event.error || 'Unknown error');
+      };
+      
+      utter.onend = () => {
+        console.log('✅ Speech finished');
       };
       
       window.speechSynthesis.speak(utter);
-      console.log('🔊 ใช้ Web Speech API');
+      console.log('🔊 Playing speech for: ' + text);
       return;
     } catch (err) {
-      console.warn('⚠️ Web Speech API ล้มเหลว');
+      console.warn('⚠️ Web Speech API not available:', err.message);
     }
   }
   
-  console.warn('⚠️ ไม่สามารถเล่นเสียงได้');
+  console.warn('⚠️ Speech synthesis not supported in this browser');
 }
  
   // ---------- Learn Screen ----------
