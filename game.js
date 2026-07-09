@@ -129,9 +129,55 @@
   }
 
 // ---------- Text To Speech ----------
+let voicesReady = false;
+let availableVoices = [];
+
+// โหลด voices ล่วงหน้า
+function loadVoices() {
+  return new Promise((resolve) => {
+    let voices = speechSynthesis.getVoices();
+    if (voices.length > 0) {
+      availableVoices = voices;
+      voicesReady = true;
+      resolve(voices);
+      return;
+    }
+    
+    // รอ event voiceschanged
+    speechSynthesis.onvoiceschanged = () => {
+      voices = speechSynthesis.getVoices();
+      availableVoices = voices;
+      voicesReady = true;
+      console.log('✅ Voices พร้อมใช้งาน:', voices.length, 'เสียง');
+      resolve(voices);
+    };
+    
+    // Timeout fallback - ถ้า 1 วิยังไม่โหลด ใช้ default
+    setTimeout(() => {
+      if (!voicesReady) {
+        console.warn('⚠️ Voices ไม่พร้อม ใช้ default');
+        voicesReady = true;
+        resolve([]);
+      }
+    }, 1000);
+  });
+}
+
+// เรียกโหลด voices ทันที
+if ('speechSynthesis' in window) {
+  loadVoices();
+}
+
 function speak(text) {
   if (!('speechSynthesis' in window)) {
     console.warn('❌ Browser ไม่รองรับ Speech Synthesis');
+    return;
+  }
+
+  // ถ้า voices ยังไม่พร้อม รอแล้วลองใหม่
+  if (!voicesReady) {
+    console.log('⏳ รอ voices โหลด...');
+    setTimeout(() => speak(text), 200);
     return;
   }
 
@@ -145,21 +191,19 @@ function speak(text) {
     utter.pitch = 1.0;
     utter.volume = 1.0;
 
-    // เลือกเสียงภาษาอังกฤษ (ถ้ามี)
-    const voices = speechSynthesis.getVoices();
-    if (voices.length > 0) {
+    // เลือกเสียงภาษาอังกฤษ
+    if (availableVoices.length > 0) {
       // 優先 US English
-      const enVoice = voices.find(v => v.lang === 'en-US') ||
-                      voices.find(v => v.lang.startsWith('en'));
+      const enVoice = availableVoices.find(v => v.lang === 'en-US') ||
+                      availableVoices.find(v => v.lang.startsWith('en'));
       if (enVoice) {
         utter.voice = enVoice;
         console.log('🔊 ใช้เสียง:', enVoice.name);
       }
     }
 
-    // Error handling
     utter.onerror = (e) => {
-      console.error('❌ Speech error:', e.error);
+      console.error('❌ Speech error:', e.error || e);
     };
 
     utter.onend = () => {
@@ -171,22 +215,6 @@ function speak(text) {
     console.error('❌ Failed to speak:', err);
   }
 }
-
-// โหลด voices ล่วงหน้า (สำคัญมากสำหรับ Chrome)
-if ('speechSynthesis' in window) {
-  // Trigger การโหลด voices
-  speechSynthesis.getVoices();
-  
-  // ฟังการเปลี่ยนแปลงของ voices
-  if (speechSynthesis.onvoiceschanged !== undefined) {
-    speechSynthesis.onvoiceschanged = () => {
-      const voices = speechSynthesis.getVoices();
-      console.log('✅ Voices พร้อมใช้งาน:', voices.length, 'เสียง');
-    };
-  }
-}
-
- 
   // ---------- Learn Screen ----------
   function renderLearnScreen() {
     dom.learnList.innerHTML = '';
