@@ -129,17 +129,6 @@ html, body {
   background: #e0e0e0;
 }
 
-.btn-share {
-  background: linear-gradient(135deg, #25d366, #128c7e);
-  color: #fff;
-  box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4);
-}
-
-.btn-share:hover, .btn-share:active {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.6);
-}
-
 /* ===== Learn Screen ===== */
 .learn-card h2 {
   text-align: center;
@@ -354,15 +343,6 @@ html, body {
   background: #764ba2;
   transform: scale(1.15);
   box-shadow: 0 0 0 4px rgba(118, 75, 162, 0.3);
-}
-
-.speak-btn.speaking {
-  animation: speakPulse 0.6s ease-in-out infinite;
-}
-
-@keyframes speakPulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.5); }
-  50%      { box-shadow: 0 0 0 6px rgba(102, 126, 234, 0); }
 }
 
 /* ===== Word Text ===== */
