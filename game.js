@@ -129,51 +129,50 @@
   }
 
   
-// ---------- Text To Speech ----------
+// ---------- Text To Speech (Google TTS Fallback) ----------
 function speak(text) {
-  if (!('speechSynthesis' in window)) {
-    console.warn('❌ Speech Synthesis ไม่รองรับ');
-    return;
-  }
-
-  try {
-    // ยกเลิกเสียงก่อนหน้า
-    window.speechSynthesis.cancel();
-
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.lang = 'en-US';
-    utter.rate = 0.9;
-    utter.pitch = 1.1;
-
-    // เลือกเสียงภาษาอังกฤษ (ถ้ามี) - ไม่บังคับ
+  // ลองใช้ Web Speech API ก่อน
+  if ('speechSynthesis' in window) {
     const voices = speechSynthesis.getVoices();
+    
+    // ถ้ามี voices พร้อมใช้งาน
     if (voices.length > 0) {
-      const enVoice = voices.find(v => 
-        v.lang === 'en-US' || 
-        v.lang.startsWith('en')
-      );
-      if (enVoice) {
-        utter.voice = enVoice;
-        console.log('🔊 ใช้เสียง:', enVoice.name);
+      try {
+        window.speechSynthesis.cancel();
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = 'en-US';
+        utter.rate = 0.9;
+        utter.pitch = 1.1;
+        
+        const enVoice = voices.find(v => v.lang.startsWith('en'));
+        if (enVoice) utter.voice = enVoice;
+        
+        window.speechSynthesis.speak(utter);
+        console.log('🔊 ใช้ Web Speech API');
+        return;
+      } catch (err) {
+        console.warn('⚠️ Web Speech API ล้มเหลว, ใช้ Google TTS แทน');
       }
     }
-    // ถ้า voices ว่าง → ใช้ default voice ของระบบ (ทำงานได้)
-
-    utter.onerror = (e) => {
-      console.error('❌ Speech error:', e.error);
-    };
-
-    utter.onend = () => {
-      console.log('✅ พูดเสร็จ');
-    };
-
-    window.speechSynthesis.speak(utter);
-  } catch (err) {
-    console.error('❌ Failed to speak:', err);
   }
+  
+  // Fallback: ใช้ Google Translate TTS
+  playGoogleTTS(text);
 }
 
-// โหลด voices ล่วงหน้า (ไม่ blocking)
+function playGoogleTTS(text) {
+  const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=en&client=tw-ob`;
+  
+  const audio = new Audio(url);
+  audio.play()
+    .then(() => console.log('🔊 ใช้ Google TTS'))
+    .catch(err => {
+      console.error('❌ ไม่สามารถเล่นเสียงได้:', err);
+      alert('❌ ไม่สามารถเล่นเสียงได้\nกรุณาลองใหม่อีกครั้ง');
+    });
+}
+
+// โหลด voices ล่วงหน้า
 if ('speechSynthesis' in window) {
   speechSynthesis.getVoices();
   speechSynthesis.onvoiceschanged = () => {
