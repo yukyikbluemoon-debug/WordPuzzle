@@ -126,63 +126,58 @@
     window.speechSynthesis.onvoiceschanged = initVoices;
   }
 
-  function speak(text) {
-    if (!('speechSynthesis' in window)) {
-      alert('❌ เบราว์เซอร์นี้ไม่รองรับ Text To Speech');
-      return;
-    }
-
-    console.log(`🔊 กำลังพูด: "${text}"`);
-
-    // หยุดการพูดก่อนหน้า
-    window.speechSynthesis.cancel();
-
-    // ⭐ หน่วงเวลาเล็กน้อยหลัง cancel (แก้ Chrome bug)
-    setTimeout(() => {
-      try {
-        const utter = new SpeechSynthesisUtterance(text);
-        utter.lang = 'en-US';
-        utter.rate = 0.9;
-        utter.pitch = 1.1;
-        utter.volume = 1.0;
-
-        // เลือก voice en-US ที่ดีที่สุด
-        const voices = window.speechSynthesis.getVoices();
-        if (voices.length > 0) {
-          const voice = voices.find(v => v.lang === 'en-US' && v.localService) ||
-                        voices.find(v => v.lang === 'en-US') ||
-                        voices.find(v => v.lang.startsWith('en-US')) ||
-                        voices.find(v => v.lang.startsWith('en')) ||
-                        voices.find(v => v.default);
-          if (voice) {
-            utter.voice = voice;
-            console.log(`✅ ใช้เสียง: ${voice.name} (${voice.lang})`);
-          }
-        }
-
-        utter.onerror = (e) => {
-          console.warn('⚠️ TTS error:', e.error || 'unknown');
-        };
-
-        utter.onend = () => {
-          console.log('✅ พูดจบแล้ว');
-        };
-
-        // พูด
-        window.speechSynthesis.speak(utter);
-
-        // ⭐ Chrome bug fix: resume ถ้าหยุดกลางคัน
-        setTimeout(() => {
-          if (window.speechSynthesis.speaking) {
-            window.speechSynthesis.resume();
-          }
-        }, 100);
-
-      } catch (err) {
-        console.error('❌ TTS exception:', err);
-      }
-    }, 50);
+  // ---------- Text To Speech (Chrome Bug Fixed) ----------
+function speak(text) {
+  if (!('speechSynthesis' in window)) {
+    alert('❌ เบราว์เซอร์นี้ไม่รองรับ Text To Speech');
+    return;
   }
+
+  console.log(`🔊 กำลังพูด: "${text}"`);
+
+  // หยุดการพูดก่อนหน้า
+  window.speechSynthesis.cancel();
+
+  // ⭐ สำคัญ! หน่วงเวลาเล็กน้อยหลัง cancel (แก้ Chrome bug)
+  setTimeout(() => {
+    try {
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = 'en-US';
+      utter.rate = 0.9;
+      utter.pitch = 1.1;
+      utter.volume = 1.0;
+
+      // เลือก voice en-US
+      const voices = window.speechSynthesis.getVoices();
+      if (voices.length > 0) {
+        const voice = voices.find(v => v.lang === 'en-US' && v.localService) ||
+                      voices.find(v => v.lang === 'en-US') ||
+                      voices.find(v => v.lang.startsWith('en'));
+        if (voice) {
+          utter.voice = voice;
+          console.log(`✅ ใช้เสียง: ${voice.name}`);
+        }
+      }
+
+      utter.onerror = (e) => {
+        console.warn('⚠️ TTS error:', e.error || 'unknown');
+      };
+
+      // พูด
+      window.speechSynthesis.speak(utter);
+
+      // ⭐ Chrome bug fix: resume ถ้าหยุดกลางคัน
+      setTimeout(() => {
+        if (window.speechSynthesis.speaking) {
+          window.speechSynthesis.resume();
+        }
+      }, 100);
+
+    } catch (err) {
+      console.error('❌ TTS exception:', err);
+    }
+  }, 50);  // หน่วง 50ms หลัง cancel
+}
 
   // ---------- Learn Screen ----------
   function renderLearnScreen() {
