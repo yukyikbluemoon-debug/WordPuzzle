@@ -1,17 +1,13 @@
 /* =========================================================
-   Word Match Puzzle - Game Logic (Final Version with Review)
+   Word Match Puzzle - Game Logic (TTS Fixed Version)
    ========================================================= */
-
 (() => {
   'use strict';
 
   // ---------- ค่าคงที่ ----------
-  const WORDS_PER_GAME = 10;
+  const WORDS_PER_GAME = 20;
   const POINTS_PER_CORRECT = 10;
   const STORAGE_KEY = 'wordPuzzleHighScore';
-
-  // SVG ไอคอนลำโพง
-  const SPEAKER_SVG = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>`;
 
   // ---------- State ----------
   const state = {
@@ -27,8 +23,8 @@
     drawingLine: null,
     dragStartId: null,
     dragStartEl: null,
-    gameDateTime: null,
-    gameResults: [] // เก็บผลลัพธ์แต่ละคำ
+    startX: 0,
+    startY: 0
   };
 
   // ---------- DOM ----------
@@ -57,11 +53,8 @@
     wrongCount:    $('wrong-count'),
     finalTime:     $('final-time'),
     resultTitle:   $('result-title'),
-    resultDateTime: $('result-datetime-text'),
-    wordReviewList: $('word-review-list'),
     btnRestart:    $('btn-restart'),
-    btnHome:       $('btn-home'),
-    btnShare:      $('btn-share')
+    btnHome:       $('btn-home')
   };
 
   // ---------- Utility ----------
@@ -78,18 +71,6 @@
     const m = String(Math.floor(seconds / 60)).padStart(2, '0');
     const s = String(seconds % 60).padStart(2, '0');
     return `${m}:${s}`;
-  }
-
-  function formatDateTime(date) {
-    const options = {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit'
-    };
-    return date.toLocaleDateString('th-TH', options);
   }
 
   function showScreen(name) {
@@ -129,127 +110,90 @@
     dom.highScore.textContent = getHighScore();
   }
 
-// ---------- Text To Speech (FIXED for Mobile) ----------
-let voicesLoaded = false;
-let availableVoices = [];
-let isSpeaking = false;       // กันกดรัวๆ ซ้อนกันจนเสียงค้าง/ไม่ออก
-let speechUnlocked = false;   // ปลดล็อค speechSynthesis ด้วย gesture แรกของผู้ใช้
+  // ---------- Text To Speech (Chrome + Mobile Fixed) ----------
+  let voicesReady = false;
 
-// โหลด voices ล่วงหน้า
-function loadVoices() {
-  availableVoices = window.speechSynthesis.getVoices();
-  if (availableVoices.length > 0) {
-    voicesLoaded = true;
-    console.log(`✅ โหลดเสียงสำเร็จ: ${availableVoices.length} voices`);
-  }
-}
-
-// เรียกทันทีถ้าพร้อม
-if ('speechSynthesis' in window) {
-  loadVoices();
-  window.speechSynthesis.onvoiceschanged = loadVoices;
-
-  // มือถือ (โดยเฉพาะ iOS/Android WebView) มักต้องมี "แตะ" ครั้งแรกก่อน
-  // engine เสียงถึงจะพร้อมทำงานทันทีในครั้งต่อไป - เลยพูดข้อความเปล่าเงียบๆ 1 ครั้ง
-  const unlockSpeech = () => {
-    if (speechUnlocked) return;
-    speechUnlocked = true;
-    const unlockUtter = new SpeechSynthesisUtterance('');
-    unlockUtter.volume = 0;
-    window.speechSynthesis.speak(unlockUtter);
-    document.removeEventListener('touchstart', unlockSpeech);
-    document.removeEventListener('click', unlockSpeech);
-  };
-  document.addEventListener('touchstart', unlockSpeech, { once: true });
-  document.addEventListener('click', unlockSpeech, { once: true });
-}
-
-function speak(text, btnEl) {
-  if (!('speechSynthesis' in window)) {
-    alert('❌ เบราว์เซอร์นี้ไม่รองรับ Text To Speech');
-    return;
-  }
-
-  // กันผู้ใช้กดรัวๆ หลายครั้งจนคำพูดต่อคิวกันจนดูเหมือน "เสียงมาช้า"
-  if (isSpeaking) return;
-  isSpeaking = true;
-  if (btnEl) btnEl.classList.add('speaking');
-
-  const clearSpeakingState = () => {
-    isSpeaking = false;
-    if (btnEl) btnEl.classList.remove('speaking');
-  };
-
-  // หยุดการพูดก่อนหน้า
-  window.speechSynthesis.cancel();
-
-  // หน่วงเวลาสั้นๆ ให้ cancel() ทำงานเสร็จก่อนค่อยพูดใหม่
-  // (Android Chrome บางรุ่นถ้า speak() ต่อจาก cancel() ทันทีจะเงียบหรือค้าง)
-  setTimeout(() => {
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.lang = 'en-US';
-    utter.rate = 0.9;
-    utter.pitch = 1.1;
-    utter.volume = 1.0;
-
-    // เลือก voice en-US ที่ดีที่สุด
+  function initVoices() {
     const voices = window.speechSynthesis.getVoices();
     if (voices.length > 0) {
-      // ลำดับความสำคัญ: en-US → en-GB → en → ภาษาอื่น
-      const voice = voices.find(v => v.lang === 'en-US' && v.localService) ||
-                    voices.find(v => v.lang === 'en-US') ||
-                    voices.find(v => v.lang.startsWith('en-US')) ||
-                    voices.find(v => v.lang.startsWith('en')) ||
-                    voices.find(v => v.default);
-      if (voice) {
-        utter.voice = voice;
-        console.log(`🔊 ใช้เสียง: ${voice.name} (${voice.lang})`);
-      }
+      voicesReady = true;
+      console.log(`✅ โหลดเสียงสำเร็จ: ${voices.length} voices`);
+    }
+  }
+
+  if ('speechSynthesis' in window) {
+    initVoices();
+    window.speechSynthesis.onvoiceschanged = initVoices;
+  }
+
+  function speak(text) {
+    if (!('speechSynthesis' in window)) {
+      alert('❌ เบราว์เซอร์นี้ไม่รองรับ Text To Speech');
+      return;
     }
 
-    // Error handling
-    utter.onerror = (e) => {
-      console.error('❌ TTS Error:', e.error, e);
-      clearSpeakingState();
-    };
-
-    utter.onend = () => {
-      console.log('✅ พูดจบแล้ว');
-      clearSpeakingState();
-    };
-
-    // พูด
-    window.speechSynthesis.speak(utter);
     console.log(`🔊 กำลังพูด: "${text}"`);
 
-    // Chrome bug fix: resume ถ้าหยุดกลางคัน
-    setTimeout(() => {
-      if (window.speechSynthesis.paused) {
-        window.speechSynthesis.resume();
-      }
-    }, 150);
+    // หยุดการพูดก่อนหน้า
+    window.speechSynthesis.cancel();
 
-    // กันปุ่มค้างถาวรถ้า onend/onerror ไม่ยิงเลย (เจอในบาง webview)
-    setTimeout(clearSpeakingState, 4000);
-  }, 60);
-}
+    // ⭐ หน่วงเวลาเล็กน้อยหลัง cancel (แก้ Chrome bug)
+    setTimeout(() => {
+      try {
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = 'en-US';
+        utter.rate = 0.9;
+        utter.pitch = 1.1;
+        utter.volume = 1.0;
+
+        // เลือก voice en-US ที่ดีที่สุด
+        const voices = window.speechSynthesis.getVoices();
+        if (voices.length > 0) {
+          const voice = voices.find(v => v.lang === 'en-US' && v.localService) ||
+                        voices.find(v => v.lang === 'en-US') ||
+                        voices.find(v => v.lang.startsWith('en-US')) ||
+                        voices.find(v => v.lang.startsWith('en')) ||
+                        voices.find(v => v.default);
+          if (voice) {
+            utter.voice = voice;
+            console.log(`✅ ใช้เสียง: ${voice.name} (${voice.lang})`);
+          }
+        }
+
+        utter.onerror = (e) => {
+          console.warn('⚠️ TTS error:', e.error || 'unknown');
+        };
+
+        utter.onend = () => {
+          console.log('✅ พูดจบแล้ว');
+        };
+
+        // พูด
+        window.speechSynthesis.speak(utter);
+
+        // ⭐ Chrome bug fix: resume ถ้าหยุดกลางคัน
+        setTimeout(() => {
+          if (window.speechSynthesis.speaking) {
+            window.speechSynthesis.resume();
+          }
+        }, 100);
+
+      } catch (err) {
+        console.error('❌ TTS exception:', err);
+      }
+    }, 50);
+  }
+
   // ---------- Learn Screen ----------
   function renderLearnScreen() {
     dom.learnList.innerHTML = '';
     state.currentWords.forEach(w => {
       const item = document.createElement('div');
       item.className = 'learn-item';
-      item.innerHTML = `
-        <button class="speak-btn" aria-label="ฟังเสียง">${SPEAKER_SVG}</button>
-        <div class="word-text">
-          <div class="en">${w.word}</div>
-          <div class="th">${w.thai}</div>
-        </div>
-      `;
-      const learnSpeakBtn = item.querySelector('.speak-btn');
-      learnSpeakBtn.addEventListener('click', (e) => {
+      item.innerHTML = `<button class="speak-btn" aria-label="ฟังเสียง">🔊</button><div class="word-text"><div class="en">${w.word}</div><div class="th">${w.thai}</div></div>`;
+      item.querySelector('.speak-btn').addEventListener('click', (e) => {
         e.stopPropagation();
-        speak(w.word, learnSpeakBtn);
+        speak(w.word);
       });
       dom.learnList.appendChild(item);
     });
@@ -267,7 +211,6 @@ function speak(text, btnEl) {
     state.matched = new Map();
     state.wrongCount = 0;
     state.score = 0;
-    state.gameResults = []; // รีเซ็ตผลลัพธ์
 
     renderGameBoard();
     resetTimer();
@@ -297,14 +240,11 @@ function speak(text, btnEl) {
     row.className = 'word-row';
     row.dataset.id = word.id;
     row.dataset.side = 'left';
-    row.innerHTML = `
-      <div class="word-text">${word.word}</div>
-      <button class="speak-btn" aria-label="ฟังเสียง">${SPEAKER_SVG}</button>
-    `;
+    row.innerHTML = `<button class="speak-btn" aria-label="ฟังเสียง">🔊</button><div class="word-text">${word.word}</div>`;
     const btn = row.querySelector('.speak-btn');
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
-      speak(word.word, btn);
+      speak(word.word);
     });
     return row;
   }
@@ -314,10 +254,7 @@ function speak(text, btnEl) {
     row.className = 'word-row';
     row.dataset.id = word.id;
     row.dataset.side = 'right';
-    row.innerHTML = `
-      <div class="drop-target" data-id="${word.id}"></div>
-      <div class="word-text">${word.thai}</div>
-    `;
+    row.innerHTML = `<div class="word-text">${word.thai}</div>`;
     return row;
   }
 
@@ -371,7 +308,10 @@ function speak(text, btnEl) {
   }
 
   function onPointerDown(e) {
-    const btn = e.target.closest('.speak-btn');
+    let target = e.target;
+    if (target.tagName === 'TEXT') target = target.parentElement;
+
+    const btn = target.closest('.speak-btn');
     if (!btn) return;
 
     const row = btn.closest('.word-row');
@@ -385,6 +325,10 @@ function speak(text, btnEl) {
     state.dragStartId = row.dataset.id;
     state.dragStartEl = btn;
     btn.classList.add('dragging');
+
+    const coords = getClientCoords(e);
+    state.startX = coords.x;
+    state.startY = coords.y;
 
     const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
     line.setAttribute('class', 'line-drawing');
@@ -410,23 +354,6 @@ function speak(text, btnEl) {
 
     state.drawingLine.setAttribute('x2', x2);
     state.drawingLine.setAttribute('y2', y2);
-
-    highlightNearestDropTarget(coords.x, coords.y);
-  }
-
-  function highlightNearestDropTarget(clientX, clientY) {
-    document.querySelectorAll('.drop-target.highlight').forEach(el => {
-      el.classList.remove('highlight');
-    });
-
-    dom.linesSvg.style.display = 'none';
-    const target = document.elementFromPoint(clientX, clientY);
-    dom.linesSvg.style.display = 'block';
-
-    const dropTarget = target?.closest?.('.drop-target');
-    if (dropTarget && !dropTarget.classList.contains('matched-dot')) {
-      dropTarget.classList.add('highlight');
-    }
   }
 
   function onPointerUp(e) {
@@ -441,10 +368,6 @@ function speak(text, btnEl) {
       state.drawingLine.remove();
       state.drawingLine = null;
     }
-
-    document.querySelectorAll('.drop-target.highlight').forEach(el => {
-      el.classList.remove('highlight');
-    });
 
     const coords = getClientCoords(e);
 
@@ -488,18 +411,8 @@ function speak(text, btnEl) {
       state.score += POINTS_PER_CORRECT;
       leftRow.classList.add('matched');
       rightRow.classList.add('matched');
-
-      const dropTarget = rightRow.querySelector('.drop-target');
-      if (dropTarget) dropTarget.classList.add('matched-dot');
-
       drawPermanentLine(leftRow, rightRow);
       updateScoreUI();
-
-      // บันทึกผล: ถูก
-      const word = state.currentWords.find(w => w.id === leftId);
-      if (word) {
-        state.gameResults.push({ word: word.word, thai: word.thai, correct: true });
-      }
 
       if (state.matched.size === WORDS_PER_GAME) {
         setTimeout(endGame, 500);
@@ -518,7 +431,7 @@ function speak(text, btnEl) {
 
   function drawPermanentLine(leftRow, rightRow) {
     const p1 = getElementCenter(leftRow.querySelector('.speak-btn'));
-    const p2 = getElementCenter(rightRow.querySelector('.drop-target'));
+    const p2 = getElementCenter(rightRow);
     const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
     line.setAttribute('class', 'line-correct');
     line.setAttribute('x1', p1.x);
@@ -530,7 +443,7 @@ function speak(text, btnEl) {
 
   function drawWrongLine(leftRow, rightRow) {
     const p1 = getElementCenter(leftRow.querySelector('.speak-btn'));
-    const p2 = getElementCenter(rightRow.querySelector('.drop-target'));
+    const p2 = getElementCenter(rightRow);
     const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
     line.setAttribute('class', 'line-wrong');
     line.setAttribute('x1', p1.x);
@@ -549,20 +462,11 @@ function speak(text, btnEl) {
     const wrong = state.wrongCount;
     const total = WORDS_PER_GAME * POINTS_PER_CORRECT;
 
-    // บันทึกวันที่เวลา
-    state.gameDateTime = new Date();
-
     dom.finalScore.textContent = state.score;
     dom.totalScore.textContent = total;
     dom.correctCount.textContent = correct;
     dom.wrongCount.textContent = wrong;
     dom.finalTime.textContent = formatTime(elapsed);
-
-    // แสดงวันที่เวลา
-    dom.resultDateTime.textContent = formatDateTime(state.gameDateTime);
-
-    // แสดงรายการคำศัพท์
-    renderWordReview();
 
     const percent = (correct / WORDS_PER_GAME) * 100;
     if (percent === 100) {
@@ -579,99 +483,30 @@ function speak(text, btnEl) {
     showScreen('result');
   }
 
-  // ---------- Render Word Review ----------
-  function renderWordReview() {
-    dom.wordReviewList.innerHTML = '';
-
-    // เรียงตามลำดับที่เล่น (ถูกก่อน แล้วค่อยผิด)
-    const sortedResults = [
-      ...state.gameResults.filter(r => r.correct),
-      ...state.currentWords.filter(w => !state.gameResults.find(r => r.word === w.word)).map(w => ({ word: w.word, thai: w.thai, correct: false }))
-    ];
-
-    sortedResults.forEach((item, index) => {
-      const div = document.createElement('div');
-      div.className = `word-review-item ${item.correct ? 'correct' : 'wrong'}`;
-      div.innerHTML = `
-        <span class="word-review-status">${item.correct ? '✅' : '❌'}</span>
-        <span class="word-review-en">${index + 1}. ${item.word}</span>
-        <span class="word-review-arrow">=</span>
-        <span class="word-review-th">${item.thai}</span>
-      `;
-      dom.wordReviewList.appendChild(div);
-    });
-  }
-
-  // ---------- Share Result (Social/Mobile) ----------
-  function buildShareText() {
-    const correct = state.matched.size;
-    const wrong = state.wrongCount;
-    const total = WORDS_PER_GAME * POINTS_PER_CORRECT;
-    return [
-      '🎯 Word Match Puzzle',
-      `⭐ คะแนน: ${state.score}/${total}`,
-      `✅ ถูก ${correct}  ❌ ผิด ${wrong}`,
-      `⏱️ เวลา: ${dom.finalTime.textContent}`,
-      '',
-      'มาฝึกคำศัพท์ด้วยกันนะ! 👉'
-    ].join('\n');
-  }
-
-  function fallbackCopyText(text) {
-    const textarea = document.createElement('textarea');
-    textarea.value = text;
-    textarea.style.position = 'fixed';
-    textarea.style.opacity = '0';
-    document.body.appendChild(textarea);
-    textarea.focus();
-    textarea.select();
-    try {
-      document.execCommand('copy');
-    } catch (err) {
-      console.error('❌ Fallback copy failed:', err);
-    }
-    document.body.removeChild(textarea);
-  }
-
-  function copyShareText(text) {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).catch(() => fallbackCopyText(text));
-    } else {
-      fallbackCopyText(text);
-    }
-  }
-
-  async function shareResult() {
-    const shareText = buildShareText();
-    const shareUrl = window.location.href;
-
-    // มือถือ (iOS Safari / Android Chrome) รองรับ navigator.share
-    // จะเปิด share sheet ของเครื่อง ให้เลือกแชร์ไป Line, Facebook, Messenger ฯลฯ ได้เลย
-    if (navigator.share) {
+  // ---------- iOS Audio Unlock ----------
+  function unlockAudio() {
+    if (!('speechSynthesis' in window)) return;
+    const unlock = () => {
       try {
-        await navigator.share({
-          title: 'Word Match Puzzle',
-          text: shareText,
-          url: shareUrl
-        });
-        return;
+        const u = new SpeechSynthesisUtterance(' ');
+        u.volume = 0;
+        window.speechSynthesis.speak(u);
+        console.log('🔓 Audio unlocked (iOS fix)');
       } catch (err) {
-        // ผู้ใช้กดยกเลิก ไม่ต้องแจ้ง error
-        if (err && err.name === 'AbortError') return;
-        console.error('❌ Share error:', err);
+        console.warn('Audio unlock failed:', err);
       }
-    }
-
-    // Desktop หรือเบราว์เซอร์ที่ไม่รองรับ Web Share API: คัดลอกข้อความแทน
-    copyShareText(`${shareText}\n${shareUrl}`);
-    alert('📋 คัดลอกผลลัพธ์แล้ว! นำไปวางแชร์ในแอปที่ต้องการได้เลย');
+      document.removeEventListener('touchstart', unlock);
+      document.removeEventListener('click', unlock);
+    };
+    document.addEventListener('touchstart', unlock, { once: true });
+    document.addEventListener('click', unlock, { once: true });
   }
 
   // ---------- Event Listeners ----------
   function bindEvents() {
     dom.btnStart.addEventListener('click', () => {
       console.log('🔵 ปุ่มเริ่มเกมถูกกด');
-      console.log(' จำนวนคำศัพท์:', state.allWords.length);
+      console.log('📚 จำนวนคำศัพท์:', state.allWords.length);
 
       if (state.allWords.length < WORDS_PER_GAME) {
         alert('❌ คำศัพท์ไม่พอ (ต้องมีอย่างน้อย ' + WORDS_PER_GAME + ' คำ)');
@@ -694,12 +529,6 @@ function speak(text, btnEl) {
       renderHighScore();
       showScreen('start');
     });
-
-    if (dom.btnShare) {
-      dom.btnShare.addEventListener('click', () => {
-        shareResult();
-      });
-    }
   }
 
   // ---------- Init ----------
@@ -708,6 +537,7 @@ function speak(text, btnEl) {
     await loadWords();
     setupDragListeners();
     bindEvents();
+    unlockAudio();
     console.log('✅ เกมพร้อมใช้งาน');
   }
 
