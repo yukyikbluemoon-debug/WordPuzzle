@@ -136,15 +136,14 @@ function speak(text) {
     return;
   }
 
-  // รอให้ voices โหลดเสร็จ (สำคัญมากสำหรับ Chrome/Edge)
-  const voices = speechSynthesis.getVoices();
+  // สำคัญ: ต้องเรียก getVoices() ก่อนเพื่อให้เบราว์เซอร์โหลด voices
+  let voices = speechSynthesis.getVoices();
   
-  // ถ้ายังไม่มี voices ให้รอ
+  // ถ้ายังไม่มี voices (Chrome บางครั้งต้องรอ)
   if (voices.length === 0) {
-    console.log('⏳ Waiting for voices to load...');
-    speechSynthesis.onvoiceschanged = () => {
-      speak(text); // ลองอีกครั้งเมื่อ voices โหลดเสร็จ
-    };
+    console.log('⏳ Voices ยังไม่พร้อม รอโหลด...');
+    // เรียกอีกครั้งในอีก 100ms
+    setTimeout(() => speak(text), 100);
     return;
   }
 
@@ -157,32 +156,44 @@ function speak(text) {
     utter.rate = 0.9;
     utter.pitch = 1.1;
     
-    // เลือกเสียงภาษาอังกฤษ (優先 US English)
+    // หาเสียงภาษาอังกฤษ (เลือก US English ก่อน)
     const enVoice = voices.find(v => 
       v.lang === 'en-US' || 
-      (v.lang.startsWith('en') && !v.lang.startsWith('en-GB'))
+      v.lang === 'en-GB' || 
+      v.lang.startsWith('en')
     );
     
     if (enVoice) {
       utter.voice = enVoice;
-      console.log(' Using voice:', enVoice.name);
+      console.log('🔊 ใช้เสียง:', enVoice.name);
     }
 
     // Error handling
     utter.onerror = (e) => {
-      console.error('❌ Speech error:', e);
-      if (e.error === 'not-allowed') {
-        console.warn('⚠️ User interaction required for speech');
-      }
+      console.error('❌ Speech error:', e.error);
     };
 
     utter.onend = () => {
-      console.log('✅ Speech completed');
+      console.log('✅ พูดเสร็จ');
     };
 
     window.speechSynthesis.speak(utter);
   } catch (err) {
-    console.error('❌ Failed to speak:', err);
+    console.error('❌ Error:', err);
+  }
+}
+
+// โหลด voices ล่วงหน้าเมื่อโหลดหน้าเว็บ
+if ('speechSynthesis' in window) {
+  // เรียกทันทีเพื่อ trigger การโหลด
+  speechSynthesis.getVoices();
+  
+  // ฟังการเปลี่ยนแปลง (Chrome ต้องการอันนี้)
+  if (speechSynthesis.onvoiceschanged !== undefined) {
+    speechSynthesis.onvoiceschanged = () => {
+      const voices = speechSynthesis.getVoices();
+      console.log('✅ Voices โหลดแล้ว:', voices.length, 'เสียง');
+    };
   }
 }
 
