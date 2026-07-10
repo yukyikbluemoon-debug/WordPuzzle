@@ -1,5 +1,8 @@
 /* =========================================================
-   Word Match Puzzle - Game Logic (Final Version with Review)
+   Word Match Puzzle - Game Logic (Rewrite)
+   โครงสร้างใหม่: ใช้ Pointer Events แบบรวมศูนย์ (mouse+touch เดียวกัน)
+   แยก "แตะเพื่อฟังเสียง" ออกจาก "ลากเพื่อจับคู่" อย่างชัดเจน
+   เพื่อแก้บั๊กเดิมที่ปุ่มลำโพงไม่ยอมมีเสียงบนมือถือ
    ========================================================= */
 
 (() => {
@@ -9,6 +12,7 @@
   const WORDS_PER_GAME = 10;
   const POINTS_PER_CORRECT = 10;
   const STORAGE_KEY = 'wordPuzzleHighScore';
+  const DRAG_THRESHOLD_PX = 12; // ขยับเกินนี้ถือว่ากำลัง "ลาก" ไม่ใช่ "แตะ"
 
   // SVG ไอคอนลำโพง
   const SPEAKER_SVG = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>`;
@@ -23,12 +27,18 @@
     score: 0,
     startTime: 0,
     timerInterval: null,
-    isDrawing: false,
-    drawingLine: null,
+    gameDateTime: null,
+    gameResults: [],
+
+    // pointer/drag tracking
+    pointerId: null,
+    isPointerDown: false,
+    isDragging: false,
     dragStartId: null,
     dragStartEl: null,
-    gameDateTime: null,
-    gameResults: [] // เก็บผลลัพธ์แต่ละคำ
+    drawingLine: null,
+    startX: 0,
+    startY: 0
   };
 
   // ---------- DOM ----------
@@ -40,27 +50,28 @@
     result: $('screen-result')
   };
   const dom = {
-    highScore:     $('high-score'),
-    btnStart:      $('btn-start'),
-    btnGoGame:     $('btn-go-game'),
-    learnList:     $('learn-list'),
-    timer:         $('timer'),
-    score:         $('score'),
-    progress:      $('progress'),
-    leftList:      $('left-list'),
-    rightList:     $('right-list'),
-    linesSvg:      $('lines-svg'),
-    gameArea:      $('game-area'),
-    finalScore:    $('final-score'),
-    totalScore:    $('total-score'),
-    correctCount:  $('correct-count'),
-    wrongCount:    $('wrong-count'),
-    finalTime:     $('final-time'),
-    resultTitle:   $('result-title'),
+    highScore:      $('high-score'),
+    btnStart:       $('btn-start'),
+    btnGoGame:      $('btn-go-game'),
+    learnList:      $('learn-list'),
+    timer:          $('timer'),
+    score:          $('score'),
+    progress:       $('progress'),
+    leftList:       $('left-list'),
+    rightList:      $('right-list'),
+    linesSvg:       $('lines-svg'),
+    gameArea:       $('game-area'),
+    finalScore:     $('final-score'),
+    totalScore:     $('total-score'),
+    correctCount:   $('correct-count'),
+    wrongCount:     $('wrong-count'),
+    finalTime:      $('final-time'),
+    resultTitle:    $('result-title'),
     resultDateTime: $('result-datetime-text'),
     wordReviewList: $('word-review-list'),
-    btnRestart:    $('btn-restart'),
-    btnHome:       $('btn-home')
+    btnRestart:     $('btn-restart'),
+    btnHome:        $('btn-home'),
+    btnShare:       $('btn-share')
   };
 
   // ---------- Utility ----------
@@ -99,7 +110,7 @@
   // ---------- Load Words ----------
   async function loadWords() {
     try {
-      const res = await fetch('data/words.json');
+      const res = await fetch('data/words.json', { cache: 'no-store' });
       if (!res.ok) throw new Error('โหลดคำศัพท์ไม่สำเร็จ');
       const data = await res.json();
       if (!Array.isArray(data) || data.length === 0) {
@@ -128,67 +139,117 @@
     dom.highScore.textContent = getHighScore();
   }
 
-  
- // ---------- Text To Speech ----------
-function speak(text) {
-  if (!('speechSynthesis' in window)) {
-    alert('❌ เบราว์เซอร์นี้ไม่รองรับ Text To Speech');
-    return;
-  }
+  // =========================================================
+  // ---------- Text To Speech ----------
+  // แก้ไขปัญหาหลัก: ก่อนหน้านี้ speak() ถูกเรียกจาก listener 'click'
+  // บนปุ่มเดียวกับที่ใช้เริ่มลาก (mousedown/touchstart + preventDefault)
+  // บนมือถือ การ preventDefault ใน touchstart จะ "บล็อก" ไม่ให้ event
+  // click สังเคราะห์เกิดขึ้นตามมาเลย -> พูดไม่ออกเสียง/ไม่เสถียร
+  // ตอนนี้ speak() ถูกเรียกตรงจาก pointerup โดยตรง (แยกกรณี "แตะ" กับ
+  // "ลาก" ด้วยระยะทางที่ขยับ) ไม่พึ่ง click event อีกต่อไป
+  // =========================================================
+  const TTS = (() => {
+    let voices = [];
+    let isSpeaking = false;
+    let unlocked = false;
+    let hasWarnedUnsupported = false;
 
-  // รอให้ voices โหลดพร้อม (สำคัญมากสำหรับ Safari/iOS)
-  const loadVoices = () => {
-    return new Promise((resolve) => {
-      if (speechSynthesis.getVoices().length > 0) {
-        resolve();
-      } else {
-        speechSynthesis.onvoiceschanged = () => {
-          resolve();
-        };
-        // Timeout fallback
-        setTimeout(resolve, 500);
+    function refreshVoices() {
+      if ('speechSynthesis' in window) {
+        voices = window.speechSynthesis.getVoices();
       }
-    });
-  };
-
-  // ลองเล่นเสียง
-  try {
-    // ยกเลิกเสียงก่อนหน้า
-    window.speechSynthesis.cancel();
-
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.lang = 'en-US';
-    utter.rate = 0.9;
-    utter.pitch = 1.1;
-    
-    // เลือกเสียงภาษาอังกฤษถ้ามี
-    const voices = speechSynthesis.getVoices();
-    const enVoice = voices.find(v => v.lang.startsWith('en') && !v.lang.startsWith('en-GB'));
-    if (enVoice) {
-      utter.voice = enVoice;
     }
 
-    // Error handling
-    utter.onerror = (e) => {
-      console.error('❌ Speech error:', e);
-    };
+    function pickVoice() {
+      if (voices.length === 0) return null;
+      return (
+        voices.find(v => v.lang === 'en-US' && v.localService) ||
+        voices.find(v => v.lang === 'en-US') ||
+        voices.find(v => v.lang && v.lang.startsWith('en')) ||
+        voices.find(v => v.default) ||
+        voices[0]
+      );
+    }
 
-    window.speechSynthesis.speak(utter);
-  } catch (err) {
-    console.error('❌ Failed to speak:', err);
-  }
-}
+    function init() {
+      if (!('speechSynthesis' in window)) return;
+      refreshVoices();
+      window.speechSynthesis.onvoiceschanged = refreshVoices;
 
-// โหลด voices ล่วงหน้าเมื่อโหลดหน้า
-if ('speechSynthesis' in window) {
-  speechSynthesis.getVoices();
-  if (speechSynthesis.onvoiceschanged !== undefined) {
-    speechSynthesis.onvoiceschanged = () => {
-      speechSynthesis.getVoices();
-    };
-  }
-}
- 
+      // มือถือหลายรุ่นต้องมี user gesture ครั้งแรกก่อน engine เสียงถึงจะพร้อม
+      // ปลดล็อกด้วยการพูดข้อความว่างเงียบๆ ทันทีที่ผู้ใช้แตะ/คลิกครั้งแรกที่ไหนก็ได้
+      const unlock = () => {
+        if (unlocked) return;
+        unlocked = true;
+        try {
+          const u = new SpeechSynthesisUtterance('');
+          u.volume = 0;
+          window.speechSynthesis.speak(u);
+        } catch (e) { /* ignore */ }
+      };
+      document.addEventListener('pointerdown', unlock, { once: true, capture: true });
+    }
+
+    function setButtonState(btnEl, speaking) {
+      if (!btnEl) return;
+      btnEl.classList.toggle('speaking', speaking);
+    }
+
+    function speak(text, btnEl) {
+      if (!('speechSynthesis' in window)) {
+        if (!hasWarnedUnsupported) {
+          hasWarnedUnsupported = true;
+          alert('❌ เบราว์เซอร์นี้ไม่รองรับการอ่านออกเสียง (Text To Speech)');
+        }
+        return;
+      }
+
+      // กันผู้ใช้แตะรัวๆ ให้คำพูดต่อคิวจนฟังดู "ช้า"
+      if (isSpeaking) {
+        window.speechSynthesis.cancel();
+      }
+
+      isSpeaking = true;
+      setButtonState(btnEl, true);
+
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = 'en-US';
+      utter.rate = 0.9;
+      utter.pitch = 1.1;
+      utter.volume = 1.0;
+
+      const voice = pickVoice();
+      if (voice) utter.voice = voice;
+
+      let settled = false;
+      const finish = () => {
+        if (settled) return;
+        settled = true;
+        isSpeaking = false;
+        setButtonState(btnEl, false);
+      };
+
+      utter.onend = finish;
+      utter.onerror = (e) => {
+        // Chrome/แท็บที่ไม่ได้โฟกัส บางครั้งยิง error ที่ไม่มีรายละเอียด (interrupted)
+        // ซึ่งไม่ใช่ปัญหาจริงจากผู้ใช้ จึงแค่ log ไว้เฉยๆ ไม่รบกวนผู้เล่นด้วย alert
+        console.warn('⚠️ TTS ถูกขัดจังหวะ หรือเกิดข้อผิดพลาด:', e && e.error);
+        finish();
+      };
+
+      // เรียก speak() ทันทีแบบ synchronous ภายใน user gesture (ไม่ผ่าน setTimeout)
+      // เพราะบางเบราว์เซอร์จะปฏิเสธเสียง (not-allowed) ถ้า speak ไม่ได้เริ่มจาก
+      // การกระทำของผู้ใช้โดยตรง
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(utter);
+
+      // กันปุ่มค้างถ้า onend/onerror ไม่ยิงเลยในบาง webview
+      setTimeout(finish, 4000);
+    }
+
+    return { init, speak };
+  })();
+
   // ---------- Learn Screen ----------
   function renderLearnScreen() {
     dom.learnList.innerHTML = '';
@@ -196,15 +257,17 @@ if ('speechSynthesis' in window) {
       const item = document.createElement('div');
       item.className = 'learn-item';
       item.innerHTML = `
-        <button class="speak-btn" aria-label="ฟังเสียง">${SPEAKER_SVG}</button>
+        <button type="button" class="speak-btn" aria-label="ฟังเสียง">${SPEAKER_SVG}</button>
         <div class="word-text">
           <div class="en">${w.word}</div>
           <div class="th">${w.thai}</div>
         </div>
       `;
-      item.querySelector('.speak-btn').addEventListener('click', (e) => {
+      const btn = item.querySelector('.speak-btn');
+      // หน้าเรียนรู้คำศัพท์ไม่มีการลาก จึงใช้ click ปกติได้อย่างปลอดภัย
+      btn.addEventListener('click', (e) => {
         e.stopPropagation();
-        speak(w.word);
+        TTS.speak(w.word, btn);
       });
       dom.learnList.appendChild(item);
     });
@@ -222,7 +285,7 @@ if ('speechSynthesis' in window) {
     state.matched = new Map();
     state.wrongCount = 0;
     state.score = 0;
-    state.gameResults = []; // รีเซ็ตผลลัพธ์
+    state.gameResults = [];
 
     renderGameBoard();
     resetTimer();
@@ -252,15 +315,14 @@ if ('speechSynthesis' in window) {
     row.className = 'word-row';
     row.dataset.id = word.id;
     row.dataset.side = 'left';
+    row.dataset.word = word.word;
     row.innerHTML = `
       <div class="word-text">${word.word}</div>
-      <button class="speak-btn" aria-label="ฟังเสียง">${SPEAKER_SVG}</button>
+      <button type="button" class="speak-btn" aria-label="ฟังเสียง / ลากไปจับคู่">${SPEAKER_SVG}</button>
     `;
-    const btn = row.querySelector('.speak-btn');
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      speak(word.word);
-    });
+    // หมายเหตุ: ปุ่มนี้ทำ 2 หน้าที่ - "แตะ" = ฟังเสียง, "ลาก" = จับคู่คำ
+    // การจัดการทั้งสองอย่างทำผ่าน Pointer Events ชุดเดียวใน setupDragListeners()
+    // (ดู onPointerUp สำหรับตรรกะแยกแตะ/ลาก) ไม่มี click listener แยกอีกต่อไป
     return row;
   }
 
@@ -300,29 +362,16 @@ if ('speechSynthesis' in window) {
     dom.progress.textContent = `${state.matched.size}/${WORDS_PER_GAME}`;
   }
 
-  // ---------- Drag & Drop Matching ----------
+  // =========================================================
+  // ---------- Pointer handling: แตะ = ฟังเสียง, ลาก = จับคู่ ----------
+  // ใช้ Pointer Events (รองรับทั้งเมาส์/นิ้ว/ปากกาในโค้ดชุดเดียว)
+  // =========================================================
   function setupDragListeners() {
     const area = dom.gameArea;
-
-    area.addEventListener('mousedown', onPointerDown);
-    area.addEventListener('touchstart', onPointerDown, { passive: false });
-
-    area.addEventListener('mousemove', onPointerMove);
-    area.addEventListener('touchmove', onPointerMove, { passive: false });
-
-    area.addEventListener('mouseup', onPointerUp);
-    area.addEventListener('touchend', onPointerUp);
-    area.addEventListener('touchcancel', onPointerUp);
-  }
-
-  function getClientCoords(e) {
-    if (e.touches && e.touches.length > 0) {
-      return { x: e.touches[0].clientX, y: e.touches[0].clientY };
-    }
-    if (e.changedTouches && e.changedTouches.length > 0) {
-      return { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
-    }
-    return { x: e.clientX, y: e.clientY };
+    area.addEventListener('pointerdown', onPointerDown);
+    area.addEventListener('pointermove', onPointerMove);
+    area.addEventListener('pointerup', onPointerUp);
+    area.addEventListener('pointercancel', onPointerCancel);
   }
 
   function onPointerDown(e) {
@@ -333,14 +382,101 @@ if ('speechSynthesis' in window) {
     if (!row || row.dataset.side !== 'left') return;
     if (row.classList.contains('matched')) return;
 
-    e.preventDefault();
-    e.stopPropagation();
-
-    state.isDrawing = true;
+    state.pointerId = e.pointerId;
+    state.isPointerDown = true;
+    state.isDragging = false;
     state.dragStartId = row.dataset.id;
     state.dragStartEl = btn;
-    btn.classList.add('dragging');
+    state.startX = e.clientX;
+    state.startY = e.clientY;
 
+    try { btn.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
+  }
+
+  function onPointerMove(e) {
+    if (!state.isPointerDown || e.pointerId !== state.pointerId) return;
+
+    const dx = e.clientX - state.startX;
+    const dy = e.clientY - state.startY;
+    const dist = Math.hypot(dx, dy);
+
+    // เพิ่งขยับเกิน threshold ครั้งแรก -> เริ่มถือว่าเป็นการ "ลาก" และวาดเส้น
+    if (!state.isDragging && dist > DRAG_THRESHOLD_PX) {
+      state.isDragging = true;
+      state.dragStartEl.classList.add('dragging');
+      startDrawingLine(state.dragStartEl);
+    }
+
+    if (!state.isDragging) return;
+
+    e.preventDefault();
+    const areaRect = dom.gameArea.getBoundingClientRect();
+    const x2 = e.clientX - areaRect.left;
+    const y2 = e.clientY - areaRect.top;
+
+    if (state.drawingLine) {
+      state.drawingLine.setAttribute('x2', x2);
+      state.drawingLine.setAttribute('y2', y2);
+    }
+
+    highlightNearestDropTarget(e.clientX, e.clientY);
+  }
+
+  function onPointerUp(e) {
+    if (!state.isPointerDown || e.pointerId !== state.pointerId) return;
+
+    const wasDragging = state.isDragging;
+    const btn = state.dragStartEl;
+    const leftId = state.dragStartId;
+
+    cleanupPointerState();
+
+    if (!wasDragging) {
+      // แตะเฉยๆ ไม่ได้ลาก -> เล่นเสียงคำศัพท์
+      const word = state.currentWords.find(w => String(w.id) === String(leftId));
+      if (word && btn) TTS.speak(word.word, btn);
+      return;
+    }
+
+    // ลากจริง -> ตรวจว่าปล่อยตรงคำแปลฝั่งขวาหรือไม่
+    document.querySelectorAll('.drop-target.highlight').forEach(el => {
+      el.classList.remove('highlight');
+    });
+
+    dom.linesSvg.style.display = 'none';
+    const target = document.elementFromPoint(e.clientX, e.clientY);
+    dom.linesSvg.style.display = 'block';
+
+    const rightRow = target?.closest?.('.word-row[data-side="right"]');
+    if (rightRow) {
+      handleMatch(leftId, rightRow.dataset.id, rightRow);
+    }
+  }
+
+  function onPointerCancel() {
+    cleanupPointerState();
+  }
+
+  function cleanupPointerState() {
+    if (state.dragStartEl) {
+      state.dragStartEl.classList.remove('dragging');
+    }
+    if (state.drawingLine) {
+      state.drawingLine.remove();
+      state.drawingLine = null;
+    }
+    document.querySelectorAll('.drop-target.highlight').forEach(el => {
+      el.classList.remove('highlight');
+    });
+
+    state.pointerId = null;
+    state.isPointerDown = false;
+    state.isDragging = false;
+    state.dragStartId = null;
+    state.dragStartEl = null;
+  }
+
+  function startDrawingLine(btn) {
     const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
     line.setAttribute('class', 'line-drawing');
     dom.linesSvg.appendChild(line);
@@ -351,22 +487,6 @@ if ('speechSynthesis' in window) {
     line.setAttribute('y1', startPt.y);
     line.setAttribute('x2', startPt.x);
     line.setAttribute('y2', startPt.y);
-  }
-
-  function onPointerMove(e) {
-    if (!state.isDrawing || !state.drawingLine) return;
-    e.preventDefault();
-
-    const coords = getClientCoords(e);
-    const areaRect = dom.gameArea.getBoundingClientRect();
-
-    const x2 = coords.x - areaRect.left;
-    const y2 = coords.y - areaRect.top;
-
-    state.drawingLine.setAttribute('x2', x2);
-    state.drawingLine.setAttribute('y2', y2);
-
-    highlightNearestDropTarget(coords.x, coords.y);
   }
 
   function highlightNearestDropTarget(clientX, clientY) {
@@ -384,41 +504,6 @@ if ('speechSynthesis' in window) {
     }
   }
 
-  function onPointerUp(e) {
-    if (!state.isDrawing) return;
-    state.isDrawing = false;
-
-    if (state.dragStartEl) {
-      state.dragStartEl.classList.remove('dragging');
-    }
-
-    if (state.drawingLine) {
-      state.drawingLine.remove();
-      state.drawingLine = null;
-    }
-
-    document.querySelectorAll('.drop-target.highlight').forEach(el => {
-      el.classList.remove('highlight');
-    });
-
-    const coords = getClientCoords(e);
-
-    dom.linesSvg.style.display = 'none';
-    const target = document.elementFromPoint(coords.x, coords.y);
-    dom.linesSvg.style.display = 'block';
-
-    const rightRow = target?.closest?.('.word-row[data-side="right"]');
-
-    if (rightRow) {
-      const leftId = state.dragStartId;
-      const rightId = rightRow.dataset.id;
-      handleMatch(leftId, rightId, rightRow);
-    }
-
-    state.dragStartId = null;
-    state.dragStartEl = null;
-  }
-
   function getElementCenter(el) {
     const areaRect = dom.gameArea.getBoundingClientRect();
     const elRect = el.getBoundingClientRect();
@@ -431,7 +516,7 @@ if ('speechSynthesis' in window) {
   function handleMatch(leftId, rightId, rightRow) {
     if (state.matched.has(leftId)) return;
 
-    for (const [lid, rid] of state.matched.entries()) {
+    for (const [, rid] of state.matched.entries()) {
       if (rid === rightId) return;
     }
 
@@ -450,8 +535,7 @@ if ('speechSynthesis' in window) {
       drawPermanentLine(leftRow, rightRow);
       updateScoreUI();
 
-      // บันทึกผล: ถูก
-      const word = state.currentWords.find(w => w.id === leftId);
+      const word = state.currentWords.find(w => String(w.id) === String(leftId));
       if (word) {
         state.gameResults.push({ word: word.word, thai: word.thai, correct: true });
       }
@@ -504,7 +588,6 @@ if ('speechSynthesis' in window) {
     const wrong = state.wrongCount;
     const total = WORDS_PER_GAME * POINTS_PER_CORRECT;
 
-    // บันทึกวันที่เวลา
     state.gameDateTime = new Date();
 
     dom.finalScore.textContent = state.score;
@@ -512,11 +595,8 @@ if ('speechSynthesis' in window) {
     dom.correctCount.textContent = correct;
     dom.wrongCount.textContent = wrong;
     dom.finalTime.textContent = formatTime(elapsed);
-
-    // แสดงวันที่เวลา
     dom.resultDateTime.textContent = formatDateTime(state.gameDateTime);
 
-    // แสดงรายการคำศัพท์
     renderWordReview();
 
     const percent = (correct / WORDS_PER_GAME) * 100;
@@ -538,10 +618,11 @@ if ('speechSynthesis' in window) {
   function renderWordReview() {
     dom.wordReviewList.innerHTML = '';
 
-    // เรียงตามลำดับที่เล่น (ถูกก่อน แล้วค่อยผิด)
     const sortedResults = [
       ...state.gameResults.filter(r => r.correct),
-      ...state.currentWords.filter(w => !state.gameResults.find(r => r.word === w.word)).map(w => ({ word: w.word, thai: w.thai, correct: false }))
+      ...state.currentWords
+        .filter(w => !state.gameResults.find(r => r.word === w.word))
+        .map(w => ({ word: w.word, thai: w.thai, correct: false }))
     ];
 
     sortedResults.forEach((item, index) => {
@@ -557,17 +638,70 @@ if ('speechSynthesis' in window) {
     });
   }
 
+  // ---------- Share Result (Social/Mobile) ----------
+  function buildShareText() {
+    const correct = state.matched.size;
+    const wrong = state.wrongCount;
+    const total = WORDS_PER_GAME * POINTS_PER_CORRECT;
+    return [
+      '🎯 Word Match Puzzle',
+      `⭐ คะแนน: ${state.score}/${total}`,
+      `✅ ถูก ${correct}  ❌ ผิด ${wrong}`,
+      `⏱️ เวลา: ${dom.finalTime.textContent}`,
+      '',
+      'มาฝึกคำศัพท์ด้วยกันนะ! 👉'
+    ].join('\n');
+  }
+
+  function fallbackCopyText(text) {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+    try {
+      document.execCommand('copy');
+    } catch (err) {
+      console.error('❌ Fallback copy failed:', err);
+    }
+    document.body.removeChild(textarea);
+  }
+
+  function copyShareText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).catch(() => fallbackCopyText(text));
+    } else {
+      fallbackCopyText(text);
+    }
+  }
+
+  async function shareResult() {
+    const shareText = buildShareText();
+    const shareUrl = window.location.href;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: 'Word Match Puzzle', text: shareText, url: shareUrl });
+        return;
+      } catch (err) {
+        if (err && err.name === 'AbortError') return;
+        console.error('❌ Share error:', err);
+      }
+    }
+
+    copyShareText(`${shareText}\n${shareUrl}`);
+    alert('📋 คัดลอกผลลัพธ์แล้ว! นำไปวางแชร์ในแอปที่ต้องการได้เลย');
+  }
+
   // ---------- Event Listeners ----------
   function bindEvents() {
     dom.btnStart.addEventListener('click', () => {
-      console.log('🔵 ปุ่มเริ่มเกมถูกกด');
-      console.log(' จำนวนคำศัพท์:', state.allWords.length);
-
       if (state.allWords.length < WORDS_PER_GAME) {
         alert('❌ คำศัพท์ไม่พอ (ต้องมีอย่างน้อย ' + WORDS_PER_GAME + ' คำ)');
         return;
       }
-
       renderLearnScreen();
       showScreen('learn');
     });
@@ -584,11 +718,16 @@ if ('speechSynthesis' in window) {
       renderHighScore();
       showScreen('start');
     });
+
+    if (dom.btnShare) {
+      dom.btnShare.addEventListener('click', shareResult);
+    }
   }
 
   // ---------- Init ----------
   async function init() {
     renderHighScore();
+    TTS.init();
     await loadWords();
     setupDragListeners();
     bindEvents();
