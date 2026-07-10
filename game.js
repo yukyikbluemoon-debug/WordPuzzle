@@ -27,22 +27,21 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('high-score').textContent = highScore;
 });
 
- // ---------- Load Words ----------
-  async function loadWords() {
-    try {
-      const res = await fetch('data/words.json', { cache: 'no-store' });
-      if (!res.ok) throw new Error('โหลดคำศัพท์ไม่สำเร็จ');
-      const data = await res.json();
-      if (!Array.isArray(data) || data.length === 0) {
-        throw new Error('รูปแบบข้อมูลคำศัพท์ไม่ถูกต้อง');
-      }
-      state.allWords = data;
-      console.log(`✅ โหลดคำศัพท์สำเร็จ: ${data.length} คำ`);
-    } catch (err) {
-      console.error('❌ Error loading words:', err);
-      alert('❌ ไม่สามารถโหลดข้อมูลคำศัพท์ได้\nกรุณาตรวจสอบไฟล์ data/words.json');
+// Load words from JSON
+async function loadWords() {
+  try {
+    const response = await fetch('data/words.json', { cache: 'no-store' });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+    allWords = await response.json();
+    console.log(`✅ โหลดคำศัพท์สำเร็จ: ${allWords.length} คำ`);
+    console.log('✅ เกมพร้อมใช้งาน');
+  } catch (error) {
+    console.error('❌ โหลดคำศัพท์ไม่สำเร็จ:', error);
+    console.error('URL:', window.location.href + 'words.json');
   }
+}
 
 // Setup event listeners
 function setupEventListeners() {
@@ -351,10 +350,26 @@ async function endGame() {
   showScreen('screen-result');
   
   // ==================== SAVE TO SUPABASE ====================
-  console.log('🔍 Checking if Supabase functions are available...');
+  console.log('🔍 Checking Supabase integration...');
   console.log('typeof getCurrentUser:', typeof getCurrentUser);
   console.log('typeof saveGameStats:', typeof saveGameStats);
   console.log('typeof updateUserProgress:', typeof updateUserProgress);
+  
+  // Check if Supabase functions are available
+  if (typeof getCurrentUser !== 'function') {
+    console.error('❌ getCurrentUser function not found');
+    return;
+  }
+  
+  if (typeof saveGameStats !== 'function') {
+    console.error('❌ saveGameStats function not found');
+    return;
+  }
+  
+  if (typeof updateUserProgress !== 'function') {
+    console.error('❌ updateUserProgress function not found');
+    return;
+  }
   
   // Check if user is logged in
   const currentUser = getCurrentUser();
@@ -362,11 +377,9 @@ async function endGame() {
   
   if (!currentUser) {
     console.warn('⚠️ No user logged in, skipping save');
-    return;
-  }
-  
-  if (typeof saveGameStats !== 'function') {
-    console.error('❌ saveGameStats function not found');
+    console.log('🔍 Checking localStorage:');
+    console.log('  currentUserId:', localStorage.getItem('currentUserId'));
+    console.log('  currentUserName:', localStorage.getItem('currentUserName'));
     return;
   }
   
@@ -383,11 +396,11 @@ async function endGame() {
       timeSpent: elapsedTime
     });
     
-    const result = await saveGameStats(finalScore, correctCount, wrongWordsArray, elapsedTime);
-    console.log('✅ Save result:', result);
+    const saveResult = await saveGameStats(finalScore, correctCount, wrongWordsArray, elapsedTime);
+    console.log('✅ Save result:', saveResult);
     
-    if (!result.success) {
-      console.error('❌ Save failed:', result.message);
+    if (!saveResult.success) {
+      console.error('❌ Save failed:', saveResult.message);
       return;
     }
     
@@ -405,12 +418,18 @@ async function endGame() {
     const updateResult = await updateUserProgress(newLevel, newXP);
     console.log('✅ Update result:', updateResult);
     
+    if (!updateResult.success) {
+      console.error('❌ Update XP failed');
+    }
+    
     // Update user info bar
     if (typeof updateUserInfoBar === 'function') {
       updateUserInfoBar();
+      console.log('✅ User info bar updated');
     }
     
     console.log('✅ Game stats saved successfully!');
+    console.log('🎉 XP updated: ' + newXP + ', Level: ' + newLevel);
   } catch (error) {
     console.error('💥 Error saving game stats:', error);
     console.error('Error stack:', error.stack);
