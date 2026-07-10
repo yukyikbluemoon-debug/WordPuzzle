@@ -14,7 +14,7 @@
 <body>
   <div id="app">
 
-    <!-- หน้าจอ Login (เพิ่มใหม่) -->
+    <!-- หน้าจอ Login -->
     <section id="screen-login" class="screen">
       <div class="card start-card">
         <h1 class="game-title">🔐 เข้าสู่ระบบ</h1>
@@ -99,6 +99,7 @@
         </div>
 
         <button id="btn-start" class="btn btn-primary">🎮 เริ่มเกม</button>
+        <button id="btn-leaderboard" class="btn btn-secondary" style="margin-top: 10px;">🏆 ดูอันดับ</button>
       </div>
     </section>
 
@@ -186,9 +187,29 @@
       </div>
     </section>
 
+    <!-- หน้าจอ Leaderboard -->
+    <section id="screen-leaderboard" class="screen">
+      <div class="card start-card">
+        <h1 class="game-title">🏆 อันดับสูงสุด</h1>
+        <p class="subtitle">Top 10 Players</p>
+
+        <div id="leaderboard-list" class="leaderboard-list" style="
+          margin: 20px 0;
+          max-height: 400px;
+          overflow-y: auto;
+        ">
+          <p style="text-align: center; color: #888;">กำลังโหลด...</p>
+        </div>
+
+        <div class="result-buttons">
+          <button id="btn-leaderboard-back" class="btn btn-secondary">🔙 กลับ</button>
+        </div>
+      </div>
+    </section>
+
   </div>
 
-  <!-- User Info Bar (แสดงหลัง login แล้ว) -->
+  <!-- User Info Bar -->
   <div id="userInfoBar" style="
     display: none;
     position: fixed;
@@ -225,7 +246,7 @@
   <script>document.write('<script src="supabase-config.js?v=' + Date.now() + '"><\/script>');</script>
   <script>document.write('<script src="auth.js?v=' + Date.now() + '"><\/script>');</script>
 
-  <!-- Login Handler -->
+  <!-- Login & Leaderboard Handler -->
   <script>
   // Handle login
   document.addEventListener('DOMContentLoaded', () => {
@@ -250,6 +271,22 @@
       updateUserInfoBar();
     } else {
       showScreen('screen-login');
+    }
+
+    // Leaderboard button
+    const leaderboardBtn = document.getElementById('btn-leaderboard');
+    if (leaderboardBtn) {
+      leaderboardBtn.addEventListener('click', () => {
+        showScreen('screen-leaderboard');
+        loadLeaderboard();
+      });
+    }
+
+    const leaderboardBackBtn = document.getElementById('btn-leaderboard-back');
+    if (leaderboardBackBtn) {
+      leaderboardBackBtn.addEventListener('click', () => {
+        showScreen('screen-start');
+      });
     }
   });
 
@@ -298,7 +335,56 @@
     }
   }
 
-  // Helper function to show screen
+  // Load leaderboard
+  async function loadLeaderboard() {
+    const listDiv = document.getElementById('leaderboard-list');
+    listDiv.innerHTML = '<p style="text-align: center; color: #888;">กำลังโหลด...</p>';
+    
+    try {
+      const leaderboard = await getLeaderboard();
+      
+      if (leaderboard.length === 0) {
+        listDiv.innerHTML = '<p style="text-align: center; color: #888;">ยังไม่มีข้อมูล</p>';
+        return;
+      }
+      
+      let html = '<div style="display: flex; flex-direction: column; gap: 10px;">';
+      leaderboard.forEach((user, index) => {
+        const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
+        const isCurrentUser = user.name === getCurrentUser()?.name;
+        const highlight = isCurrentUser ? 'background: #fff3cd; border: 2px solid #ffc107;' : 'background: #f8f9fa;';
+        
+        html += `
+          <div style="
+            padding: 15px;
+            border-radius: 10px;
+            ${highlight}
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          ">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="font-size: 24px;">${medal}</span>
+              <div>
+                <div style="font-weight: bold; font-size: 16px;">${user.name}</div>
+                <div style="font-size: 12px; color: #666;">Level ${user.level}</div>
+              </div>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-weight: bold; font-size: 18px; color: #667eea;">${user.xp} XP</div>
+            </div>
+          </div>
+        `;
+      });
+      html += '</div>';
+      
+      listDiv.innerHTML = html;
+    } catch (error) {
+      console.error('Load leaderboard error:', error);
+      listDiv.innerHTML = '<p style="text-align: center; color: #ff4757;">เกิดข้อผิดพลาด</p>';
+    }
+  }
+
   function showScreen(screenId) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(screenId).classList.add('active');
