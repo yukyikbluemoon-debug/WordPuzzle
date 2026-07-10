@@ -27,17 +27,22 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('high-score').textContent = highScore;
 });
 
-// Load words from JSON
-async function loadWords() {
-  try {
-    const response = await fetch('words.json');
-    allWords = await response.json();
-    console.log(`✅ โหลดคำศัพท์สำเร็จ: ${allWords.length} คำ`);
-    console.log('✅ เกมพร้อมใช้งาน');
-  } catch (error) {
-    console.error('❌ โหลดคำศัพท์ไม่สำเร็จ:', error);
+ // ---------- Load Words ----------
+  async function loadWords() {
+    try {
+      const res = await fetch('data/words.json', { cache: 'no-store' });
+      if (!res.ok) throw new Error('โหลดคำศัพท์ไม่สำเร็จ');
+      const data = await res.json();
+      if (!Array.isArray(data) || data.length === 0) {
+        throw new Error('รูปแบบข้อมูลคำศัพท์ไม่ถูกต้อง');
+      }
+      state.allWords = data;
+      console.log(`✅ โหลดคำศัพท์สำเร็จ: ${data.length} คำ`);
+    } catch (err) {
+      console.error('❌ Error loading words:', err);
+      alert('❌ ไม่สามารถโหลดข้อมูลคำศัพท์ได้\nกรุณาตรวจสอบไฟล์ data/words.json');
+    }
   }
-}
 
 // Setup event listeners
 function setupEventListeners() {
