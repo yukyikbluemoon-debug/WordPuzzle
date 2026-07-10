@@ -31,6 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
 async function loadWords() {
   try {
     const response = await fetch('data/words.json', { cache: 'no-store' });
+    const res = await fetch('data/words.json', { cache: 'no-store' });
     allWords = await response.json();
     console.log(`✅ โหลดคำศัพท์สำเร็จ: ${allWords.length} คำ`);
     console.log('✅ เกมพร้อมใช้งาน');
