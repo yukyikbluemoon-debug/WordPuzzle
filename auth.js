@@ -14,7 +14,7 @@ async function loginOrRegister(playerName, pin) {
   playerName = playerName.trim();
   
   // Check if user exists with this name + pin
-  const { data: existingUser, error: queryError } = await supabase
+  const { data: existingUser, error: queryError } = await supabaseClient
     .from('users')
     .select('*')
     .eq('name', playerName)
@@ -28,7 +28,7 @@ async function loginOrRegister(playerName, pin) {
   }
   
   // Check if name exists but pin is wrong
-  const { data: userWithSameName, error: nameCheckError } = await supabase
+  const { data: userWithSameName, error: nameCheckError } = await supabaseClient
     .from('users')
     .select('*')
     .eq('name', playerName)
@@ -39,7 +39,7 @@ async function loginOrRegister(playerName, pin) {
   }
   
   // Create new user
-  const { data: newUser, error: createError } = await supabase
+  const { data: newUser, error: createError } = await supabaseClient
     .from('users')
     .insert({
       name: playerName,
@@ -101,7 +101,7 @@ async function saveGameStats(score, wordsMatched, wrongWords, timeSpent) {
     return { success: false, message: 'ยังไม่ได้เข้าสู่ระบบ' };
   }
   
-  const { error } = await supabase
+  const { error } = await supabaseClient
     .from('game_stats')
     .insert({
       user_id: currentUser.id,
@@ -124,7 +124,7 @@ async function getUserStats() {
   const currentUser = getCurrentUser();
   if (!currentUser) return [];
   
-  const { data, error } = await supabase
+  const { data, error } = await supabaseClient
     .from('game_stats')
     .select('*')
     .eq('user_id', currentUser.id)
@@ -143,7 +143,7 @@ async function updateUserProgress(newLevel, newXP) {
   const currentUser = getCurrentUser();
   if (!currentUser) return { success: false };
   
-  const { error } = await supabase
+  const { error } = await supabaseClient
     .from('users')
     .update({
       level: newLevel,
@@ -164,7 +164,7 @@ async function updateUserProgress(newLevel, newXP) {
 
 // Get top 10 players by XP
 async function getLeaderboard() {
-  const { data, error } = await supabase
+  const { data, error } = await supabaseClient
     .from('users')
     .select('name, level, xp')
     .order('xp', { ascending: false })
