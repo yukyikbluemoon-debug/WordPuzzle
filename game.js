@@ -30,16 +30,13 @@ document.addEventListener('DOMContentLoaded', () => {
 // Load words from JSON
 async function loadWords() {
   try {
+    //const response = await fetch('words.json');
     const response = await fetch('data/words.json', { cache: 'no-store' });
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
     allWords = await response.json();
     console.log(`✅ โหลดคำศัพท์สำเร็จ: ${allWords.length} คำ`);
     console.log('✅ เกมพร้อมใช้งาน');
   } catch (error) {
     console.error('❌ โหลดคำศัพท์ไม่สำเร็จ:', error);
-    console.error('URL:', window.location.href + 'words.json');
   }
 }
 
@@ -289,8 +286,6 @@ function clearLines() {
 
 // ==================== END GAME ====================
 async function endGame() {
-  console.log('🏁 endGame() called');
-  
   // Stop timer
   if (timerInterval) clearInterval(timerInterval);
   
@@ -299,8 +294,6 @@ async function endGame() {
   const finalScore = currentScore;
   const correctCount = matchedWords.length;
   const wrongCount = wrongWordsList.length;
-  
-  console.log('📊 Game stats:', { finalScore, correctCount, wrongCount, elapsedTime });
   
   // Update high score
   if (finalScore > highScore) {
@@ -350,89 +343,34 @@ async function endGame() {
   showScreen('screen-result');
   
   // ==================== SAVE TO SUPABASE ====================
-  console.log('🔍 Checking Supabase integration...');
-  console.log('typeof getCurrentUser:', typeof getCurrentUser);
-  console.log('typeof saveGameStats:', typeof saveGameStats);
-  console.log('typeof updateUserProgress:', typeof updateUserProgress);
+  console.log('📊 Saving game stats to Supabase...');
   
-  // Check if Supabase functions are available
-  if (typeof getCurrentUser !== 'function') {
-    console.error('❌ getCurrentUser function not found');
-    return;
-  }
-  
-  if (typeof saveGameStats !== 'function') {
-    console.error('❌ saveGameStats function not found');
-    return;
-  }
-  
-  if (typeof updateUserProgress !== 'function') {
-    console.error('❌ updateUserProgress function not found');
-    return;
-  }
-  
-  // Check if user is logged in
   const currentUser = getCurrentUser();
-  console.log('👤 Current user:', currentUser);
-  
-  if (!currentUser) {
-    console.warn('⚠️ No user logged in, skipping save');
-    console.log('🔍 Checking localStorage:');
-    console.log('  currentUserId:', localStorage.getItem('currentUserId'));
-    console.log('  currentUserName:', localStorage.getItem('currentUserName'));
-    return;
-  }
-  
-  try {
-    console.log('📊 Saving game stats to Supabase...');
-    
-    // Save game stats
-    const wrongWordsArray = wrongWordsList.map(w => w.en);
-    console.log('📝 Data to save:', {
-      userId: currentUser.id,
-      score: finalScore,
-      wordsMatched: correctCount,
-      wrongWords: wrongWordsArray,
-      timeSpent: elapsedTime
-    });
-    
-    const saveResult = await saveGameStats(finalScore, correctCount, wrongWordsArray, elapsedTime);
-    console.log('✅ Save result:', saveResult);
-    
-    if (!saveResult.success) {
-      console.error('❌ Save failed:', saveResult.message);
-      return;
+  if (currentUser && typeof saveGameStats === 'function') {
+    try {
+      // Save game stats
+      const wrongWordsArray = wrongWordsList.map(w => w.en);
+      const result = await saveGameStats(finalScore, correctCount, wrongWordsArray, elapsedTime);
+      console.log('✅ Save result:', result);
+      
+      // Update XP
+      const newXP = currentUser.xp + finalScore;
+      const newLevel = Math.floor(newXP / 1000) + 1;
+      
+      console.log('📈 Updating XP:', { oldXP: currentUser.xp, newXP, newLevel });
+      await updateUserProgress(newLevel, newXP);
+      
+      // Update user info bar
+      if (typeof updateUserInfoBar === 'function') {
+        updateUserInfoBar();
+      }
+      
+      console.log('✅ Game stats saved successfully!');
+    } catch (error) {
+      console.error('❌ Error saving game stats:', error);
     }
-    
-    // Update XP
-    const newXP = currentUser.xp + finalScore;
-    const newLevel = Math.floor(newXP / 1000) + 1;
-    
-    console.log('📈 Updating XP:', { 
-      userId: currentUser.id,
-      oldXP: currentUser.xp, 
-      newXP, 
-      newLevel 
-    });
-    
-    const updateResult = await updateUserProgress(newLevel, newXP);
-    console.log('✅ Update result:', updateResult);
-    
-    if (!updateResult.success) {
-      console.error('❌ Update XP failed');
-    }
-    
-    // Update user info bar
-    if (typeof updateUserInfoBar === 'function') {
-      updateUserInfoBar();
-      console.log('✅ User info bar updated');
-    }
-    
-    console.log('✅ Game stats saved successfully!');
-    console.log('🎉 XP updated: ' + newXP + ', Level: ' + newLevel);
-  } catch (error) {
-    console.error('💥 Error saving game stats:', error);
-    console.error('Error stack:', error.stack);
+  } else {
+    console.warn('⚠️ Not logged in or saveGameStats not available');
   }
 }
 
