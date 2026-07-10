@@ -283,6 +283,7 @@ function clearLines() {
   svg.querySelectorAll('.line-wrong').forEach(line => line.remove());
 }
 
+// ==================== END GAME ====================
 async function endGame() {
   console.log('🏁 endGame() called');
   
