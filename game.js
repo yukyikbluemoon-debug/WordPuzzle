@@ -30,8 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // Load words from JSON
 async function loadWords() {
   try {
-    //const response = await fetch('words.json');
-    const response = await fetch('data/words.json', { cache: 'no-store' });
+    const response = await fetch('words.json');
     allWords = await response.json();
     console.log(`✅ โหลดคำศัพท์สำเร็จ: ${allWords.length} คำ`);
     console.log('✅ เกมพร้อมใช้งาน');
@@ -286,6 +285,8 @@ function clearLines() {
 
 // ==================== END GAME ====================
 async function endGame() {
+  console.log('🏁 endGame() called');
+  
   // Stop timer
   if (timerInterval) clearInterval(timerInterval);
   
@@ -294,6 +295,8 @@ async function endGame() {
   const finalScore = currentScore;
   const correctCount = matchedWords.length;
   const wrongCount = wrongWordsList.length;
+  
+  console.log('📊 Game stats:', { finalScore, correctCount, wrongCount, elapsedTime });
   
   // Update high score
   if (finalScore > highScore) {
@@ -343,34 +346,69 @@ async function endGame() {
   showScreen('screen-result');
   
   // ==================== SAVE TO SUPABASE ====================
-  console.log('📊 Saving game stats to Supabase...');
+  console.log('🔍 Checking if Supabase functions are available...');
+  console.log('typeof getCurrentUser:', typeof getCurrentUser);
+  console.log('typeof saveGameStats:', typeof saveGameStats);
+  console.log('typeof updateUserProgress:', typeof updateUserProgress);
   
+  // Check if user is logged in
   const currentUser = getCurrentUser();
-  if (currentUser && typeof saveGameStats === 'function') {
-    try {
-      // Save game stats
-      const wrongWordsArray = wrongWordsList.map(w => w.en);
-      const result = await saveGameStats(finalScore, correctCount, wrongWordsArray, elapsedTime);
-      console.log('✅ Save result:', result);
-      
-      // Update XP
-      const newXP = currentUser.xp + finalScore;
-      const newLevel = Math.floor(newXP / 1000) + 1;
-      
-      console.log('📈 Updating XP:', { oldXP: currentUser.xp, newXP, newLevel });
-      await updateUserProgress(newLevel, newXP);
-      
-      // Update user info bar
-      if (typeof updateUserInfoBar === 'function') {
-        updateUserInfoBar();
-      }
-      
-      console.log('✅ Game stats saved successfully!');
-    } catch (error) {
-      console.error('❌ Error saving game stats:', error);
+  console.log('👤 Current user:', currentUser);
+  
+  if (!currentUser) {
+    console.warn('⚠️ No user logged in, skipping save');
+    return;
+  }
+  
+  if (typeof saveGameStats !== 'function') {
+    console.error('❌ saveGameStats function not found');
+    return;
+  }
+  
+  try {
+    console.log('📊 Saving game stats to Supabase...');
+    
+    // Save game stats
+    const wrongWordsArray = wrongWordsList.map(w => w.en);
+    console.log('📝 Data to save:', {
+      userId: currentUser.id,
+      score: finalScore,
+      wordsMatched: correctCount,
+      wrongWords: wrongWordsArray,
+      timeSpent: elapsedTime
+    });
+    
+    const result = await saveGameStats(finalScore, correctCount, wrongWordsArray, elapsedTime);
+    console.log('✅ Save result:', result);
+    
+    if (!result.success) {
+      console.error('❌ Save failed:', result.message);
+      return;
     }
-  } else {
-    console.warn('⚠️ Not logged in or saveGameStats not available');
+    
+    // Update XP
+    const newXP = currentUser.xp + finalScore;
+    const newLevel = Math.floor(newXP / 1000) + 1;
+    
+    console.log('📈 Updating XP:', { 
+      userId: currentUser.id,
+      oldXP: currentUser.xp, 
+      newXP, 
+      newLevel 
+    });
+    
+    const updateResult = await updateUserProgress(newLevel, newXP);
+    console.log('✅ Update result:', updateResult);
+    
+    // Update user info bar
+    if (typeof updateUserInfoBar === 'function') {
+      updateUserInfoBar();
+    }
+    
+    console.log('✅ Game stats saved successfully!');
+  } catch (error) {
+    console.error('💥 Error saving game stats:', error);
+    console.error('Error stack:', error.stack);
   }
 }
 
