@@ -579,7 +579,7 @@ body.boss-day .level-badge {
   position: relative;
   display: flex;
   justify-content: space-between;
-  gap: 14px;
+  gap: 28px;
   padding: 16px;
   background: var(--bg-panel);
   border: 1px solid var(--border-soft);
@@ -603,7 +603,7 @@ body.boss-day .level-badge {
   border: 1px solid var(--border-soft);
   border-radius: 12px;
   height: 40px;
-  width: 100%;
+  width: 90%;
   transition: background 0.2s ease, border-color 0.2s ease;
 }
 
@@ -623,6 +623,9 @@ body.boss-day .level-badge {
   25% { transform: translateX(-4px); }
   75% { transform: translateX(4px); }
 }
+
+.column-left { align-items: flex-start; }
+.column-right { align-items: flex-end; }
 
 .column-left .word-row { justify-content: space-between; }
 .column-right .word-row { justify-content: flex-start; }
@@ -828,7 +831,8 @@ a:focus-visible, button:focus-visible, input:focus-visible {
 @media (max-width: 480px) {
   .card { padding: 24px 16px; border-radius: 18px; }
   .game-title { font-size: 1.7rem; }
-  .word-row { padding: 6px 10px; height: 36px; }
+  .game-area { gap: 14px; padding: 12px; }
+  .word-row { padding: 6px 10px; height: 36px; width: 96%; }
   .speak-btn { width: 30px; height: 30px; }
   .speak-btn svg { width: 14px; height: 14px; }
   .score-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
