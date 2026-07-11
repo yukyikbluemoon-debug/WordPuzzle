@@ -22,6 +22,26 @@
   // ---------- ระบบหมวดคำศัพท์: ธรรมดา / พิเศษ (TOEFL,IELTS) / บอส (TOEIC) ----------
   const BOSS_MULTIPLIERS = [1.5, 2, 2.5, 3]; // คอมโบตอบถูกคำบอสติดกันครั้งที่ 1,2,3,4+
   const MISSED_KEY_PREFIX = 'wp_missed_';
+  const STATS_KEY_PREFIX = 'wp_stats_';
+  const GUEST_STATS_KEY = 'wp_guest_stats';
+
+  // ---------- ระบบ Achievement (เหรียญตรา) ----------
+  const ACHIEVEMENTS = [
+    { id: 'first_game',   icon: '🎮', title: 'ก้าวแรก',           desc: 'เล่นเกมจบครั้งแรก',                          check: (s) => s.games_played >= 1 },
+    { id: 'perfect_1',    icon: '🌟', title: 'สมบูรณ์แบบ',        desc: 'ได้ Perfect Score (ไม่พลาดเลย) 1 ครั้ง',       check: (s) => s.perfect_games >= 1 },
+    { id: 'perfect_5',    icon: '💎', title: 'มือโปร',            desc: 'ได้ Perfect Score สะสม 5 ครั้ง',              check: (s) => s.perfect_games >= 5 },
+    { id: 'games_10',     icon: '🏃', title: 'ขยันเล่น',          desc: 'เล่นครบ 10 เกม',                              check: (s) => s.games_played >= 10 },
+    { id: 'games_50',     icon: '🏆', title: 'นักฝึกฝนตัวยง',      desc: 'เล่นครบ 50 เกม',                              check: (s) => s.games_played >= 50 },
+    { id: 'boss_slayer',  icon: '👑', title: 'ผู้พิชิตบอส',        desc: 'ตอบคำบอส (TOEIC) ถูกสะสม 20 คำ',              check: (s) => s.boss_correct >= 20 },
+    { id: 'boss_master',  icon: '🔥', title: 'เจ้าบอส TOEIC',      desc: 'ตอบคำบอส (TOEIC) ถูกสะสม 100 คำ',             check: (s) => s.boss_correct >= 100 },
+    { id: 'combo_king',   icon: '⚡', title: 'สายคอมโบ',          desc: 'ทำคอมโบคูณคะแนนสูงสุด x3 ได้ในเกมเดียว',      check: (s) => s.best_combo >= 3 },
+    { id: 'scholar',      icon: '📚', title: 'นักวิชาการ',         desc: 'ตอบคำพิเศษ (TOEFL/IELTS) ถูกสะสม 50 คำ',      check: (s) => s.special_correct >= 50 },
+    { id: 'speed_runner', icon: '⏱️', title: 'สายฟ้าแลบ',         desc: 'จบเกมภายใน 30 วินาที',                        check: (s) => s.fastest_time != null && s.fastest_time <= 30 },
+    { id: 'sunday_warrior', icon: '🎪', title: 'นักล่าบอสวันอาทิตย์', desc: 'เล่นในวัน Sunday Boss Rush อย่างน้อย 1 ครั้ง', check: (s) => s.sunday_games >= 1 },
+    { id: 'level_5',      icon: '🥉', title: 'เลเวล 5',           desc: 'ไต่ระดับถึงเลเวล 5',                          check: (s, level) => level >= 5 },
+    { id: 'level_10',     icon: '🥈', title: 'เลเวล 10',          desc: 'ไต่ระดับถึงเลเวล 10',                         check: (s, level) => level >= 10 },
+    { id: 'level_20',     icon: '🥇', title: 'เลเวล 20',          desc: 'ไต่ระดับถึงเลเวล 20',                         check: (s, level) => level >= 20 }
+  ];
 
   const SPEAKER_SVG = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>`;
 
@@ -50,6 +70,9 @@
     wrongWordsList: [],
     score: 0,
     bossStreak: 0,
+    bossCorrectCount: 0,
+    specialCorrectCount: 0,
+    bestBossMultiplierThisGame: 0,
     isSundayBoss: false,
     startTime: 0,
     timerInterval: null,
@@ -77,7 +100,8 @@
     start:  $('screen-start'),
     learn:  $('screen-learn'),
     game:   $('screen-game'),
-    result: $('screen-result')
+    result: $('screen-result'),
+    achievements: $('screen-achievements')
   };
   const dom = {
     // auth
@@ -94,8 +118,13 @@
     startXpCaption:  $('start-xp-caption'),
     btnLogout:       $('btn-logout'),
     btnStart:        $('btn-start'),
+    btnAchievements: $('btn-achievements'),
     leaderboardStartList: $('leaderboard-start-list'),
     bossBannerStart: $('boss-banner-start'),
+
+    // achievements
+    achievementsGrid: $('achievements-grid'),
+    btnAchievementsBack: $('btn-achievements-back'),
 
     // learn
     btnGoGame:       $('btn-go-game'),
@@ -124,6 +153,7 @@
     wrongCount:      $('wrong-count'),
     finalTime:       $('final-time'),
     myRankLine:      $('my-rank-line'),
+    achvUnlockBanner: $('achv-unlock-banner'),
     leaderboardResultList: $('leaderboard-result-list'),
     wordReviewList:  $('word-review-list'),
     btnRestart:      $('btn-restart'),
@@ -451,6 +481,103 @@
     }
   }
 
+  // =========================================================
+  // ---------- สถิติสะสม + ปลดล็อก Achievement ----------
+  // =========================================================
+  function defaultStats() {
+    return {
+      games_played: 0,
+      perfect_games: 0,
+      boss_correct: 0,
+      special_correct: 0,
+      best_combo: 0,
+      fastest_time: null,
+      sunday_games: 0,
+      unlocked: []
+    };
+  }
+
+  function statsKey() {
+    return STATS_KEY_PREFIX + (state.currentUser ? state.currentUser.id : 'guest');
+  }
+
+  function loadStats() {
+    if (state.isGuest) {
+      try {
+        return { ...defaultStats(), ...(JSON.parse(localStorage.getItem(GUEST_STATS_KEY)) || {}) };
+      } catch (e) {
+        return defaultStats();
+      }
+    }
+    if (state.currentUser && state.currentUser.stats && typeof state.currentUser.stats === 'object') {
+      return { ...defaultStats(), ...state.currentUser.stats };
+    }
+    return defaultStats();
+  }
+
+  function saveGuestStats(stats) {
+    localStorage.setItem(GUEST_STATS_KEY, JSON.stringify(stats));
+  }
+
+  // อัปเดตสถิติหลังจบเกม แล้วเช็คว่ามี achievement ใหม่ที่เพิ่งปลดล็อกไหม
+  function computeUpdatedStats(prevStats, summary, level) {
+    const stats = { ...prevStats };
+    stats.games_played = (stats.games_played || 0) + 1;
+    if (summary.isPerfect) stats.perfect_games = (stats.perfect_games || 0) + 1;
+    stats.boss_correct = (stats.boss_correct || 0) + summary.bossCorrect;
+    stats.special_correct = (stats.special_correct || 0) + summary.specialCorrect;
+    stats.best_combo = Math.max(stats.best_combo || 0, summary.bestCombo || 0);
+    stats.fastest_time = stats.fastest_time == null ? summary.elapsed : Math.min(stats.fastest_time, summary.elapsed);
+    if (summary.isSunday) stats.sunday_games = (stats.sunday_games || 0) + 1;
+
+    const prevUnlocked = new Set(stats.unlocked || []);
+    const nowUnlocked = ACHIEVEMENTS.filter(a => a.check(stats, level)).map(a => a.id);
+    const newlyUnlocked = nowUnlocked.filter(id => !prevUnlocked.has(id));
+    stats.unlocked = Array.from(new Set([...(stats.unlocked || []), ...nowUnlocked]));
+
+    return { stats, newlyUnlocked };
+  }
+
+  function renderAchievementUnlockBanner(newlyUnlocked) {
+    if (!dom.achvUnlockBanner) return;
+    if (!newlyUnlocked || newlyUnlocked.length === 0) {
+      dom.achvUnlockBanner.style.display = 'none';
+      dom.achvUnlockBanner.innerHTML = '';
+      return;
+    }
+    const items = newlyUnlocked
+      .map(id => ACHIEVEMENTS.find(a => a.id === id))
+      .filter(Boolean);
+
+    dom.achvUnlockBanner.innerHTML = `
+      <div class="achv-unlock-title">🏅 ปลดล็อก Achievement ใหม่!</div>
+      <div class="achv-unlock-list">
+        ${items.map(a => `
+          <div class="achv-unlock-item">
+            <span class="achv-unlock-icon">${a.icon}</span>
+            <span class="achv-unlock-name">${escapeHtml(a.title)}</span>
+          </div>
+        `).join('')}
+      </div>
+    `;
+    dom.achvUnlockBanner.style.display = 'block';
+  }
+
+  function renderAchievementsGrid(container, stats) {
+    if (!container) return;
+    const unlocked = new Set(stats.unlocked || []);
+    container.innerHTML = ACHIEVEMENTS.map(a => {
+      const isUnlocked = unlocked.has(a.id);
+      return `
+        <div class="achv-badge ${isUnlocked ? 'unlocked' : 'locked'}">
+          <div class="achv-icon">${isUnlocked ? a.icon : '🔒'}</div>
+          <div class="achv-title">${escapeHtml(a.title)}</div>
+          <div class="achv-desc">${escapeHtml(a.desc)}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
   function computeSlotCounts(playerLevel, sundayBoss) {
     let specialSlots = Math.min(Math.floor(playerLevel / 2), 4);
     let bossSlots = sundayBoss ? Math.min(2 + Math.floor(playerLevel / 3), 6) : 0;
@@ -547,6 +674,9 @@
     state.wrongWordsList = [];
     state.score = 0;
     state.bossStreak = 0;
+    state.bossCorrectCount = 0;
+    state.specialCorrectCount = 0;
+    state.bestBossMultiplierThisGame = 0;
     state.gameResults = [];
 
     renderGameBoard();
@@ -785,8 +915,12 @@
         const multiplier = currentBossMultiplier();
         pointsAwarded = Math.round(POINTS_PER_CORRECT * multiplier);
         state.bossStreak++;
+        state.bossCorrectCount++;
+        state.bestBossMultiplierThisGame = Math.max(state.bestBossMultiplierThisGame, multiplier);
         leftRow.classList.add('boss-hit');
         setTimeout(() => leftRow.classList.remove('boss-hit'), 500);
+      } else if (word && word.tier === 'special') {
+        state.specialCorrectCount++;
       }
 
       state.score += pointsAwarded;
@@ -847,26 +981,34 @@
   }
 
   // ---------- Save score / XP after a game ----------
-  async function applyXpAndSave(xpEarned) {
+  async function applyXpAndSave(xpEarned, summary) {
     if (state.isGuest) {
       const progress = loadGuestProgress();
       const oldXp = progress.xp;
       const newXp = oldXp + xpEarned;
       saveGuestProgress(newXp);
-      return { oldLevel: levelFromXp(oldXp), newLevel: levelFromXp(newXp), newXp, myId: null };
+
+      const prevStats = loadStats();
+      const { stats, newlyUnlocked } = computeUpdatedStats(prevStats, summary, levelFromXp(newXp));
+      saveGuestStats(stats);
+
+      return { oldLevel: levelFromXp(oldXp), newLevel: levelFromXp(newXp), newXp, myId: null, stats, newlyUnlocked };
     }
 
     const user = state.currentUser;
-    if (!user) return { oldLevel: 1, newLevel: 1, newXp: 0, myId: null };
+    if (!user) return { oldLevel: 1, newLevel: 1, newXp: 0, myId: null, stats: defaultStats(), newlyUnlocked: [] };
 
     const oldXp = user.xp;
     const newXp = oldXp + xpEarned;
     const oldLevel = levelFromXp(oldXp);
     const newLevel = levelFromXp(newXp);
 
+    const prevStats = loadStats();
+    const { stats, newlyUnlocked } = computeUpdatedStats(prevStats, summary, newLevel);
+
     if (sb) {
       try {
-        await sb.from('users').update({ xp: newXp, level: newLevel }).eq('id', user.id);
+        await sb.from('users').update({ xp: newXp, level: newLevel, stats }).eq('id', user.id);
         await sb.from('game_stats').insert({
           user_id: user.id,
           score: state.score,
@@ -881,7 +1023,8 @@
 
     user.xp = newXp;
     user.level = newLevel;
-    return { oldLevel, newLevel, newXp, myId: user.id };
+    user.stats = stats;
+    return { oldLevel, newLevel, newXp, myId: user.id, stats, newlyUnlocked };
   }
 
   // ---------- End Game ----------
@@ -916,13 +1059,24 @@
     dom.xpGainValue.textContent = xpEarned;
     dom.levelUpBanner.style.display = 'none';
 
-    const { oldLevel, newLevel, newXp, myId } = await applyXpAndSave(xpEarned);
+    const summary = {
+      isPerfect: wrong === 0,
+      bossCorrect: state.bossCorrectCount,
+      specialCorrect: state.specialCorrectCount,
+      bestCombo: state.bestBossMultiplierThisGame,
+      elapsed,
+      isSunday: state.isSundayBoss
+    };
+
+    const { oldLevel, newLevel, newXp, myId, newlyUnlocked } = await applyXpAndSave(xpEarned, summary);
     updateUserChipUI();
 
     if (newLevel > oldLevel) {
       dom.levelUpValue.textContent = newLevel;
       dom.levelUpBanner.style.display = 'block';
     }
+
+    renderAchievementUnlockBanner(newlyUnlocked);
 
     if (state.isGuest) {
       dom.myRankLine.textContent = 'เล่นแบบ Guest — เข้าสู่ระบบเพื่อบันทึกคะแนนและขึ้นอันดับ';
@@ -1138,6 +1292,18 @@
     });
 
     if (dom.btnShare) dom.btnShare.addEventListener('click', shareResult);
+
+    if (dom.btnAchievements) {
+      dom.btnAchievements.addEventListener('click', () => {
+        renderAchievementsGrid(dom.achievementsGrid, loadStats());
+        showScreen('achievements');
+      });
+    }
+    if (dom.btnAchievementsBack) {
+      dom.btnAchievementsBack.addEventListener('click', () => {
+        enterStartScreen();
+      });
+    }
   }
 
   // ---------- Init ----------
