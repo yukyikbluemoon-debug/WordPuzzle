@@ -324,15 +324,6 @@
     "level": 1
   },
   {
-    "id": 37,
-    "word": "approach",
-    "thai": "แนวทาง",
-    "category": "พื้นฐาน",
-    "tier": "normal",
-    "exam": null,
-    "level": 1
-  },
-  {
     "id": 38,
     "word": "area",
     "thai": "พื้นที่",
@@ -408,15 +399,6 @@
     "id": 46,
     "word": "ask",
     "thai": "ถาม",
-    "category": "พื้นฐาน",
-    "tier": "normal",
-    "exam": null,
-    "level": 1
-  },
-  {
-    "id": 47,
-    "word": "assume",
-    "thai": "สมมติ",
     "category": "พื้นฐาน",
     "tier": "normal",
     "exam": null,
@@ -642,15 +624,6 @@
     "id": 172,
     "word": "distance",
     "thai": "ระยะทาง",
-    "category": "พื้นฐาน",
-    "tier": "normal",
-    "exam": null,
-    "level": 1
-  },
-  {
-    "id": 173,
-    "word": "distinct",
-    "thai": "ชัดเจน",
     "category": "พื้นฐาน",
     "tier": "normal",
     "exam": null,
@@ -2536,5 +2509,3605 @@
     "tier": "boss",
     "exam": "TOEIC",
     "level": 5
+  },
+  {
+    "id": 1090,
+    "word": "family",
+    "thai": "ครอบครัว",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1091,
+    "word": "mother",
+    "thai": "แม่",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1092,
+    "word": "father",
+    "thai": "พ่อ",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1093,
+    "word": "sister",
+    "thai": "น้องสาว/พี่สาว",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1094,
+    "word": "brother",
+    "thai": "น้องชาย/พี่ชาย",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1095,
+    "word": "cousin",
+    "thai": "ลูกพี่ลูกน้อง",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1096,
+    "word": "neighbor",
+    "thai": "เพื่อนบ้าน",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1097,
+    "word": "kitchen",
+    "thai": "ห้องครัว",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1098,
+    "word": "bedroom",
+    "thai": "ห้องนอน",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1099,
+    "word": "bathroom",
+    "thai": "ห้องน้ำ",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1100,
+    "word": "window",
+    "thai": "หน้าต่าง",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1101,
+    "word": "umbrella",
+    "thai": "ร่ม",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1102,
+    "word": "weather",
+    "thai": "สภาพอากาศ",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1103,
+    "word": "cloud",
+    "thai": "เมฆ",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1104,
+    "word": "rain",
+    "thai": "ฝน",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1105,
+    "word": "snow",
+    "thai": "หิมะ",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1106,
+    "word": "wind",
+    "thai": "ลม",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1107,
+    "word": "thunder",
+    "thai": "ฟ้าร้อง",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1108,
+    "word": "season",
+    "thai": "ฤดูกาล",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1109,
+    "word": "summer",
+    "thai": "ฤดูร้อน",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1110,
+    "word": "winter",
+    "thai": "ฤดูหนาว",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1111,
+    "word": "holiday",
+    "thai": "วันหยุด",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1112,
+    "word": "vacation",
+    "thai": "วันหยุดพักผ่อน",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1113,
+    "word": "weekend",
+    "thai": "วันสุดสัปดาห์",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1114,
+    "word": "birthday",
+    "thai": "วันเกิด",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1115,
+    "word": "party",
+    "thai": "งานปาร์ตี้",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1116,
+    "word": "gift",
+    "thai": "ของขวัญ",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1117,
+    "word": "guest",
+    "thai": "แขก",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1118,
+    "word": "invite",
+    "thai": "เชิญ",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1119,
+    "word": "celebrate",
+    "thai": "เฉลิมฉลอง",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1120,
+    "word": "breakfast",
+    "thai": "อาหารเช้า",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1121,
+    "word": "lunch",
+    "thai": "อาหารกลางวัน",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1122,
+    "word": "dinner",
+    "thai": "อาหารเย็น",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1123,
+    "word": "hungry",
+    "thai": "หิว",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1124,
+    "word": "thirsty",
+    "thai": "กระหายน้ำ",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1125,
+    "word": "delicious",
+    "thai": "อร่อย",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1126,
+    "word": "recipe",
+    "thai": "สูตรอาหาร",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1127,
+    "word": "vegetable",
+    "thai": "ผัก",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1128,
+    "word": "fruit",
+    "thai": "ผลไม้",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1129,
+    "word": "meat",
+    "thai": "เนื้อสัตว์",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1130,
+    "word": "bread",
+    "thai": "ขนมปัง",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1131,
+    "word": "rice",
+    "thai": "ข้าว",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1132,
+    "word": "soup",
+    "thai": "ซุป",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1133,
+    "word": "salt",
+    "thai": "เกลือ",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1134,
+    "word": "sugar",
+    "thai": "น้ำตาล",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1135,
+    "word": "spicy",
+    "thai": "เผ็ด",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1136,
+    "word": "sweet",
+    "thai": "หวาน",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1137,
+    "word": "sour",
+    "thai": "เปรี้ยว",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1138,
+    "word": "bitter",
+    "thai": "ขม",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1139,
+    "word": "restaurant",
+    "thai": "ร้านอาหาร",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1140,
+    "word": "market",
+    "thai": "ตลาด",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1141,
+    "word": "shop",
+    "thai": "ร้านค้า",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1142,
+    "word": "price",
+    "thai": "ราคา",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1143,
+    "word": "cheap",
+    "thai": "ถูก",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1144,
+    "word": "expensive",
+    "thai": "แพง",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1145,
+    "word": "money",
+    "thai": "เงิน",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1146,
+    "word": "wallet",
+    "thai": "กระเป๋าสตางค์",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1147,
+    "word": "pocket",
+    "thai": "กระเป๋าเสื้อ/กางเกง",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1148,
+    "word": "bag",
+    "thai": "กระเป๋า",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1149,
+    "word": "clothes",
+    "thai": "เสื้อผ้า",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1150,
+    "word": "shirt",
+    "thai": "เสื้อเชิ้ต",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1151,
+    "word": "shoes",
+    "thai": "รองเท้า",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1152,
+    "word": "hat",
+    "thai": "หมวก",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1153,
+    "word": "glasses",
+    "thai": "แว่นตา",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1154,
+    "word": "mirror",
+    "thai": "กระจก",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1155,
+    "word": "towel",
+    "thai": "ผ้าเช็ดตัว",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1156,
+    "word": "soap",
+    "thai": "สบู่",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1157,
+    "word": "toothbrush",
+    "thai": "แปรงสีฟัน",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1158,
+    "word": "comb",
+    "thai": "หวี",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1159,
+    "word": "hospital",
+    "thai": "โรงพยาบาล",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1160,
+    "word": "nurse",
+    "thai": "พยาบาล",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1161,
+    "word": "medicine",
+    "thai": "ยา",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1162,
+    "word": "sick",
+    "thai": "ป่วย",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1163,
+    "word": "healthy",
+    "thai": "สุขภาพดี",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1164,
+    "word": "headache",
+    "thai": "ปวดหัว",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1165,
+    "word": "fever",
+    "thai": "ไข้",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1166,
+    "word": "pain",
+    "thai": "ความเจ็บปวด",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1167,
+    "word": "injury",
+    "thai": "การบาดเจ็บ",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1168,
+    "word": "exercise",
+    "thai": "ออกกำลังกาย",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1169,
+    "word": "sleep",
+    "thai": "นอนหลับ",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1170,
+    "word": "tired",
+    "thai": "เหนื่อย",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1171,
+    "word": "rest",
+    "thai": "พักผ่อน",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1172,
+    "word": "smile",
+    "thai": "ยิ้ม",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1173,
+    "word": "laugh",
+    "thai": "หัวเราะ",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1174,
+    "word": "cry",
+    "thai": "ร้องไห้",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1175,
+    "word": "angry",
+    "thai": "โกรธ",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1176,
+    "word": "scared",
+    "thai": "กลัว",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1177,
+    "word": "surprised",
+    "thai": "ประหลาดใจ",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1178,
+    "word": "excited",
+    "thai": "ตื่นเต้น",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1179,
+    "word": "bored",
+    "thai": "เบื่อ",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1180,
+    "word": "calm",
+    "thai": "สงบ",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1181,
+    "word": "brave",
+    "thai": "กล้าหาญ",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1182,
+    "word": "shy",
+    "thai": "ขี้อาย",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1183,
+    "word": "kind",
+    "thai": "ใจดี",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1184,
+    "word": "polite",
+    "thai": "สุภาพ",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1185,
+    "word": "honest",
+    "thai": "ซื่อสัตย์",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1186,
+    "word": "lazy",
+    "thai": "ขี้เกียจ",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1187,
+    "word": "careful",
+    "thai": "ระมัดระวัง",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1188,
+    "word": "street",
+    "thai": "ถนน",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1189,
+    "word": "bridge",
+    "thai": "สะพาน",
+    "category": "พื้นฐาน",
+    "tier": "normal",
+    "exam": null,
+    "level": 1
+  },
+  {
+    "id": 1190,
+    "word": "environment",
+    "thai": "สิ่งแวดล้อม",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 2
+  },
+  {
+    "id": 1191,
+    "word": "pollution",
+    "thai": "มลพิษ",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 3
+  },
+  {
+    "id": 1192,
+    "word": "sustainable",
+    "thai": "ยั่งยืน",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 4
+  },
+  {
+    "id": 1193,
+    "word": "renewable",
+    "thai": "หมุนเวียนได้",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 5
+  },
+  {
+    "id": 1194,
+    "word": "resource",
+    "thai": "ทรัพยากร",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 2
+  },
+  {
+    "id": 1195,
+    "word": "consumption",
+    "thai": "การบริโภค",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 3
+  },
+  {
+    "id": 1196,
+    "word": "population",
+    "thai": "ประชากร",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 4
+  },
+  {
+    "id": 1197,
+    "word": "urban",
+    "thai": "เกี่ยวกับเมือง",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 5
+  },
+  {
+    "id": 1198,
+    "word": "rural",
+    "thai": "ชนบท",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 2
+  },
+  {
+    "id": 1199,
+    "word": "global",
+    "thai": "ทั่วโลก",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 3
+  },
+  {
+    "id": 1200,
+    "word": "climate",
+    "thai": "สภาพภูมิอากาศ",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 4
+  },
+  {
+    "id": 1201,
+    "word": "emission",
+    "thai": "การปล่อยมลพิษ",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 5
+  },
+  {
+    "id": 1202,
+    "word": "conservation",
+    "thai": "การอนุรักษ์",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 2
+  },
+  {
+    "id": 1203,
+    "word": "species",
+    "thai": "สายพันธุ์",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 3
+  },
+  {
+    "id": 1204,
+    "word": "habitat",
+    "thai": "ถิ่นที่อยู่อาศัย",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 4
+  },
+  {
+    "id": 1205,
+    "word": "wildlife",
+    "thai": "สัตว์ป่า",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 5
+  },
+  {
+    "id": 1206,
+    "word": "agriculture",
+    "thai": "เกษตรกรรม",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 2
+  },
+  {
+    "id": 1207,
+    "word": "industry",
+    "thai": "อุตสาหกรรม",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 3
+  },
+  {
+    "id": 1208,
+    "word": "economy",
+    "thai": "เศรษฐกิจ",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 4
+  },
+  {
+    "id": 1209,
+    "word": "poverty",
+    "thai": "ความยากจน",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 5
+  },
+  {
+    "id": 1210,
+    "word": "inequality",
+    "thai": "ความไม่เท่าเทียม",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 2
+  },
+  {
+    "id": 1211,
+    "word": "welfare",
+    "thai": "สวัสดิการสังคม",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 3
+  },
+  {
+    "id": 1212,
+    "word": "legislation",
+    "thai": "กฎหมาย",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 4
+  },
+  {
+    "id": 1213,
+    "word": "citizen",
+    "thai": "พลเมือง",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 5
+  },
+  {
+    "id": 1214,
+    "word": "community",
+    "thai": "ชุมชน",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 2
+  },
+  {
+    "id": 1215,
+    "word": "culture",
+    "thai": "วัฒนธรรม",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 3
+  },
+  {
+    "id": 1216,
+    "word": "tradition",
+    "thai": "ประเพณี",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 4
+  },
+  {
+    "id": 1217,
+    "word": "generation",
+    "thai": "รุ่นอายุ",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 5
+  },
+  {
+    "id": 1218,
+    "word": "diversity",
+    "thai": "ความหลากหลาย",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 2
+  },
+  {
+    "id": 1219,
+    "word": "immigrant",
+    "thai": "ผู้อพยพ",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 3
+  },
+  {
+    "id": 1220,
+    "word": "globalization",
+    "thai": "โลกาภิวัตน์",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 4
+  },
+  {
+    "id": 1221,
+    "word": "curriculum",
+    "thai": "หลักสูตร",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 5
+  },
+  {
+    "id": 1222,
+    "word": "scholarship",
+    "thai": "ทุนการศึกษา",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 2
+  },
+  {
+    "id": 1223,
+    "word": "literacy",
+    "thai": "การรู้หนังสือ",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 3
+  },
+  {
+    "id": 1224,
+    "word": "institution",
+    "thai": "สถาบัน",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 4
+  },
+  {
+    "id": 1225,
+    "word": "faculty",
+    "thai": "คณะวิชา",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 5
+  },
+  {
+    "id": 1226,
+    "word": "undergraduate",
+    "thai": "นักศึกษาปริญญาตรี",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 2
+  },
+  {
+    "id": 1227,
+    "word": "graduate",
+    "thai": "ผู้สำเร็จการศึกษา",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 3
+  },
+  {
+    "id": 1228,
+    "word": "research",
+    "thai": "การวิจัย",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 4
+  },
+  {
+    "id": 1229,
+    "word": "survey",
+    "thai": "การสำรวจ",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 5
+  },
+  {
+    "id": 1230,
+    "word": "statistics",
+    "thai": "สถิติ",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 2
+  },
+  {
+    "id": 1231,
+    "word": "majority",
+    "thai": "ส่วนใหญ่",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 3
+  },
+  {
+    "id": 1232,
+    "word": "minority",
+    "thai": "ส่วนน้อย",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 4
+  },
+  {
+    "id": 1233,
+    "word": "perspective",
+    "thai": "มุมมอง",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 5
+  },
+  {
+    "id": 1234,
+    "word": "controversial",
+    "thai": "เป็นที่ถกเถียง",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 2
+  },
+  {
+    "id": 1235,
+    "word": "debate",
+    "thai": "การโต้แย้ง",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 3
+  },
+  {
+    "id": 1236,
+    "word": "argument",
+    "thai": "ข้อโต้แย้ง",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 4
+  },
+  {
+    "id": 1237,
+    "word": "evaluate",
+    "thai": "ประเมิน",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 5
+  },
+  {
+    "id": 1238,
+    "word": "assess",
+    "thai": "ประเมินผล",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 2
+  },
+  {
+    "id": 1239,
+    "word": "emphasize",
+    "thai": "เน้นย้ำ",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 3
+  },
+  {
+    "id": 1240,
+    "word": "demonstrate",
+    "thai": "แสดงให้เห็น",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 4
+  },
+  {
+    "id": 1241,
+    "word": "acquire",
+    "thai": "ได้มา",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 5
+  },
+  {
+    "id": 1242,
+    "word": "enhance",
+    "thai": "ยกระดับ",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 2
+  },
+  {
+    "id": 1243,
+    "word": "facilitate",
+    "thai": "อำนวยความสะดวก",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 3
+  },
+  {
+    "id": 1244,
+    "word": "promote",
+    "thai": "ส่งเสริม",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 4
+  },
+  {
+    "id": 1245,
+    "word": "prevent",
+    "thai": "ป้องกัน",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 5
+  },
+  {
+    "id": 1246,
+    "word": "reduce",
+    "thai": "ลด",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 2
+  },
+  {
+    "id": 1247,
+    "word": "increase",
+    "thai": "เพิ่มขึ้น",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 3
+  },
+  {
+    "id": 1248,
+    "word": "decline",
+    "thai": "ลดลง",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 4
+  },
+  {
+    "id": 1249,
+    "word": "fluctuate",
+    "thai": "ผันผวน",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 5
+  },
+  {
+    "id": 1250,
+    "word": "stability",
+    "thai": "ความมั่นคง",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 2
+  },
+  {
+    "id": 1251,
+    "word": "efficient",
+    "thai": "มีประสิทธิภาพ",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 3
+  },
+  {
+    "id": 1252,
+    "word": "innovation",
+    "thai": "นวัตกรรม",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 4
+  },
+  {
+    "id": 1253,
+    "word": "technology",
+    "thai": "เทคโนโลยี",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 5
+  },
+  {
+    "id": 1254,
+    "word": "digital",
+    "thai": "ดิจิทัล",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 2
+  },
+  {
+    "id": 1255,
+    "word": "infrastructure",
+    "thai": "โครงสร้างพื้นฐาน",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 3
+  },
+  {
+    "id": 1256,
+    "word": "transportation",
+    "thai": "การขนส่ง",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 4
+  },
+  {
+    "id": 1257,
+    "word": "commute",
+    "thai": "เดินทางไปทำงาน",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 5
+  },
+  {
+    "id": 1258,
+    "word": "congestion",
+    "thai": "ความแออัด",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 2
+  },
+  {
+    "id": 1259,
+    "word": "obesity",
+    "thai": "โรคอ้วน",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 3
+  },
+  {
+    "id": 1260,
+    "word": "nutrition",
+    "thai": "โภชนาการ",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 4
+  },
+  {
+    "id": 1261,
+    "word": "diet",
+    "thai": "อาหารการกิน",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 5
+  },
+  {
+    "id": 1262,
+    "word": "lifestyle",
+    "thai": "วิถีชีวิต",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 2
+  },
+  {
+    "id": 1263,
+    "word": "wellbeing",
+    "thai": "สุขภาวะ",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 3
+  },
+  {
+    "id": 1264,
+    "word": "stress",
+    "thai": "ความเครียด",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 4
+  },
+  {
+    "id": 1265,
+    "word": "anxiety",
+    "thai": "ความวิตกกังวล",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 5
+  },
+  {
+    "id": 1266,
+    "word": "depression",
+    "thai": "ภาวะซึมเศร้า",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 2
+  },
+  {
+    "id": 1267,
+    "word": "therapy",
+    "thai": "การบำบัด",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 3
+  },
+  {
+    "id": 1268,
+    "word": "addiction",
+    "thai": "การเสพติด",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 4
+  },
+  {
+    "id": 1269,
+    "word": "prescription",
+    "thai": "ใบสั่งยา",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 5
+  },
+  {
+    "id": 1270,
+    "word": "vaccine",
+    "thai": "วัคซีน",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 2
+  },
+  {
+    "id": 1271,
+    "word": "epidemic",
+    "thai": "โรคระบาด",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 3
+  },
+  {
+    "id": 1272,
+    "word": "genetic",
+    "thai": "ทางพันธุกรรม",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 4
+  },
+  {
+    "id": 1273,
+    "word": "evolution",
+    "thai": "วิวัฒนาการ",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 5
+  },
+  {
+    "id": 1274,
+    "word": "ecosystem",
+    "thai": "ระบบนิเวศ",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 2
+  },
+  {
+    "id": 1275,
+    "word": "biodiversity",
+    "thai": "ความหลากหลายทางชีวภาพ",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 3
+  },
+  {
+    "id": 1276,
+    "word": "drought",
+    "thai": "ภัยแล้ง",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 4
+  },
+  {
+    "id": 1277,
+    "word": "flood",
+    "thai": "น้ำท่วม",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 5
+  },
+  {
+    "id": 1278,
+    "word": "disaster",
+    "thai": "ภัยพิบัติ",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 2
+  },
+  {
+    "id": 1279,
+    "word": "volunteer",
+    "thai": "อาสาสมัคร",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 3
+  },
+  {
+    "id": 1280,
+    "word": "charity",
+    "thai": "องค์กรการกุศล",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 4
+  },
+  {
+    "id": 1281,
+    "word": "donation",
+    "thai": "การบริจาค",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 5
+  },
+  {
+    "id": 1282,
+    "word": "awareness",
+    "thai": "ความตระหนักรู้",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 2
+  },
+  {
+    "id": 1283,
+    "word": "campaign",
+    "thai": "การรณรงค์",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 3
+  },
+  {
+    "id": 1284,
+    "word": "workforce",
+    "thai": "กำลังแรงงาน",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 4
+  },
+  {
+    "id": 1285,
+    "word": "unemployment",
+    "thai": "การว่างงาน",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 5
+  },
+  {
+    "id": 1286,
+    "word": "household",
+    "thai": "ครัวเรือน",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 2
+  },
+  {
+    "id": 1287,
+    "word": "income",
+    "thai": "รายได้",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 3
+  },
+  {
+    "id": 1288,
+    "word": "expenditure",
+    "thai": "รายจ่าย",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 4
+  },
+  {
+    "id": 1289,
+    "word": "abstract",
+    "thai": "นามธรรม",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 2
+  },
+  {
+    "id": 1290,
+    "word": "accumulate",
+    "thai": "สะสม",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 3
+  },
+  {
+    "id": 1291,
+    "word": "adapt",
+    "thai": "ปรับตัว",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 4
+  },
+  {
+    "id": 1292,
+    "word": "adequate",
+    "thai": "เพียงพอ",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 5
+  },
+  {
+    "id": 1293,
+    "word": "albeit",
+    "thai": "แม้ว่า",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 2
+  },
+  {
+    "id": 1294,
+    "word": "ambiguous",
+    "thai": "กำกวม",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 3
+  },
+  {
+    "id": 1295,
+    "word": "analogous",
+    "thai": "คล้ายคลึงกัน",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 4
+  },
+  {
+    "id": 1296,
+    "word": "anticipate",
+    "thai": "คาดการณ์",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 5
+  },
+  {
+    "id": 1297,
+    "word": "arbitrary",
+    "thai": "ตามอำเภอใจ",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 2
+  },
+  {
+    "id": 1298,
+    "word": "aspect",
+    "thai": "แง่มุม",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 3
+  },
+  {
+    "id": 1299,
+    "word": "assert",
+    "thai": "ยืนยัน",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 4
+  },
+  {
+    "id": 1300,
+    "word": "assign",
+    "thai": "มอบหมาย",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 5
+  },
+  {
+    "id": 1301,
+    "word": "attain",
+    "thai": "บรรลุ",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 2
+  },
+  {
+    "id": 1302,
+    "word": "attribute",
+    "thai": "เป็นผลมาจาก",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 3
+  },
+  {
+    "id": 1303,
+    "word": "bias",
+    "thai": "อคติ",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 4
+  },
+  {
+    "id": 1304,
+    "word": "capacity",
+    "thai": "ความจุ",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 5
+  },
+  {
+    "id": 1305,
+    "word": "category",
+    "thai": "หมวดหมู่",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 2
+  },
+  {
+    "id": 1306,
+    "word": "cite",
+    "thai": "อ้างอิง",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 3
+  },
+  {
+    "id": 1307,
+    "word": "coherent",
+    "thai": "สอดคล้องกัน",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 4
+  },
+  {
+    "id": 1308,
+    "word": "coincide",
+    "thai": "เกิดขึ้นพร้อมกัน",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 5
+  },
+  {
+    "id": 1309,
+    "word": "compile",
+    "thai": "รวบรวม",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 2
+  },
+  {
+    "id": 1310,
+    "word": "complex",
+    "thai": "ซับซ้อน",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 3
+  },
+  {
+    "id": 1311,
+    "word": "component",
+    "thai": "องค์ประกอบ",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 4
+  },
+  {
+    "id": 1312,
+    "word": "comprehensive",
+    "thai": "ครอบคลุม",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 5
+  },
+  {
+    "id": 1313,
+    "word": "conceive",
+    "thai": "คิดขึ้น",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 2
+  },
+  {
+    "id": 1314,
+    "word": "consequent",
+    "thai": "ที่เป็นผลตามมา",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 3
+  },
+  {
+    "id": 1315,
+    "word": "considerable",
+    "thai": "มากพอสมควร",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 4
+  },
+  {
+    "id": 1316,
+    "word": "consist",
+    "thai": "ประกอบด้วย",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 5
+  },
+  {
+    "id": 1317,
+    "word": "constant",
+    "thai": "คงที่",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 2
+  },
+  {
+    "id": 1318,
+    "word": "constrain",
+    "thai": "จำกัด",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 3
+  },
+  {
+    "id": 1319,
+    "word": "construct",
+    "thai": "สร้างขึ้น",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 4
+  },
+  {
+    "id": 1320,
+    "word": "consult",
+    "thai": "ปรึกษา",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 5
+  },
+  {
+    "id": 1321,
+    "word": "contemporary",
+    "thai": "ร่วมสมัย",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 2
+  },
+  {
+    "id": 1322,
+    "word": "core",
+    "thai": "แก่นแท้",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 3
+  },
+  {
+    "id": 1323,
+    "word": "correspond",
+    "thai": "สอดคล้องกัน",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 4
+  },
+  {
+    "id": 1324,
+    "word": "crucial",
+    "thai": "สำคัญยิ่ง",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 5
+  },
+  {
+    "id": 1325,
+    "word": "cumulative",
+    "thai": "สะสมเพิ่มพูน",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 2
+  },
+  {
+    "id": 1326,
+    "word": "denote",
+    "thai": "หมายถึง",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 3
+  },
+  {
+    "id": 1327,
+    "word": "deviate",
+    "thai": "เบี่ยงเบน",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 4
+  },
+  {
+    "id": 1328,
+    "word": "differentiate",
+    "thai": "แยกความแตกต่าง",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 5
+  },
+  {
+    "id": 1329,
+    "word": "dimension",
+    "thai": "มิติ",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 2
+  },
+  {
+    "id": 1330,
+    "word": "discrete",
+    "thai": "แยกจากกัน",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 3
+  },
+  {
+    "id": 1331,
+    "word": "displace",
+    "thai": "แทนที่",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 4
+  },
+  {
+    "id": 1332,
+    "word": "distort",
+    "thai": "บิดเบือน",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 5
+  },
+  {
+    "id": 1333,
+    "word": "diverse",
+    "thai": "หลากหลาย",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 2
+  },
+  {
+    "id": 1334,
+    "word": "domain",
+    "thai": "ขอบเขต",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 3
+  },
+  {
+    "id": 1335,
+    "word": "dominant",
+    "thai": "มีอิทธิพลเหนือ",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 4
+  },
+  {
+    "id": 1336,
+    "word": "dynamic",
+    "thai": "มีพลวัต",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 5
+  },
+  {
+    "id": 1337,
+    "word": "empirical",
+    "thai": "เชิงประจักษ์",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 2
+  },
+  {
+    "id": 1338,
+    "word": "enormous",
+    "thai": "มหาศาล",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 3
+  },
+  {
+    "id": 1339,
+    "word": "equivalent",
+    "thai": "เทียบเท่า",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 4
+  },
+  {
+    "id": 1340,
+    "word": "erode",
+    "thai": "กัดเซาะ",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 5
+  },
+  {
+    "id": 1341,
+    "word": "estimate",
+    "thai": "ประมาณการ",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 2
+  },
+  {
+    "id": 1342,
+    "word": "exceed",
+    "thai": "เกินกว่า",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 3
+  },
+  {
+    "id": 1343,
+    "word": "exclude",
+    "thai": "ไม่รวม",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 4
+  },
+  {
+    "id": 1344,
+    "word": "expand",
+    "thai": "ขยาย",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 5
+  },
+  {
+    "id": 1345,
+    "word": "exploit",
+    "thai": "ใช้ประโยชน์",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 2
+  },
+  {
+    "id": 1346,
+    "word": "external",
+    "thai": "ภายนอก",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 3
+  },
+  {
+    "id": 1347,
+    "word": "extract",
+    "thai": "สกัด",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 4
+  },
+  {
+    "id": 1348,
+    "word": "fluctuation",
+    "thai": "ความผันผวน",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 5
+  },
+  {
+    "id": 1349,
+    "word": "formulate",
+    "thai": "กำหนดขึ้น",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 2
+  },
+  {
+    "id": 1350,
+    "word": "fundamental",
+    "thai": "พื้นฐานสำคัญ",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 3
+  },
+  {
+    "id": 1351,
+    "word": "gradual",
+    "thai": "ค่อยเป็นค่อยไป",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 4
+  },
+  {
+    "id": 1352,
+    "word": "hierarchy",
+    "thai": "ลำดับชั้น",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 5
+  },
+  {
+    "id": 1353,
+    "word": "hence",
+    "thai": "ดังนั้น",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 2
+  },
+  {
+    "id": 1354,
+    "word": "hypothetical",
+    "thai": "เชิงสมมติ",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 3
+  },
+  {
+    "id": 1355,
+    "word": "inevitable",
+    "thai": "หลีกเลี่ยงไม่ได้",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 4
+  },
+  {
+    "id": 1356,
+    "word": "infer",
+    "thai": "อนุมาน",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 5
+  },
+  {
+    "id": 1357,
+    "word": "inherent",
+    "thai": "โดยธรรมชาติ",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 2
+  },
+  {
+    "id": 1358,
+    "word": "initiate",
+    "thai": "ริเริ่ม",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 3
+  },
+  {
+    "id": 1359,
+    "word": "innate",
+    "thai": "มีมาแต่กำเนิด",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 4
+  },
+  {
+    "id": 1360,
+    "word": "integral",
+    "thai": "เป็นส่วนสำคัญ",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 5
+  },
+  {
+    "id": 1361,
+    "word": "integrate",
+    "thai": "ผสมผสาน",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 2
+  },
+  {
+    "id": 1362,
+    "word": "intermediate",
+    "thai": "ระดับกลาง",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 3
+  },
+  {
+    "id": 1363,
+    "word": "intrinsic",
+    "thai": "โดยเนื้อแท้",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 4
+  },
+  {
+    "id": 1364,
+    "word": "isolate",
+    "thai": "แยกออก",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 5
+  },
+  {
+    "id": 1365,
+    "word": "mechanism",
+    "thai": "กลไก",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 2
+  },
+  {
+    "id": 1366,
+    "word": "mediate",
+    "thai": "ไกล่เกลี่ย",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 3
+  },
+  {
+    "id": 1367,
+    "word": "minimal",
+    "thai": "น้อยที่สุด",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 4
+  },
+  {
+    "id": 1368,
+    "word": "negligible",
+    "thai": "เล็กน้อยจนไม่สำคัญ",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 5
+  },
+  {
+    "id": 1369,
+    "word": "norm",
+    "thai": "บรรทัดฐาน",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 2
+  },
+  {
+    "id": 1370,
+    "word": "notion",
+    "thai": "แนวคิด",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 3
+  },
+  {
+    "id": 1371,
+    "word": "obtain",
+    "thai": "ได้รับ",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 4
+  },
+  {
+    "id": 1372,
+    "word": "parallel",
+    "thai": "ขนาน",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 5
+  },
+  {
+    "id": 1373,
+    "word": "plausible",
+    "thai": "เป็นไปได้อย่างสมเหตุสมผล",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 2
+  },
+  {
+    "id": 1374,
+    "word": "precede",
+    "thai": "เกิดขึ้นก่อน",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 3
+  },
+  {
+    "id": 1375,
+    "word": "precise",
+    "thai": "แม่นยำ",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 4
+  },
+  {
+    "id": 1376,
+    "word": "presumably",
+    "thai": "สันนิษฐานว่า",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 5
+  },
+  {
+    "id": 1377,
+    "word": "prevail",
+    "thai": "แพร่หลาย",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 2
+  },
+  {
+    "id": 1378,
+    "word": "prior",
+    "thai": "ก่อนหน้า",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 3
+  },
+  {
+    "id": 1379,
+    "word": "qualitative",
+    "thai": "เชิงคุณภาพ",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 4
+  },
+  {
+    "id": 1380,
+    "word": "quantitative",
+    "thai": "เชิงปริมาณ",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 5
+  },
+  {
+    "id": 1381,
+    "word": "radical",
+    "thai": "หัวรุนแรง",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 2
+  },
+  {
+    "id": 1382,
+    "word": "rational",
+    "thai": "มีเหตุผล",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 3
+  },
+  {
+    "id": 1383,
+    "word": "reinforce",
+    "thai": "เสริมความแข็งแกร่ง",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 4
+  },
+  {
+    "id": 1384,
+    "word": "reside",
+    "thai": "อาศัยอยู่",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 5
+  },
+  {
+    "id": 1385,
+    "word": "restrict",
+    "thai": "จำกัด",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 2
+  },
+  {
+    "id": 1386,
+    "word": "retain",
+    "thai": "รักษาไว้",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 3
+  },
+  {
+    "id": 1387,
+    "word": "reveal",
+    "thai": "เปิดเผย",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 4
+  },
+  {
+    "id": 1388,
+    "word": "rigid",
+    "thai": "ตายตัว",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "TOEFL",
+    "level": 5
+  },
+  {
+    "id": 1389,
+    "word": "applicant",
+    "thai": "ผู้สมัคร",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 2
+  },
+  {
+    "id": 1390,
+    "word": "resume",
+    "thai": "ประวัติย่อ",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 3
+  },
+  {
+    "id": 1391,
+    "word": "interview",
+    "thai": "การสัมภาษณ์",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 4
+  },
+  {
+    "id": 1392,
+    "word": "employer",
+    "thai": "นายจ้าง",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 5
+  },
+  {
+    "id": 1393,
+    "word": "department",
+    "thai": "แผนก",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 2
+  },
+  {
+    "id": 1394,
+    "word": "manager",
+    "thai": "ผู้จัดการ",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 3
+  },
+  {
+    "id": 1395,
+    "word": "director",
+    "thai": "ผู้อำนวยการ",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 4
+  },
+  {
+    "id": 1396,
+    "word": "assistant",
+    "thai": "ผู้ช่วย",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 5
+  },
+  {
+    "id": 1397,
+    "word": "intern",
+    "thai": "นักศึกษาฝึกงาน",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 2
+  },
+  {
+    "id": 1398,
+    "word": "overtime",
+    "thai": "การทำงานล่วงเวลา",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 3
+  },
+  {
+    "id": 1399,
+    "word": "shift",
+    "thai": "กะทำงาน",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 4
+  },
+  {
+    "id": 1400,
+    "word": "payroll",
+    "thai": "บัญชีเงินเดือน",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 5
+  },
+  {
+    "id": 1401,
+    "word": "bonus",
+    "thai": "โบนัส",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 2
+  },
+  {
+    "id": 1402,
+    "word": "pension",
+    "thai": "เงินบำนาญ",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 3
+  },
+  {
+    "id": 1403,
+    "word": "insurance",
+    "thai": "ประกันภัย",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 4
+  },
+  {
+    "id": 1404,
+    "word": "compliance",
+    "thai": "การปฏิบัติตามกฎ",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 5
+  },
+  {
+    "id": 1405,
+    "word": "permit",
+    "thai": "ใบอนุญาต",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 2
+  },
+  {
+    "id": 1406,
+    "word": "license",
+    "thai": "ใบอนุญาต",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 3
+  },
+  {
+    "id": 1407,
+    "word": "certificate",
+    "thai": "ใบรับรอง",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 4
+  },
+  {
+    "id": 1408,
+    "word": "candidate",
+    "thai": "ผู้ลงสมัคร",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 5
+  },
+  {
+    "id": 1409,
+    "word": "vacancy",
+    "thai": "ตำแหน่งงานว่าง",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 2
+  },
+  {
+    "id": 1410,
+    "word": "position",
+    "thai": "ตำแหน่งงาน",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 3
+  },
+  {
+    "id": 1411,
+    "word": "role",
+    "thai": "บทบาทหน้าที่",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 4
+  },
+  {
+    "id": 1412,
+    "word": "task",
+    "thai": "งานที่ได้รับมอบหมาย",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 5
+  },
+  {
+    "id": 1413,
+    "word": "assignment",
+    "thai": "งานที่มอบหมาย",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 2
+  },
+  {
+    "id": 1414,
+    "word": "project",
+    "thai": "โครงการ",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 3
+  },
+  {
+    "id": 1415,
+    "word": "progress",
+    "thai": "ความคืบหน้า",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 4
+  },
+  {
+    "id": 1416,
+    "word": "report",
+    "thai": "รายงาน",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 5
+  },
+  {
+    "id": 1417,
+    "word": "memo",
+    "thai": "บันทึกข้อความ",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 2
+  },
+  {
+    "id": 1418,
+    "word": "email",
+    "thai": "อีเมล",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 3
+  },
+  {
+    "id": 1419,
+    "word": "attachment",
+    "thai": "ไฟล์แนบ",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 4
+  },
+  {
+    "id": 1420,
+    "word": "signature",
+    "thai": "ลายเซ็น",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 5
+  },
+  {
+    "id": 1421,
+    "word": "approval",
+    "thai": "การอนุมัติ",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 2
+  },
+  {
+    "id": 1422,
+    "word": "authorize",
+    "thai": "ให้อำนาจ",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 3
+  },
+  {
+    "id": 1423,
+    "word": "delegate",
+    "thai": "มอบหมายงาน",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 4
+  },
+  {
+    "id": 1424,
+    "word": "outsource",
+    "thai": "จ้างบุคคลภายนอก",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 5
+  },
+  {
+    "id": 1425,
+    "word": "freelance",
+    "thai": "รับงานอิสระ",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 2
+  },
+  {
+    "id": 1426,
+    "word": "consultant",
+    "thai": "ที่ปรึกษา",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 3
+  },
+  {
+    "id": 1427,
+    "word": "stakeholder",
+    "thai": "ผู้มีส่วนได้ส่วนเสีย",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 4
+  },
+  {
+    "id": 1428,
+    "word": "shareholder",
+    "thai": "ผู้ถือหุ้น",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 5
+  },
+  {
+    "id": 1429,
+    "word": "board",
+    "thai": "คณะกรรมการ",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 2
+  },
+  {
+    "id": 1430,
+    "word": "executive",
+    "thai": "ผู้บริหาร",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 3
+  },
+  {
+    "id": 1431,
+    "word": "strategy",
+    "thai": "กลยุทธ์",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 4
+  },
+  {
+    "id": 1432,
+    "word": "target",
+    "thai": "เป้าหมาย",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 5
+  },
+  {
+    "id": 1433,
+    "word": "performance",
+    "thai": "ผลการปฏิบัติงาน",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 2
+  },
+  {
+    "id": 1434,
+    "word": "efficiency",
+    "thai": "ประสิทธิภาพ",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 3
+  },
+  {
+    "id": 1435,
+    "word": "feedback",
+    "thai": "ข้อเสนอแนะ",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 4
+  },
+  {
+    "id": 1436,
+    "word": "evaluation",
+    "thai": "การประเมินผล",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 5
+  },
+  {
+    "id": 1437,
+    "word": "training",
+    "thai": "การฝึกอบรม",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 2
+  },
+  {
+    "id": 1438,
+    "word": "workshop",
+    "thai": "การอบรมเชิงปฏิบัติการ",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 3
+  },
+  {
+    "id": 1439,
+    "word": "seminar",
+    "thai": "การสัมมนา",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 4
+  },
+  {
+    "id": 1440,
+    "word": "presentation",
+    "thai": "การนำเสนอ",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 5
+  },
+  {
+    "id": 1441,
+    "word": "marketing",
+    "thai": "การตลาด",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 2
+  },
+  {
+    "id": 1442,
+    "word": "advertisement",
+    "thai": "การโฆษณา",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 3
+  },
+  {
+    "id": 1443,
+    "word": "brand",
+    "thai": "แบรนด์",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 4
+  },
+  {
+    "id": 1444,
+    "word": "competitor",
+    "thai": "คู่แข่ง",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 5
+  },
+  {
+    "id": 1445,
+    "word": "consumer",
+    "thai": "ผู้บริโภค",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 2
+  },
+  {
+    "id": 1446,
+    "word": "retail",
+    "thai": "การค้าปลีก",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 3
+  },
+  {
+    "id": 1447,
+    "word": "wholesale",
+    "thai": "การค้าส่ง",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 4
+  },
+  {
+    "id": 1448,
+    "word": "distributor",
+    "thai": "ผู้จัดจำหน่าย",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 5
+  },
+  {
+    "id": 1449,
+    "word": "manufacturer",
+    "thai": "ผู้ผลิต",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 2
+  },
+  {
+    "id": 1450,
+    "word": "production",
+    "thai": "การผลิต",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 3
+  },
+  {
+    "id": 1451,
+    "word": "quality",
+    "thai": "คุณภาพ",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 4
+  },
+  {
+    "id": 1452,
+    "word": "defect",
+    "thai": "ข้อบกพร่อง",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 5
+  },
+  {
+    "id": 1453,
+    "word": "inspection",
+    "thai": "การตรวจสอบ",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 2
+  },
+  {
+    "id": 1454,
+    "word": "maintenance",
+    "thai": "การบำรุงรักษา",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 3
+  },
+  {
+    "id": 1455,
+    "word": "equipment",
+    "thai": "อุปกรณ์",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 4
+  },
+  {
+    "id": 1456,
+    "word": "facility",
+    "thai": "สิ่งอำนวยความสะดวก",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 5
+  },
+  {
+    "id": 1457,
+    "word": "premises",
+    "thai": "สถานที่/อาคาร",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 2
+  },
+  {
+    "id": 1458,
+    "word": "lease",
+    "thai": "สัญญาเช่า",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 3
+  },
+  {
+    "id": 1459,
+    "word": "tenant",
+    "thai": "ผู้เช่า",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 4
+  },
+  {
+    "id": 1460,
+    "word": "landlord",
+    "thai": "เจ้าของที่เช่า",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 5
+  },
+  {
+    "id": 1461,
+    "word": "renovation",
+    "thai": "การปรับปรุง",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 2
+  },
+  {
+    "id": 1462,
+    "word": "relocate",
+    "thai": "ย้ายสถานที่",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 3
+  },
+  {
+    "id": 1463,
+    "word": "branch",
+    "thai": "สาขา",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 4
+  },
+  {
+    "id": 1464,
+    "word": "annual",
+    "thai": "ประจำปี",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 5
+  },
+  {
+    "id": 1465,
+    "word": "fiscal",
+    "thai": "ทางการเงิน",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 2
+  },
+  {
+    "id": 1466,
+    "word": "forecast",
+    "thai": "การพยากรณ์",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 3
+  },
+  {
+    "id": 1467,
+    "word": "statement",
+    "thai": "งบการเงิน",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 4
+  },
+  {
+    "id": 1468,
+    "word": "asset",
+    "thai": "สินทรัพย์",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 5
+  },
+  {
+    "id": 1469,
+    "word": "liability",
+    "thai": "หนี้สิน",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 2
+  },
+  {
+    "id": 1470,
+    "word": "capital",
+    "thai": "เงินทุน",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 3
+  },
+  {
+    "id": 1471,
+    "word": "funding",
+    "thai": "เงินทุนสนับสนุน",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 4
+  },
+  {
+    "id": 1472,
+    "word": "loan",
+    "thai": "เงินกู้",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 5
+  },
+  {
+    "id": 1473,
+    "word": "interest",
+    "thai": "ดอกเบี้ย",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 2
+  },
+  {
+    "id": 1474,
+    "word": "installment",
+    "thai": "การผ่อนชำระ",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 3
+  },
+  {
+    "id": 1475,
+    "word": "currency",
+    "thai": "สกุลเงิน",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 4
+  },
+  {
+    "id": 1476,
+    "word": "exchange",
+    "thai": "การแลกเปลี่ยน",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 5
+  },
+  {
+    "id": 1477,
+    "word": "tariff",
+    "thai": "ภาษีศุลกากร",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 2
+  },
+  {
+    "id": 1478,
+    "word": "export",
+    "thai": "การส่งออก",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 3
+  },
+  {
+    "id": 1479,
+    "word": "import",
+    "thai": "การนำเข้า",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 4
+  },
+  {
+    "id": 1480,
+    "word": "customs",
+    "thai": "ศุลกากร",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 5
+  },
+  {
+    "id": 1481,
+    "word": "courier",
+    "thai": "บริการส่งพัสดุด่วน",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 2
+  },
+  {
+    "id": 1482,
+    "word": "standard",
+    "thai": "มาตรฐาน",
+    "category": "วิชาการ",
+    "tier": "special",
+    "exam": "IELTS",
+    "level": 4
+  },
+  {
+    "id": 1483,
+    "word": "procedure",
+    "thai": "ขั้นตอนการปฏิบัติงาน",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 5
+  },
+  {
+    "id": 1484,
+    "word": "agenda_item",
+    "thai": "หัวข้อวาระ",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 2
+  },
+  {
+    "id": 1485,
+    "word": "voucher",
+    "thai": "บัตรกำนัล",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 3
+  },
+  {
+    "id": 1486,
+    "word": "receipt",
+    "thai": "ใบเสร็จรับเงิน",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 4
+  },
+  {
+    "id": 1487,
+    "word": "catalog",
+    "thai": "แคตตาล็อกสินค้า",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 5
+  },
+  {
+    "id": 1488,
+    "word": "packaging",
+    "thai": "บรรจุภัณฑ์",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 2
+  },
+  {
+    "id": 1489,
+    "word": "logo",
+    "thai": "โลโก้",
+    "category": "ธุรกิจ",
+    "tier": "boss",
+    "exam": "TOEIC",
+    "level": 3
   }
 ]
