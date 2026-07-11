@@ -1,21 +1,40 @@
 /* =========================================================
-   Word Match Puzzle - Game Logic (Rewrite)
-   โครงสร้างใหม่: ใช้ Pointer Events แบบรวมศูนย์ (mouse+touch เดียวกัน)
-   แยก "แตะเพื่อฟังเสียง" ออกจาก "ลากเพื่อจับคู่" อย่างชัดเจน
-   เพื่อแก้บั๊กเดิมที่ปุ่มลำโพงไม่ยอมมีเสียงบนมือถือ
+   Word Match Puzzle - Game Logic
+   ระบบ: จับคู่คำศัพท์ + Login (ชื่อ+PIN ผ่าน Supabase) + XP/Level + Rank
    ========================================================= */
 
 (() => {
   'use strict';
 
-  // ---------- ค่าคงที่ ----------
+  // ---------- Supabase config ----------
+  // หมายเหตุ: อ้างอิงจากค่าที่ให้มา "pwrhnmvhwhellfbznczb" เป็นรูปแบบ Project ID
+  // มาตรฐานของ Supabase (ใช้ประกอบ URL ได้ตรง) จึงใช้ค่านี้สร้าง Project URL
+  // ถ้าไม่ตรงกับของจริงในหน้า Settings > API ของโปรเจกต์ ให้แก้ 2 ค่านี้ได้เลย
+  const SUPABASE_URL = 'https://pwrhnmvhwhellfbznczb.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_zmIZ9aucZsRMJrySDe0uIQ_W4OgndeO';
+
   const WORDS_PER_GAME = 10;
   const POINTS_PER_CORRECT = 10;
-  const STORAGE_KEY = 'wordPuzzleHighScore';
-  const DRAG_THRESHOLD_PX = 12; // ขยับเกินนี้ถือว่ากำลัง "ลาก" ไม่ใช่ "แตะ"
+  const DRAG_THRESHOLD_PX = 12;
+  const SESSION_KEY = 'wp_session';
+  const GUEST_KEY = 'wp_guest_progress';
 
-  // SVG ไอคอนลำโพง
   const SPEAKER_SVG = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>`;
+
+  // ---------- Supabase client ----------
+  let sb = null;
+  function initSupabaseClient() {
+    if (window.supabase && typeof window.supabase.createClient === 'function') {
+      try {
+        sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      } catch (e) {
+        console.warn('⚠️ สร้าง Supabase client ไม่สำเร็จ:', e);
+        sb = null;
+      }
+    } else {
+      console.warn('⚠️ โหลด Supabase client ไม่สำเร็จ (อาจเป็นเพราะเน็ตหลุด) - จะเล่นได้เฉพาะโหมด Guest');
+    }
+  }
 
   // ---------- State ----------
   const state = {
@@ -24,11 +43,15 @@
     rightOrder: [],
     matched: new Map(),
     wrongCount: 0,
+    wrongWordsList: [],
     score: 0,
     startTime: 0,
     timerInterval: null,
     gameDateTime: null,
     gameResults: [],
+
+    currentUser: null, // {id, name, pin, level, xp}
+    isGuest: false,
 
     // pointer/drag tracking
     pointerId: null,
@@ -44,34 +67,60 @@
   // ---------- DOM ----------
   const $ = (id) => document.getElementById(id);
   const screens = {
+    auth:   $('screen-auth'),
     start:  $('screen-start'),
     learn:  $('screen-learn'),
     game:   $('screen-game'),
     result: $('screen-result')
   };
   const dom = {
-    highScore:      $('high-score'),
-    btnStart:       $('btn-start'),
-    btnGoGame:      $('btn-go-game'),
-    learnList:      $('learn-list'),
-    timer:          $('timer'),
-    score:          $('score'),
-    progress:       $('progress'),
-    leftList:       $('left-list'),
-    rightList:      $('right-list'),
-    linesSvg:       $('lines-svg'),
-    gameArea:       $('game-area'),
-    finalScore:     $('final-score'),
-    totalScore:     $('total-score'),
-    correctCount:   $('correct-count'),
-    wrongCount:     $('wrong-count'),
-    finalTime:      $('final-time'),
-    resultTitle:    $('result-title'),
-    resultDateTime: $('result-datetime-text'),
-    wordReviewList: $('word-review-list'),
-    btnRestart:     $('btn-restart'),
-    btnHome:        $('btn-home'),
-    btnShare:       $('btn-share')
+    // auth
+    authName:        $('auth-name'),
+    authPin:         $('auth-pin'),
+    authError:       $('auth-error'),
+    btnAuthSubmit:   $('btn-auth-submit'),
+    btnAuthGuest:    $('btn-auth-guest'),
+
+    // start / topbar
+    startUserName:   $('start-user-name'),
+    startLevelBadge: $('start-level-badge'),
+    startXpFill:     $('start-xp-fill'),
+    startXpCaption:  $('start-xp-caption'),
+    btnLogout:       $('btn-logout'),
+    btnStart:        $('btn-start'),
+    leaderboardStartList: $('leaderboard-start-list'),
+
+    // learn
+    btnGoGame:       $('btn-go-game'),
+    learnList:       $('learn-list'),
+
+    // game
+    timer:           $('timer'),
+    score:           $('score'),
+    progress:        $('progress'),
+    leftList:        $('left-list'),
+    rightList:       $('right-list'),
+    linesSvg:        $('lines-svg'),
+    gameArea:        $('game-area'),
+
+    // result
+    resultTitle:     $('result-title'),
+    resultDateTime:  $('result-datetime-text'),
+    levelUpBanner:   $('level-up-banner'),
+    levelUpValue:    $('level-up-value'),
+    xpGainBanner:    $('xp-gain-banner'),
+    xpGainValue:     $('xp-gain-value'),
+    finalScore:      $('final-score'),
+    totalScore:      $('total-score'),
+    correctCount:    $('correct-count'),
+    wrongCount:      $('wrong-count'),
+    finalTime:       $('final-time'),
+    myRankLine:      $('my-rank-line'),
+    leaderboardResultList: $('leaderboard-result-list'),
+    wordReviewList:  $('word-review-list'),
+    btnRestart:      $('btn-restart'),
+    btnHome:         $('btn-home'),
+    btnShare:        $('btn-share')
   };
 
   // ---------- Utility ----------
@@ -91,14 +140,7 @@
   }
 
   function formatDateTime(date) {
-    const options = {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit'
-    };
+    const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
     return date.toLocaleDateString('th-TH', options);
   }
 
@@ -107,15 +149,55 @@
     screens[name].classList.add('active');
   }
 
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = String(str ?? '');
+    return div.innerHTML;
+  }
+
+  // =========================================================
+  // ---------- XP / Level system ----------
+  // เลเวล N ต้องใช้ XP สะสม 100*N คะแนนถึงจะขึ้นเลเวลถัดไป (ยิ่งเลเวลสูงยิ่งใช้ XP เยอะขึ้น)
+  // =========================================================
+  function xpNeededForLevel(level) {
+    return 100 * level;
+  }
+
+  function totalXpAtLevelStart(level) {
+    let sum = 0;
+    for (let i = 1; i < level; i++) sum += xpNeededForLevel(i);
+    return sum;
+  }
+
+  function levelFromXp(xp) {
+    let level = 1;
+    while (xp >= totalXpAtLevelStart(level + 1)) level++;
+    return level;
+  }
+
+  function xpProgress(xp) {
+    const level = levelFromXp(xp);
+    const start = totalXpAtLevelStart(level);
+    const next = totalXpAtLevelStart(level + 1);
+    const current = xp - start;
+    const needed = next - start;
+    return { level, current, needed, percent: needed > 0 ? Math.min(100, Math.round((current / needed) * 100)) : 100 };
+  }
+
+  function calcXpEarned(score, wrongCount, elapsedSeconds) {
+    let xp = score;
+    if (wrongCount === 0) xp += 30; // โบนัสไม่ตอบผิดเลย
+    if (elapsedSeconds <= 45) xp += 20; // โบนัสเร็ว
+    return xp;
+  }
+
   // ---------- Load Words ----------
   async function loadWords() {
     try {
       const res = await fetch('data/words.json', { cache: 'no-store' });
       if (!res.ok) throw new Error('โหลดคำศัพท์ไม่สำเร็จ');
       const data = await res.json();
-      if (!Array.isArray(data) || data.length === 0) {
-        throw new Error('รูปแบบข้อมูลคำศัพท์ไม่ถูกต้อง');
-      }
+      if (!Array.isArray(data) || data.length === 0) throw new Error('รูปแบบข้อมูลคำศัพท์ไม่ถูกต้อง');
       state.allWords = data;
       console.log(`✅ โหลดคำศัพท์สำเร็จ: ${data.length} คำ`);
     } catch (err) {
@@ -124,152 +206,174 @@
     }
   }
 
-  // ---------- High Score ----------
-  function getHighScore() {
-    return parseInt(localStorage.getItem(STORAGE_KEY) || '0', 10);
-  }
-
-  function saveHighScore(score) {
-    if (score > getHighScore()) {
-      localStorage.setItem(STORAGE_KEY, String(score));
-    }
-  }
-
-  function renderHighScore() {
-    dom.highScore.textContent = getHighScore();
-  }
-
   // =========================================================
-  // ---------- Text To Speech ----------
-  // แก้ไขปัญหาหลัก: ก่อนหน้านี้ speak() ถูกเรียกจาก listener 'click'
-  // บนปุ่มเดียวกับที่ใช้เริ่มลาก (mousedown/touchstart + preventDefault)
-  // บนมือถือ การ preventDefault ใน touchstart จะ "บล็อก" ไม่ให้ event
-  // click สังเคราะห์เกิดขึ้นตามมาเลย -> พูดไม่ออกเสียง/ไม่เสถียร
-  // ตอนนี้ speak() ถูกเรียกตรงจาก pointerup โดยตรง (แยกกรณี "แตะ" กับ
-  // "ลาก" ด้วยระยะทางที่ขยับ) ไม่พึ่ง click event อีกต่อไป
+  // ---------- Auth (Supabase: users table, name+pin) ----------
   // =========================================================
-  const TTS = (() => {
-    let voices = [];
-    let isSpeaking = false;
-    let unlocked = false;
-    let hasWarnedUnsupported = false;
+  function saveSession(user) {
+    localStorage.setItem(SESSION_KEY, JSON.stringify({ id: user.id, name: user.name }));
+  }
 
-    function refreshVoices() {
-      if ('speechSynthesis' in window) {
-        voices = window.speechSynthesis.getVoices();
-      }
+  function clearSession() {
+    localStorage.removeItem(SESSION_KEY);
+  }
+
+  async function restoreSession() {
+    if (!sb) return null;
+    const raw = localStorage.getItem(SESSION_KEY);
+    if (!raw) return null;
+    try {
+      const { id } = JSON.parse(raw);
+      const { data, error } = await sb.from('users').select('*').eq('id', id).maybeSingle();
+      if (error || !data) { clearSession(); return null; }
+      return data;
+    } catch (e) {
+      return null;
     }
+  }
 
-    function pickVoice() {
-      if (voices.length === 0) return null;
-      // เสียงแบบ "local" (ทำงานในเครื่อง ไม่พึ่งอินเทอร์เน็ต) เสถียรกว่าเสียง
-      // แบบ "remote" (เช่น Google เสียงเครือข่าย) มาก - เสียง remote เป็นสาเหตุที่พบบ่อย
-      // ที่ทำให้พูดได้รอบแรกแต่รอบถัดไปเงียบ/ค้าง จึงบังคับเลือก local ก่อนเสมอถ้ามี
-      const localEnUS = voices.filter(v => v.lang === 'en-US' && v.localService);
-      const localEn = voices.filter(v => v.lang && v.lang.startsWith('en') && v.localService);
-      const anyEnUS = voices.filter(v => v.lang === 'en-US');
-      const anyEn = voices.filter(v => v.lang && v.lang.startsWith('en'));
+  async function loginOrRegister(name, pin) {
+    if (!sb) return { error: 'offline' };
+    try {
+      const { data: existing, error } = await sb.from('users').select('*').eq('name', name).maybeSingle();
+      if (error) return { error: 'network' };
 
-      return (
-        localEnUS[0] ||
-        localEn[0] ||
-        anyEnUS[0] ||
-        anyEn[0] ||
-        voices.find(v => v.default) ||
-        voices[0]
-      );
-    }
-
-    function init() {
-      if (!('speechSynthesis' in window)) return;
-
-      // เคลียร์คิวเสียงที่อาจค้างจากรอบก่อนหน้า (เช่น รีเฟรชระหว่างกำลังพูด)
-      try { window.speechSynthesis.cancel(); } catch (e) { /* ignore */ }
-
-      refreshVoices();
-      window.speechSynthesis.onvoiceschanged = refreshVoices;
-
-      // มือถือหลายรุ่นต้องมี user gesture ครั้งแรกก่อน engine เสียงถึงจะพร้อม
-      // ปลดล็อกด้วยการพูดข้อความว่างเงียบๆ ทันทีที่ผู้ใช้แตะ/คลิกครั้งแรกที่ไหนก็ได้
-      const unlock = () => {
-        if (unlocked) return;
-        unlocked = true;
-        try {
-          const u = new SpeechSynthesisUtterance('');
-          u.volume = 0;
-          window.speechSynthesis.speak(u);
-        } catch (e) { /* ignore */ }
-      };
-      document.addEventListener('pointerdown', unlock, { once: true, capture: true });
-
-      // เคยเจอบั๊กของ Chrome ที่ speechSynthesis จะ "ค้าง" (paused) เองถ้าไม่ได้
-      // ใช้งานสักพัก - คอย resume เบาๆ เป็นระยะเพื่อกันไม่ให้ engine หลับ
-      setInterval(() => {
-        if (window.speechSynthesis.paused) {
-          window.speechSynthesis.resume();
-        }
-      }, 4000);
-    }
-
-    function setButtonState(btnEl, speaking) {
-      if (!btnEl) return;
-      btnEl.classList.toggle('speaking', speaking);
-    }
-
-    function speak(text, btnEl) {
-      if (!('speechSynthesis' in window)) {
-        if (!hasWarnedUnsupported) {
-          hasWarnedUnsupported = true;
-          alert('❌ เบราว์เซอร์นี้ไม่รองรับการอ่านออกเสียง (Text To Speech)');
-        }
-        return;
+      if (existing) {
+        if (existing.pin !== pin) return { error: 'wrong_pin' };
+        return { user: existing };
       }
 
-      // กันผู้ใช้แตะรัวๆ ให้คำพูดต่อคิวจนฟังดู "ช้า"
-      if (isSpeaking) {
-        window.speechSynthesis.cancel();
-      }
+      const { data: created, error: insErr } = await sb.from('users').insert({ name, pin }).select().single();
+      if (insErr) return { error: 'network' };
+      return { user: created, isNew: true };
+    } catch (e) {
+      return { error: 'network' };
+    }
+  }
 
-      isSpeaking = true;
-      setButtonState(btnEl, true);
+  function loadGuestProgress() {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(GUEST_KEY));
+      return parsed && typeof parsed.xp === 'number' ? parsed : { xp: 0 };
+    } catch (e) {
+      return { xp: 0 };
+    }
+  }
 
-      const utter = new SpeechSynthesisUtterance(text);
-      utter.lang = 'en-US';
-      utter.rate = 0.9;
-      utter.pitch = 1.1;
-      utter.volume = 1.0;
+  function saveGuestProgress(xp) {
+    localStorage.setItem(GUEST_KEY, JSON.stringify({ xp }));
+  }
 
-      const voice = pickVoice();
-      if (voice) utter.voice = voice;
+  // ---------- Leaderboard ----------
+  async function fetchLeaderboard(limit = 10) {
+    if (!sb) return [];
+    const { data, error } = await sb.from('users').select('id,name,level,xp').order('xp', { ascending: false }).limit(limit);
+    if (error) { console.warn('⚠️ โหลด leaderboard ไม่สำเร็จ:', error); return []; }
+    return data || [];
+  }
 
-      let settled = false;
-      const finish = () => {
-        if (settled) return;
-        settled = true;
-        isSpeaking = false;
-        setButtonState(btnEl, false);
-      };
+  async function fetchMyRank(xp) {
+    if (!sb) return null;
+    const higher = await sb.from('users').select('*', { count: 'exact', head: true }).gt('xp', xp);
+    const total = await sb.from('users').select('*', { count: 'exact', head: true });
+    if (higher.error || total.error) return null;
+    return { rank: (higher.count || 0) + 1, total: total.count || 0 };
+  }
 
-      utter.onend = finish;
-      utter.onerror = (e) => {
-        // Chrome/แท็บที่ไม่ได้โฟกัส บางครั้งยิง error ที่ไม่มีรายละเอียด (interrupted)
-        // ซึ่งไม่ใช่ปัญหาจริงจากผู้ใช้ จึงแค่ log ไว้เฉยๆ ไม่รบกวนผู้เล่นด้วย alert
-        console.warn('⚠️ TTS ถูกขัดจังหวะ หรือเกิดข้อผิดพลาด:', e && e.error);
-        finish();
-      };
+  function renderLeaderboardList(container, list, highlightId) {
+    if (!list || list.length === 0) {
+      container.innerHTML = '<div class="leaderboard-empty">ยังไม่มีใครเล่นเลย เป็นคนแรกสิ! 🚀</div>';
+      return;
+    }
+    container.innerHTML = list.map((u, i) => {
+      const rankIcon = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : String(i + 1);
+      const isMe = highlightId && u.id === highlightId;
+      return `<div class="leaderboard-row ${isMe ? 'me' : ''}">
+        <div class="leaderboard-rank">${rankIcon}</div>
+        <div class="leaderboard-name">${escapeHtml(u.name)}</div>
+        <div class="leaderboard-xp">Lv.${u.level} · ${u.xp} XP</div>
+      </div>`;
+    }).join('');
+  }
 
-      // เรียก speak() ทันทีแบบ synchronous ภายใน user gesture (ไม่ผ่าน setTimeout)
-      // เพราะบางเบราว์เซอร์จะปฏิเสธเสียง (not-allowed) ถ้า speak ไม่ได้เริ่มจาก
-      // การกระทำของผู้ใช้โดยตรง
-      window.speechSynthesis.cancel();
-      window.speechSynthesis.speak(utter);
+  async function refreshLeaderboardWidget(container, highlightId) {
+    const list = await fetchLeaderboard(10);
+    renderLeaderboardList(container, list, highlightId);
+  }
 
-      // กันปุ่มค้างถ้า onend/onerror ไม่ยิงเลยในบาง webview
-      setTimeout(finish, 4000);
+  // ---------- User chip / topbar UI ----------
+  function currentXp() {
+    if (state.isGuest) return loadGuestProgress().xp;
+    if (state.currentUser) return state.currentUser.xp;
+    return 0;
+  }
+
+  function updateUserChipUI() {
+    const xp = currentXp();
+    const { level, current, needed, percent } = xpProgress(xp);
+    dom.startUserName.textContent = state.isGuest ? 'Guest' : (state.currentUser ? state.currentUser.name : '-');
+    dom.startLevelBadge.textContent = level;
+    dom.startXpFill.style.width = `${percent}%`;
+    dom.startXpCaption.textContent = `${current} / ${needed} XP`;
+  }
+
+  // ---------- Auth screen logic ----------
+  function setAuthError(msg) {
+    dom.authError.textContent = msg || '';
+  }
+
+  async function handleAuthSubmit() {
+    const name = dom.authName.value.trim();
+    const pin = dom.authPin.value.trim();
+
+    if (!name) { setAuthError('กรุณาใส่ชื่อผู้เล่น'); return; }
+    if (!/^\d{4,6}$/.test(pin)) { setAuthError('PIN ต้องเป็นตัวเลข 4-6 หลัก'); return; }
+
+    setAuthError('');
+    dom.btnAuthSubmit.disabled = true;
+    dom.btnAuthSubmit.textContent = 'กำลังตรวจสอบ...';
+
+    const result = await loginOrRegister(name, pin);
+
+    dom.btnAuthSubmit.disabled = false;
+    dom.btnAuthSubmit.textContent = 'เข้าสู่ระบบ / สร้างบัญชีใหม่';
+
+    if (result.error === 'wrong_pin') {
+      setAuthError('❌ PIN ไม่ถูกต้อง ลองใหม่อีกครั้ง');
+      return;
+    }
+    if (result.error === 'offline' || result.error === 'network') {
+      setAuthError('❌ เชื่อมต่อระบบสมาชิกไม่ได้ตอนนี้ ลองใหม่ หรือกด "เล่นแบบไม่ล็อกอิน" แทนได้');
+      return;
     }
 
-    return { init, speak };
-  })();
+    state.currentUser = result.user;
+    state.isGuest = false;
+    saveSession(result.user);
+    await enterStartScreen();
+  }
+
+  function handleAuthGuest() {
+    state.currentUser = null;
+    state.isGuest = true;
+    enterStartScreen();
+  }
+
+  async function enterStartScreen() {
+    updateUserChipUI();
+    showScreen('start');
+    const highlightId = state.currentUser ? state.currentUser.id : null;
+    refreshLeaderboardWidget(dom.leaderboardStartList, highlightId);
+  }
+
+  function logout() {
+    clearSession();
+    state.currentUser = null;
+    state.isGuest = false;
+    dom.authName.value = '';
+    dom.authPin.value = '';
+    setAuthError('');
+    showScreen('auth');
+  }
 
   // ---------- Learn Screen ----------
   function renderLearnScreen() {
@@ -280,12 +384,11 @@
       item.innerHTML = `
         <button type="button" class="speak-btn" aria-label="ฟังเสียง">${SPEAKER_SVG}</button>
         <div class="word-text">
-          <div class="en">${w.word}</div>
-          <div class="th">${w.thai}</div>
+          <div class="en">${escapeHtml(w.word)}</div>
+          <div class="th">${escapeHtml(w.thai)}</div>
         </div>
       `;
       const btn = item.querySelector('.speak-btn');
-      // หน้าเรียนรู้คำศัพท์ไม่มีการลาก จึงใช้ click ปกติได้อย่างปลอดภัย
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
         TTS.speak(w.word, btn);
@@ -305,6 +408,7 @@
     state.rightOrder = shuffle(state.currentWords);
     state.matched = new Map();
     state.wrongCount = 0;
+    state.wrongWordsList = [];
     state.score = 0;
     state.gameResults = [];
 
@@ -322,13 +426,8 @@
     dom.rightList.innerHTML = '';
     dom.linesSvg.innerHTML = '';
 
-    state.currentWords.forEach(w => {
-      dom.leftList.appendChild(createLeftRow(w));
-    });
-
-    state.rightOrder.forEach(w => {
-      dom.rightList.appendChild(createRightRow(w));
-    });
+    state.currentWords.forEach(w => dom.leftList.appendChild(createLeftRow(w)));
+    state.rightOrder.forEach(w => dom.rightList.appendChild(createRightRow(w)));
   }
 
   function createLeftRow(word) {
@@ -338,12 +437,10 @@
     row.dataset.side = 'left';
     row.dataset.word = word.word;
     row.innerHTML = `
-      <div class="word-text">${word.word}</div>
+      <div class="word-text">${escapeHtml(word.word)}</div>
       <button type="button" class="speak-btn" aria-label="ฟังเสียง / ลากไปจับคู่">${SPEAKER_SVG}</button>
     `;
-    // หมายเหตุ: ปุ่มนี้ทำ 2 หน้าที่ - "แตะ" = ฟังเสียง, "ลาก" = จับคู่คำ
-    // การจัดการทั้งสองอย่างทำผ่าน Pointer Events ชุดเดียวใน setupDragListeners()
-    // (ดู onPointerUp สำหรับตรรกะแยกแตะ/ลาก) ไม่มี click listener แยกอีกต่อไป
+    // ปุ่มนี้ทำ 2 หน้าที่ - "แตะ" = ฟังเสียง, "ลาก" = จับคู่คำ (ดู onPointerUp)
     return row;
   }
 
@@ -354,7 +451,7 @@
     row.dataset.side = 'right';
     row.innerHTML = `
       <div class="drop-target" data-id="${word.id}"></div>
-      <div class="word-text">${word.thai}</div>
+      <div class="word-text">${escapeHtml(word.thai)}</div>
     `;
     return row;
   }
@@ -385,7 +482,6 @@
 
   // =========================================================
   // ---------- Pointer handling: แตะ = ฟังเสียง, ลาก = จับคู่ ----------
-  // ใช้ Pointer Events (รองรับทั้งเมาส์/นิ้ว/ปากกาในโค้ดชุดเดียว)
   // =========================================================
   function setupDragListeners() {
     const area = dom.gameArea;
@@ -421,7 +517,6 @@
     const dy = e.clientY - state.startY;
     const dist = Math.hypot(dx, dy);
 
-    // เพิ่งขยับเกิน threshold ครั้งแรก -> เริ่มถือว่าเป็นการ "ลาก" และวาดเส้น
     if (!state.isDragging && dist > DRAG_THRESHOLD_PX) {
       state.isDragging = true;
       state.dragStartEl.classList.add('dragging');
@@ -453,25 +548,19 @@
     cleanupPointerState();
 
     if (!wasDragging) {
-      // แตะเฉยๆ ไม่ได้ลาก -> เล่นเสียงคำศัพท์
       const word = state.currentWords.find(w => String(w.id) === String(leftId));
       if (word && btn) TTS.speak(word.word, btn);
       return;
     }
 
-    // ลากจริง -> ตรวจว่าปล่อยตรงคำแปลฝั่งขวาหรือไม่
-    document.querySelectorAll('.drop-target.highlight').forEach(el => {
-      el.classList.remove('highlight');
-    });
+    document.querySelectorAll('.drop-target.highlight').forEach(el => el.classList.remove('highlight'));
 
     dom.linesSvg.style.display = 'none';
     const target = document.elementFromPoint(e.clientX, e.clientY);
     dom.linesSvg.style.display = 'block';
 
     const rightRow = target?.closest?.('.word-row[data-side="right"]');
-    if (rightRow) {
-      handleMatch(leftId, rightRow.dataset.id, rightRow);
-    }
+    if (rightRow) handleMatch(leftId, rightRow.dataset.id, rightRow);
   }
 
   function onPointerCancel() {
@@ -479,16 +568,9 @@
   }
 
   function cleanupPointerState() {
-    if (state.dragStartEl) {
-      state.dragStartEl.classList.remove('dragging');
-    }
-    if (state.drawingLine) {
-      state.drawingLine.remove();
-      state.drawingLine = null;
-    }
-    document.querySelectorAll('.drop-target.highlight').forEach(el => {
-      el.classList.remove('highlight');
-    });
+    if (state.dragStartEl) state.dragStartEl.classList.remove('dragging');
+    if (state.drawingLine) { state.drawingLine.remove(); state.drawingLine = null; }
+    document.querySelectorAll('.drop-target.highlight').forEach(el => el.classList.remove('highlight'));
 
     state.pointerId = null;
     state.isPointerDown = false;
@@ -511,18 +593,14 @@
   }
 
   function highlightNearestDropTarget(clientX, clientY) {
-    document.querySelectorAll('.drop-target.highlight').forEach(el => {
-      el.classList.remove('highlight');
-    });
+    document.querySelectorAll('.drop-target.highlight').forEach(el => el.classList.remove('highlight'));
 
     dom.linesSvg.style.display = 'none';
     const target = document.elementFromPoint(clientX, clientY);
     dom.linesSvg.style.display = 'block';
 
     const dropTarget = target?.closest?.('.drop-target');
-    if (dropTarget && !dropTarget.classList.contains('matched-dot')) {
-      dropTarget.classList.add('highlight');
-    }
+    if (dropTarget && !dropTarget.classList.contains('matched-dot')) dropTarget.classList.add('highlight');
   }
 
   function getElementCenter(el) {
@@ -536,7 +614,6 @@
 
   function handleMatch(leftId, rightId, rightRow) {
     if (state.matched.has(leftId)) return;
-
     for (const [, rid] of state.matched.entries()) {
       if (rid === rightId) return;
     }
@@ -557,15 +634,12 @@
       updateScoreUI();
 
       const word = state.currentWords.find(w => String(w.id) === String(leftId));
-      if (word) {
-        state.gameResults.push({ word: word.word, thai: word.thai, correct: true });
-      }
+      if (word) state.gameResults.push({ word: word.word, thai: word.thai, correct: true });
 
-      if (state.matched.size === WORDS_PER_GAME) {
-        setTimeout(endGame, 500);
-      }
+      if (state.matched.size === WORDS_PER_GAME) setTimeout(endGame, 500);
     } else {
       state.wrongCount++;
+      state.wrongWordsList.push(leftRow.dataset.word);
       drawWrongLine(leftRow, rightRow);
       leftRow.classList.add('wrong-flash');
       rightRow.classList.add('wrong-flash');
@@ -581,10 +655,8 @@
     const p2 = getElementCenter(rightRow.querySelector('.drop-target'));
     const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
     line.setAttribute('class', 'line-correct');
-    line.setAttribute('x1', p1.x);
-    line.setAttribute('y1', p1.y);
-    line.setAttribute('x2', p2.x);
-    line.setAttribute('y2', p2.y);
+    line.setAttribute('x1', p1.x); line.setAttribute('y1', p1.y);
+    line.setAttribute('x2', p2.x); line.setAttribute('y2', p2.y);
     dom.linesSvg.appendChild(line);
   }
 
@@ -593,16 +665,52 @@
     const p2 = getElementCenter(rightRow.querySelector('.drop-target'));
     const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
     line.setAttribute('class', 'line-wrong');
-    line.setAttribute('x1', p1.x);
-    line.setAttribute('y1', p1.y);
-    line.setAttribute('x2', p2.x);
-    line.setAttribute('y2', p2.y);
+    line.setAttribute('x1', p1.x); line.setAttribute('y1', p1.y);
+    line.setAttribute('x2', p2.x); line.setAttribute('y2', p2.y);
     dom.linesSvg.appendChild(line);
     setTimeout(() => line.remove(), 800);
   }
 
+  // ---------- Save score / XP after a game ----------
+  async function applyXpAndSave(xpEarned) {
+    if (state.isGuest) {
+      const progress = loadGuestProgress();
+      const oldXp = progress.xp;
+      const newXp = oldXp + xpEarned;
+      saveGuestProgress(newXp);
+      return { oldLevel: levelFromXp(oldXp), newLevel: levelFromXp(newXp), newXp, myId: null };
+    }
+
+    const user = state.currentUser;
+    if (!user) return { oldLevel: 1, newLevel: 1, newXp: 0, myId: null };
+
+    const oldXp = user.xp;
+    const newXp = oldXp + xpEarned;
+    const oldLevel = levelFromXp(oldXp);
+    const newLevel = levelFromXp(newXp);
+
+    if (sb) {
+      try {
+        await sb.from('users').update({ xp: newXp, level: newLevel }).eq('id', user.id);
+        await sb.from('game_stats').insert({
+          user_id: user.id,
+          score: state.score,
+          words_matched: state.matched.size,
+          wrong_words: state.wrongWordsList,
+          time_spent: getElapsedSeconds()
+        });
+      } catch (e) {
+        console.warn('⚠️ บันทึกคะแนนไป Supabase ไม่สำเร็จ (อาจเน็ตหลุด):', e);
+      }
+    }
+
+    user.xp = newXp;
+    user.level = newLevel;
+    return { oldLevel, newLevel, newXp, myId: user.id };
+  }
+
   // ---------- End Game ----------
-  function endGame() {
+  async function endGame() {
     clearInterval(state.timerInterval);
     const elapsed = getElapsedSeconds();
     const correct = state.matched.size;
@@ -621,18 +729,38 @@
     renderWordReview();
 
     const percent = (correct / WORDS_PER_GAME) * 100;
-    if (percent === 100) {
-      dom.resultTitle.textContent = '🏆 ยอดเยี่ยม! Perfect Score!';
-    } else if (percent >= 80) {
-      dom.resultTitle.textContent = '🎉 เก่งมาก!';
-    } else if (percent >= 60) {
-      dom.resultTitle.textContent = '👍 ดีมาก!';
-    } else {
-      dom.resultTitle.textContent = '💪 ลองใหม่อีกครั้งนะ!';
+    if (percent === 100) dom.resultTitle.textContent = '🏆 ยอดเยี่ยม! Perfect Score!';
+    else if (percent >= 80) dom.resultTitle.textContent = '🎉 เก่งมาก!';
+    else if (percent >= 60) dom.resultTitle.textContent = '👍 ดีมาก!';
+    else dom.resultTitle.textContent = '💪 ลองใหม่อีกครั้งนะ!';
+
+    showScreen('result');
+
+    // XP / level / rank (แสดงผลแบบ progressive - ไม่บล็อกหน้าจอสรุปผล)
+    const xpEarned = calcXpEarned(state.score, wrong, elapsed);
+    dom.xpGainValue.textContent = xpEarned;
+    dom.levelUpBanner.style.display = 'none';
+
+    const { oldLevel, newLevel, newXp, myId } = await applyXpAndSave(xpEarned);
+    updateUserChipUI();
+
+    if (newLevel > oldLevel) {
+      dom.levelUpValue.textContent = newLevel;
+      dom.levelUpBanner.style.display = 'block';
     }
 
-    saveHighScore(state.score);
-    showScreen('result');
+    if (state.isGuest) {
+      dom.myRankLine.textContent = 'เล่นแบบ Guest — เข้าสู่ระบบเพื่อบันทึกคะแนนและขึ้นอันดับ';
+    } else if (sb && myId) {
+      const rankInfo = await fetchMyRank(newXp);
+      dom.myRankLine.textContent = rankInfo
+        ? `อันดับของคุณ: อันดับที่ ${rankInfo.rank} จาก ${rankInfo.total} คน`
+        : '';
+    } else {
+      dom.myRankLine.textContent = '';
+    }
+
+    refreshLeaderboardWidget(dom.leaderboardResultList, state.isGuest ? null : (state.currentUser ? state.currentUser.id : null));
   }
 
   // ---------- Render Word Review ----------
@@ -651,13 +779,112 @@
       div.className = `word-review-item ${item.correct ? 'correct' : 'wrong'}`;
       div.innerHTML = `
         <span class="word-review-status">${item.correct ? '✅' : '❌'}</span>
-        <span class="word-review-en">${index + 1}. ${item.word}</span>
+        <span class="word-review-en">${index + 1}. ${escapeHtml(item.word)}</span>
         <span class="word-review-arrow">=</span>
-        <span class="word-review-th">${item.thai}</span>
+        <span class="word-review-th">${escapeHtml(item.thai)}</span>
       `;
       dom.wordReviewList.appendChild(div);
     });
   }
+
+  // =========================================================
+  // ---------- Text To Speech ----------
+  // "แตะ" กับ "ลาก" แยกกันด้วย Pointer Events (ดูฟังก์ชัน onPointerUp)
+  // ไม่พึ่ง click event บนปุ่มลำโพงฝั่งซ้ายอีกต่อไป เพราะบนมือถือ
+  // touchstart ที่เรียก preventDefault จะบล็อก click ที่ตามมา
+  // =========================================================
+  const TTS = (() => {
+    let voices = [];
+    let isSpeaking = false;
+    let unlocked = false;
+    let hasWarnedUnsupported = false;
+
+    function refreshVoices() {
+      if ('speechSynthesis' in window) voices = window.speechSynthesis.getVoices();
+    }
+
+    function pickVoice() {
+      if (voices.length === 0) return null;
+      // เสียง local (ในเครื่อง) เสถียรกว่าเสียง remote (ผ่านเน็ต) มาก
+      const localEnUS = voices.filter(v => v.lang === 'en-US' && v.localService);
+      const localEn = voices.filter(v => v.lang && v.lang.startsWith('en') && v.localService);
+      const anyEnUS = voices.filter(v => v.lang === 'en-US');
+      const anyEn = voices.filter(v => v.lang && v.lang.startsWith('en'));
+      return localEnUS[0] || localEn[0] || anyEnUS[0] || anyEn[0] || voices.find(v => v.default) || voices[0];
+    }
+
+    function init() {
+      if (!('speechSynthesis' in window)) return;
+      try { window.speechSynthesis.cancel(); } catch (e) { /* ignore */ }
+
+      refreshVoices();
+      window.speechSynthesis.onvoiceschanged = refreshVoices;
+
+      const unlock = () => {
+        if (unlocked) return;
+        unlocked = true;
+        try {
+          const u = new SpeechSynthesisUtterance('');
+          u.volume = 0;
+          window.speechSynthesis.speak(u);
+        } catch (e) { /* ignore */ }
+      };
+      document.addEventListener('pointerdown', unlock, { once: true, capture: true });
+
+      setInterval(() => {
+        if (window.speechSynthesis.paused) window.speechSynthesis.resume();
+      }, 4000);
+    }
+
+    function setButtonState(btnEl, speaking) {
+      if (btnEl) btnEl.classList.toggle('speaking', speaking);
+    }
+
+    function speak(text, btnEl) {
+      if (!('speechSynthesis' in window)) {
+        if (!hasWarnedUnsupported) {
+          hasWarnedUnsupported = true;
+          alert('❌ เบราว์เซอร์นี้ไม่รองรับการอ่านออกเสียง (Text To Speech)');
+        }
+        return;
+      }
+
+      if (isSpeaking) window.speechSynthesis.cancel();
+      isSpeaking = true;
+      setButtonState(btnEl, true);
+
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = 'en-US';
+      utter.rate = 0.9;
+      utter.pitch = 1.1;
+      utter.volume = 1.0;
+
+      const voice = pickVoice();
+      if (voice) utter.voice = voice;
+
+      let settled = false;
+      const finish = () => {
+        if (settled) return;
+        settled = true;
+        isSpeaking = false;
+        setButtonState(btnEl, false);
+      };
+
+      utter.onend = finish;
+      utter.onerror = (e) => {
+        console.warn('⚠️ TTS ถูกขัดจังหวะ หรือเกิดข้อผิดพลาด:', e && e.error);
+        finish();
+      };
+
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(utter);
+
+      setTimeout(() => { if (window.speechSynthesis.paused) window.speechSynthesis.resume(); }, 150);
+      setTimeout(finish, 4000);
+    }
+
+    return { init, speak };
+  })();
 
   // ---------- Share Result (Social/Mobile) ----------
   function buildShareText() {
@@ -682,11 +909,7 @@
     document.body.appendChild(textarea);
     textarea.focus();
     textarea.select();
-    try {
-      document.execCommand('copy');
-    } catch (err) {
-      console.error('❌ Fallback copy failed:', err);
-    }
+    try { document.execCommand('copy'); } catch (err) { console.error('❌ Fallback copy failed:', err); }
     document.body.removeChild(textarea);
   }
 
@@ -718,6 +941,11 @@
 
   // ---------- Event Listeners ----------
   function bindEvents() {
+    dom.btnAuthSubmit.addEventListener('click', handleAuthSubmit);
+    dom.authPin.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleAuthSubmit(); });
+    dom.btnAuthGuest.addEventListener('click', handleAuthGuest);
+    dom.btnLogout.addEventListener('click', logout);
+
     dom.btnStart.addEventListener('click', () => {
       if (state.allWords.length < WORDS_PER_GAME) {
         alert('❌ คำศัพท์ไม่พอ (ต้องมีอย่างน้อย ' + WORDS_PER_GAME + ' คำ)');
@@ -727,31 +955,33 @@
       showScreen('learn');
     });
 
-    dom.btnGoGame.addEventListener('click', () => {
-      startNewGame();
-    });
-
-    dom.btnRestart.addEventListener('click', () => {
-      startNewGame();
-    });
+    dom.btnGoGame.addEventListener('click', startNewGame);
+    dom.btnRestart.addEventListener('click', startNewGame);
 
     dom.btnHome.addEventListener('click', () => {
-      renderHighScore();
-      showScreen('start');
+      enterStartScreen();
     });
 
-    if (dom.btnShare) {
-      dom.btnShare.addEventListener('click', shareResult);
-    }
+    if (dom.btnShare) dom.btnShare.addEventListener('click', shareResult);
   }
 
   // ---------- Init ----------
   async function init() {
-    renderHighScore();
+    initSupabaseClient();
     TTS.init();
+
     await loadWords();
     setupDragListeners();
     bindEvents();
+
+    const restored = await restoreSession();
+    if (restored) {
+      state.currentUser = restored;
+      state.isGuest = false;
+      await enterStartScreen();
+    }
+    // ถ้ายังไม่มี session ให้ค้างอยู่หน้า auth (active อยู่แล้วโดย default)
+
     console.log('✅ เกมพร้อมใช้งาน');
   }
 

@@ -4,112 +4,138 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Word Match Puzzle - เกมฝึกคำศัพท์</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
   <script>document.write('<link rel="stylesheet" href="style.css?v=' + Date.now() + '">');</script>
   <link rel="manifest" href="manifest.json" />
   <link rel="icon" href="images/icon/icon-192.png" />
+
+  <!-- Supabase JS client (สำหรับระบบ login / rank / xp) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 </head>
 <body>
   <div id="app">
 
-    <!-- หน้าจอเริ่มเกม -->
-    <section id="screen-start" class="screen active">
-      <div class="card start-card">
-        <h1 class="game-title"> Word Match Puzzle</h1>
-        <p class="subtitle">เกมฝึกคำศัพท์ภาษาอังกฤษสำหรับเด็ก</p>
+    <!-- หน้าจอเข้าสู่ระบบ -->
+    <section id="screen-auth" class="screen active">
+      <div class="card auth-card">
+        <div class="auth-logo">WP</div>
+        <h1 class="game-title" style="font-size:1.5rem;">Word Match Puzzle</h1>
+        <p class="subtitle">ใส่ชื่อกับ PIN เพื่อบันทึกคะแนน แข่งอันดับกับเพื่อน</p>
 
-        <div class="info-box">
-          <p>📚 <strong>วิธีเล่น</strong></p>
-          <ol>
-            <li>เรียนคำศัพท์ก่อนเริ่มเกม</li>
-            <li>ลากเส้นจากคำอังกฤษไปหาคำแปลไทย</li>
-            <li>ตอบถูก = เส้นเขียว ✅</li>
-            <li>ตอบผิด = เส้นแดงแล้วหายไป ❌</li>
-          </ol>
+        <div class="field">
+          <label for="auth-name">ชื่อผู้เล่น</label>
+          <input id="auth-name" type="text" maxlength="20" placeholder="เช่น น้องมิว" autocomplete="off" />
+        </div>
+        <div class="field">
+          <label for="auth-pin">PIN (ตัวเลข 4-6 หลัก)</label>
+          <input id="auth-pin" type="password" inputmode="numeric" maxlength="6" placeholder="••••" autocomplete="off" />
         </div>
 
-        <div class="high-score-box">
-          <p> คะแนนสูงสุด: <span id="high-score">0</span></p>
-        </div>
+        <div id="auth-error" class="auth-error"></div>
 
-        <button id="btn-start" class="btn btn-primary">🎮 เริ่มเกม</button>
+        <button id="btn-auth-submit" class="btn btn-primary btn-block">เข้าสู่ระบบ / สร้างบัญชีใหม่</button>
+
+        <div class="auth-divider">หรือ</div>
+
+        <button id="btn-auth-guest" class="btn btn-ghost btn-block">🎮 เล่นแบบไม่ล็อกอิน (Guest)</button>
+
+        <p class="auth-hint">ถ้าชื่อนี้ยังไม่เคยเล่น ระบบจะสร้างบัญชีให้อัตโนมัติ<br />ถ้าเคยเล่นแล้วให้ใส่ PIN เดิมเพื่อเข้าสู่ระบบ</p>
       </div>
     </section>
 
-    <!-- หน้าจอเรียนคำศัพท์ -->
+    <!-- หน้าจอเริ่มเกม -->
+    <section id="screen-start" class="screen">
+      <div class="topbar">
+        <div id="user-chip" class="user-chip">
+          <div id="start-level-badge" class="level-badge">1</div>
+          <div class="user-chip-info">
+            <div id="start-user-name" class="user-chip-name">ผู้เล่น</div>
+            <div class="xp-bar"><div id="start-xp-fill" class="xp-bar-fill segmented" style="width:0%"></div></div>
+            <div id="start-xp-caption" class="xp-caption">0 / 100 XP</div>
+          </div>
+        </div>
+        <button id="btn-logout" class="btn btn-ghost" style="padding:10px 14px;">ออก</button>
+      </div>
+
+      <div class="card start-card">
+        <h1 class="game-title">Word Match Puzzle</h1>
+        <p class="subtitle">เกมฝึกคำศัพท์ภาษาอังกฤษสำหรับเด็ก</p>
+
+        <div class="info-box">
+          🎯 จับคู่คำศัพท์ภาษาอังกฤษกับคำแปลภาษาไทย<br />
+          🔊 แตะไอคอนลำโพงเพื่อฟังเสียง หรือลากไปจับคู่ได้เลย<br />
+          ⭐ ตอบถูกได้ <b>10 คะแนน</b> ต่อคำ ยิ่งไม่ตอบผิดยิ่งได้ XP โบนัส
+        </div>
+
+        <button id="btn-start" class="btn btn-primary btn-block">🚀 เริ่มเล่น</button>
+
+        <div id="leaderboard-start" class="leaderboard">
+          <div class="leaderboard-header">
+            <span class="leaderboard-title">🏆 อันดับผู้เล่น</span>
+          </div>
+          <div id="leaderboard-start-list"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- หน้าจอเรียนรู้คำศัพท์ก่อนเล่น -->
     <section id="screen-learn" class="screen">
-      <div class="card learn-card">
-        <h2>📖 เรียนคำศัพท์ก่อนเริ่มเกม</h2>
-        <p class="learn-hint">กดปุ่ม 🔊 เพื่อฟังเสียงอ่าน</p>
+      <div class="card">
+        <h2 class="game-title" style="font-size:1.3rem;">📖 เรียนรู้คำศัพท์</h2>
+        <p class="subtitle">แตะลำโพงเพื่อฟังเสียงคำศัพท์ก่อนเริ่มเล่น</p>
         <div id="learn-list" class="learn-list"></div>
-        <button id="btn-go-game" class="btn btn-primary">🚀 เริ่มเล่นเลย!</button>
+        <button id="btn-go-game" class="btn btn-primary btn-block">✅ พร้อมแล้ว เริ่มเกม!</button>
       </div>
     </section>
 
     <!-- หน้าจอเล่นเกม -->
     <section id="screen-game" class="screen">
-      <header class="game-header">
-        <div class="stat">
-          <span class="stat-icon">️</span>
-          <span id="timer">00:00</span>
+      <div class="card">
+        <div class="game-topbar">
+          <div class="stat-chip">⏱️ <b id="timer">00:00</b></div>
+          <div class="stat-chip">⭐ <b id="score">0</b></div>
+          <div class="stat-chip">📊 <b id="progress">0/10</b></div>
         </div>
-        <div class="stat">
-          <span class="stat-icon">⭐</span>
-          <span id="score">0</span>
-        </div>
-        <div class="stat">
-          <span class="stat-icon"></span>
-          <span id="progress">0/20</span>
-        </div>
-      </header>
 
-      <div id="game-area" class="game-area">
-        <div class="column column-left">
-          <h3>English</h3>
-          <div id="left-list" class="word-list"></div>
+        <div id="game-area" class="game-area">
+          <svg id="lines-svg"></svg>
+          <div class="column column-left" id="left-list"></div>
+          <div class="column column-right" id="right-list"></div>
         </div>
-        <div class="column column-right">
-          <h3>ภาษาไทย</h3>
-          <div id="right-list" class="word-list"></div>
-        </div>
-        <svg id="lines-svg" class="lines-svg"></svg>
       </div>
     </section>
 
     <!-- หน้าจอสรุปผล -->
     <section id="screen-result" class="screen">
       <div class="card result-card">
-        <h2 id="result-title">🎉 จบเกม!</h2>
-        
-        <!-- วันที่เวลา -->
-        <div class="result-datetime">
-          <span class="datetime-icon">📅</span>
-          <span id="result-datetime-text">-</span>
+        <h2 id="result-title">🎉 เก่งมาก!</h2>
+        <div id="result-datetime-text" class="result-datetime"></div>
+
+        <div id="level-up-banner" class="level-up-banner" style="display:none;">🎊 เลเวลอัพ! ตอนนี้เลเวล <span id="level-up-value"></span> แล้ว</div>
+
+        <div id="xp-gain-banner" class="xp-gain-banner">+<span id="xp-gain-value">0</span> XP</div>
+
+        <div class="score-grid">
+          <div class="score-cell"><div class="num"><span id="final-score">0</span>/<span id="total-score">100</span></div><div class="label">คะแนน</div></div>
+          <div class="score-cell"><div class="num" id="correct-count">0</div><div class="label">ถูก</div></div>
+          <div class="score-cell"><div class="num" id="wrong-count">0</div><div class="label">ผิด</div></div>
+        </div>
+        <div class="score-cell" style="margin-bottom:6px;">⏱️ เวลาที่ใช้: <b id="final-time">00:00</b></div>
+
+        <div id="my-rank-line" class="my-rank-line"></div>
+
+        <div id="leaderboard-result" class="leaderboard" style="text-align:left;">
+          <div class="leaderboard-header">
+            <span class="leaderboard-title">🏆 อันดับผู้เล่น</span>
+          </div>
+          <div id="leaderboard-result-list"></div>
         </div>
 
-        <div class="result-score">
-          <div class="score-big"><span id="final-score">0</span> / <span id="total-score">200</span></div>
-          <p class="score-label">คะแนน</p>
-        </div>
-        <div class="result-stats">
-          <div class="stat-item correct">
-            <div class="stat-num" id="correct-count">0</div>
-            <div class="stat-label">✅ ตอบถูก</div>
-          </div>
-          <div class="stat-item wrong">
-            <div class="stat-num" id="wrong-count">0</div>
-            <div class="stat-label">❌ ตอบผิด</div>
-          </div>
-          <div class="stat-item time">
-            <div class="stat-num" id="final-time">00:00</div>
-            <div class="stat-label">⏱️ เวลาที่ใช้</div>
-          </div>
-        </div>
-
-        <!-- รายการคำศัพท์ -->
-        <div class="word-review-section">
-          <h3>📋 คำศัพท์ในชุดนี้</h3>
-          <div id="word-review-list" class="word-review-list"></div>
-        </div>
+        <div id="word-review-list" class="word-review-list"></div>
 
         <div class="result-buttons">
           <button id="btn-restart" class="btn btn-primary">🔄 เล่นใหม่</button>
