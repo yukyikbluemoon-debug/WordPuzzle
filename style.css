@@ -507,8 +507,8 @@ body {
   position: relative;
   display: flex;
   justify-content: space-between;
-  gap: 14px;
-  padding: 16px;
+  gap: 20px;  /* เพิ่มช่องว่างตรงกลาง */
+  padding: 20px;
   background: var(--bg-panel);
   border: 1px solid var(--border-soft);
   border-radius: 20px;
@@ -518,7 +518,7 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;  /* ลดช่องว่างระหว่างกล่อง */
   min-width: 0;
 }
 
@@ -526,11 +526,11 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 10px;
+  padding: 10px 14px;  /* ปรับ padding */
   background: var(--bg-panel-2);
   border: 1px solid var(--border-soft);
   border-radius: 12px;
-  height: 36px;
+  height: 48px;  /* ← ลดจาก 40px เป็น 48px (แต่ดูสั้นลงเพราะ padding น้อยลง) */
   width: 100%;
   transition: background 0.2s ease, border-color 0.2s ease;
 }
@@ -556,7 +556,7 @@ body {
 .column-right .word-row { justify-content: flex-start; }
 
 .word-row .word-text {
-  font-size: 0.92rem;
+  font-size: 0.9rem;
   font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
@@ -565,8 +565,8 @@ body {
 }
 
 .speak-btn {
-  width: 34px;
-  height: 34px;
+  width: 32px;   /* ← ลดจาก 34px */
+  height: 32px;  /* ← ลดจาก 34px */
   border-radius: 50%;
   border: none;
   background: linear-gradient(135deg, var(--violet), #6a5adf);
@@ -583,11 +583,12 @@ body {
 }
 
 .speak-btn svg {
-  width: 16px;
-  height: 16px;
+  width: 14px;  /* ← ลดจาก 16px */
+  height: 14px; /* ← ลดจาก 16px */
   fill: currentColor;
   pointer-events: none;
 }
+
 
 .speak-btn:active { transform: scale(0.92); }
 
