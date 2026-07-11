@@ -552,8 +552,15 @@ body {
   75% { transform: translateX(4px); }
 }
 
-.column-left .word-row { justify-content: space-between; }
-.column-right .word-row { justify-content: flex-start; }
+.column-left .word-row {
+  align-self: flex-start;
+  justify-content: space-between;
+}
+
+.column-right .word-row {
+  align-self: flex-end;
+  justify-content: flex-start;
+}
 
 .word-row .word-text {
   font-size: 0.9rem;
