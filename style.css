@@ -526,11 +526,11 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 12px;
+  padding: 8px 12px;
   background: var(--bg-panel-2);
   border: 1px solid var(--border-soft);
   border-radius: 12px;
-  min-height: 46px;
+  height: 40px;
   width: 100%;
   transition: background 0.2s ease, border-color 0.2s ease;
 }
@@ -558,7 +558,10 @@ body {
 .word-row .word-text {
   font-size: 0.92rem;
   font-weight: 600;
-  overflow-wrap: anywhere;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
 
 .speak-btn {
@@ -753,7 +756,7 @@ a:focus-visible, button:focus-visible, input:focus-visible {
 @media (max-width: 480px) {
   .card { padding: 24px 16px; border-radius: 18px; }
   .game-title { font-size: 1.7rem; }
-  .word-row { padding: 8px 10px; min-height: 42px; }
+  .word-row { padding: 6px 10px; height: 36px; }
   .speak-btn { width: 30px; height: 30px; }
   .speak-btn svg { width: 14px; height: 14px; }
   .score-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
