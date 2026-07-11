@@ -446,6 +446,63 @@ body {
 
 .info-box b { color: var(--text-light); }
 
+/* ---------- Sunday Boss Rush theme ---------- */
+.boss-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 6px;
+  background: linear-gradient(120deg, rgba(255, 92, 74, 0.22), rgba(255, 200, 87, 0.22));
+  border: 1px solid var(--gold);
+  border-radius: 14px;
+  padding: 10px 14px;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--gold);
+  margin-bottom: 18px;
+  animation: bossGlow 2.2s ease-in-out infinite;
+}
+
+@keyframes bossGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 107, 74, 0.35); }
+  50%      { box-shadow: 0 0 22px 4px rgba(255, 107, 74, 0.35); }
+}
+
+body.boss-day .card {
+  border-color: rgba(255, 200, 87, 0.5);
+}
+
+body.boss-day .game-area {
+  border-color: var(--gold);
+  animation: bossGlow 2.2s ease-in-out infinite;
+}
+
+body.boss-day .level-badge {
+  box-shadow: 0 0 0 3px rgba(255, 92, 74, 0.4), 0 6px 16px rgba(255, 200, 87, 0.35);
+}
+
+/* คำหมวดพิเศษ/บอสในกระดานเกม ให้เด่นกว่าคำธรรมดา */
+.word-row[data-tier="special"] {
+  border-color: var(--violet);
+  background: linear-gradient(120deg, rgba(140, 123, 255, 0.14), var(--bg-panel-2));
+}
+
+.word-row[data-tier="boss"] {
+  border-color: var(--gold);
+  background: linear-gradient(120deg, rgba(255, 200, 87, 0.16), rgba(255, 92, 74, 0.1));
+}
+
+.word-row.boss-hit {
+  animation: bossHitFlash 0.5s ease;
+}
+
+@keyframes bossHitFlash {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.05); box-shadow: 0 0 0 6px rgba(255, 200, 87, 0.35); }
+  100% { transform: scale(1); }
+}
+
 /* ---------- Learn screen ---------- */
 .learn-list {
   display: grid;
@@ -484,8 +541,10 @@ body {
 /* ---------- Game screen ---------- */
 .game-topbar {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
+  gap: 8px;
   margin-bottom: 14px;
   font-family: var(--font-display);
 }
@@ -503,12 +562,25 @@ body {
 
 .stat-chip b { color: var(--gold); font-size: 1rem; }
 
+.combo-chip {
+  background: linear-gradient(120deg, rgba(255, 92, 74, 0.25), rgba(255, 200, 87, 0.25));
+  border-color: var(--gold);
+  animation: comboPulse 0.9s ease-in-out infinite;
+}
+
+.combo-chip b { color: var(--coral); }
+
+@keyframes comboPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 107, 74, 0.4); }
+  50%      { box-shadow: 0 0 0 6px rgba(255, 107, 74, 0); }
+}
+
 .game-area {
   position: relative;
   display: flex;
   justify-content: space-between;
-  gap: 20px;  /* เพิ่มช่องว่างตรงกลาง */
-  padding: 20px;
+  gap: 14px;
+  padding: 16px;
   background: var(--bg-panel);
   border: 1px solid var(--border-soft);
   border-radius: 20px;
@@ -518,7 +590,7 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 10px;  /* ลดช่องว่างระหว่างกล่อง */
+  gap: 12px;
   min-width: 0;
 }
 
@@ -526,11 +598,11 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 14px;  /* ปรับ padding */
+  padding: 8px 12px;
   background: var(--bg-panel-2);
   border: 1px solid var(--border-soft);
   border-radius: 12px;
-  height: 48px;  /* ← ลดจาก 40px เป็น 48px (แต่ดูสั้นลงเพราะ padding น้อยลง) */
+  height: 40px;
   width: 100%;
   transition: background 0.2s ease, border-color 0.2s ease;
 }
@@ -552,18 +624,11 @@ body {
   75% { transform: translateX(4px); }
 }
 
-.column-left .word-row {
-  align-self: flex-start;
-  justify-content: space-between;
-}
-
-.column-right .word-row {
-  align-self: flex-end;
-  justify-content: flex-start;
-}
+.column-left .word-row { justify-content: space-between; }
+.column-right .word-row { justify-content: flex-start; }
 
 .word-row .word-text {
-  font-size: 0.9rem;
+  font-size: 0.92rem;
   font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
@@ -572,8 +637,8 @@ body {
 }
 
 .speak-btn {
-  width: 32px;   /* ← ลดจาก 34px */
-  height: 32px;  /* ← ลดจาก 34px */
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   border: none;
   background: linear-gradient(135deg, var(--violet), #6a5adf);
@@ -590,12 +655,11 @@ body {
 }
 
 .speak-btn svg {
-  width: 14px;  /* ← ลดจาก 16px */
-  height: 14px; /* ← ลดจาก 16px */
+  width: 16px;
+  height: 16px;
   fill: currentColor;
   pointer-events: none;
 }
-
 
 .speak-btn:active { transform: scale(0.92); }
 

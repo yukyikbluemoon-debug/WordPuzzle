@@ -65,10 +65,16 @@
         <h1 class="game-title">Word Match Puzzle</h1>
         <p class="subtitle">เกมฝึกคำศัพท์ภาษาอังกฤษสำหรับเด็ก</p>
 
+        <div id="boss-banner-start" class="boss-banner" style="display:none;">
+          🔥 วันนี้วันอาทิตย์ — Sunday Boss Rush! เจอคำศัพท์บอส TOEIC เพิ่มพิเศษ คะแนนคูณสูงสุด 3x 🔥
+        </div>
+
         <div class="info-box">
           🎯 จับคู่คำศัพท์ภาษาอังกฤษกับคำแปลภาษาไทย<br />
           🔊 แตะไอคอนลำโพงเพื่อฟังเสียง หรือลากไปจับคู่ได้เลย<br />
-          ⭐ ตอบถูกได้ <b>10 คะแนน</b> ต่อคำ ยิ่งไม่ตอบผิดยิ่งได้ XP โบนัส
+          ⭐ ตอบถูกได้ <b>10 คะแนน</b> ต่อคำ ยิ่งไม่ตอบผิดยิ่งได้ XP โบนัส<br />
+          ⭐ คำ <b>พิเศษ</b> (TOEFL/IELTS) จะโผล่บ่อยขึ้นตามเลเวล<br />
+          👑 คำ <b>บอส</b> (TOEIC) เจอเฉพาะวันอาทิตย์ ตอบถูกติดกันคะแนนคูณสูงสุด 3 เท่า!
         </div>
 
         <button id="btn-start" class="btn btn-primary btn-block">🚀 เริ่มเล่น</button>
@@ -99,6 +105,7 @@
           <div class="stat-chip">⏱️ <b id="timer">00:00</b></div>
           <div class="stat-chip">⭐ <b id="score">0</b></div>
           <div class="stat-chip">📊 <b id="progress">0/10</b></div>
+          <div id="combo-chip" class="stat-chip combo-chip" style="display:none;">🔥 <b>x1.5</b></div>
         </div>
 
         <div id="game-area" class="game-area">

@@ -19,6 +19,10 @@
   const SESSION_KEY = 'wp_session';
   const GUEST_KEY = 'wp_guest_progress';
 
+  // ---------- ระบบหมวดคำศัพท์: ธรรมดา / พิเศษ (TOEFL,IELTS) / บอส (TOEIC) ----------
+  const BOSS_MULTIPLIERS = [1.5, 2, 2.5, 3]; // คอมโบตอบถูกคำบอสติดกันครั้งที่ 1,2,3,4+
+  const MISSED_KEY_PREFIX = 'wp_missed_';
+
   const SPEAKER_SVG = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>`;
 
   // ---------- Supabase client ----------
@@ -45,6 +49,8 @@
     wrongCount: 0,
     wrongWordsList: [],
     score: 0,
+    bossStreak: 0,
+    isSundayBoss: false,
     startTime: 0,
     timerInterval: null,
     gameDateTime: null,
@@ -89,6 +95,7 @@
     btnLogout:       $('btn-logout'),
     btnStart:        $('btn-start'),
     leaderboardStartList: $('leaderboard-start-list'),
+    bossBannerStart: $('boss-banner-start'),
 
     // learn
     btnGoGame:       $('btn-go-game'),
@@ -98,6 +105,7 @@
     timer:           $('timer'),
     score:           $('score'),
     progress:        $('progress'),
+    comboChip:       $('combo-chip'),
     leftList:        $('left-list'),
     rightList:       $('right-list'),
     linesSvg:        $('lines-svg'),
@@ -397,6 +405,133 @@
     });
   }
 
+  // =========================================================
+  // ---------- ระบบเลือกคำศัพท์ตามหมวด + วันอาทิตย์ Boss Rush ----------
+  // ธรรมดา: เจอได้ทุกวัน
+  // พิเศษ (TOEFL/IELTS): เจอบ่อยขึ้นตามเลเวลผู้เล่น
+  // บอส (TOEIC): เจอเฉพาะวันอาทิตย์ ยิ่งเลเวลสูงยิ่งเจอเยอะ ตอบถูกได้คะแนนคูณ
+  // =========================================================
+  function isBossDay() {
+    return new Date().getDay() === 0; // อาทิตย์
+  }
+
+  function currentPlayerLevel() {
+    return xpProgress(currentXp()).level;
+  }
+
+  function missedWordsKey() {
+    const who = state.isGuest ? 'guest' : (state.currentUser ? state.currentUser.id : 'guest');
+    return MISSED_KEY_PREFIX + who;
+  }
+
+  function loadMissedWords() {
+    try {
+      return JSON.parse(localStorage.getItem(missedWordsKey())) || {};
+    } catch (e) {
+      return {};
+    }
+  }
+
+  function saveMissedWords(map) {
+    localStorage.setItem(missedWordsKey(), JSON.stringify(map));
+  }
+
+  function recordMissedWord(wordId) {
+    const map = loadMissedWords();
+    map[wordId] = (map[wordId] || 0) + 1;
+    saveMissedWords(map);
+  }
+
+  function recordCorrectWord(wordId) {
+    // ตอบถูกแล้ว ลดระดับ "คำที่เคยพลาด" ลงเล็กน้อย เหมือนเริ่มจดจำได้แล้ว
+    const map = loadMissedWords();
+    if (map[wordId]) {
+      map[wordId] = Math.max(0, map[wordId] - 1);
+      saveMissedWords(map);
+    }
+  }
+
+  function computeSlotCounts(playerLevel, sundayBoss) {
+    let specialSlots = Math.min(Math.floor(playerLevel / 2), 4);
+    let bossSlots = sundayBoss ? Math.min(2 + Math.floor(playerLevel / 3), 6) : 0;
+
+    // กันไม่ให้คำพิเศษ+บอสเบียดคำธรรมดาจนเหลือน้อยเกินไป (เก็บคำธรรมดาไว้อย่างน้อย 2 คำ)
+    while (specialSlots + bossSlots > WORDS_PER_GAME - 2) {
+      if (bossSlots >= specialSlots && bossSlots > 0) bossSlots--;
+      else if (specialSlots > 0) specialSlots--;
+      else break;
+    }
+
+    const normalSlots = WORDS_PER_GAME - specialSlots - bossSlots;
+    return { normalSlots, specialSlots, bossSlots };
+  }
+
+  // เลือกคำบอสแบบถ่วงน้ำหนัก: คำที่เคยตอบผิดบ่อยมีโอกาสเจอสูงกว่า (ไม่ใช่สุ่มล้วน)
+  function pickWeightedWords(pool, n, missedMap) {
+    const available = pool.map(w => ({ w, weight: (missedMap[w.id] || 0) * 3 + 1 }));
+    const picked = [];
+    for (let i = 0; i < n && available.length > 0; i++) {
+      const totalWeight = available.reduce((s, x) => s + x.weight, 0);
+      let r = Math.random() * totalWeight;
+      let idx = 0;
+      for (; idx < available.length; idx++) {
+        r -= available[idx].weight;
+        if (r <= 0) break;
+      }
+      idx = Math.min(idx, available.length - 1);
+      picked.push(available[idx].w);
+      available.splice(idx, 1);
+    }
+    return picked;
+  }
+
+  function pickRandomWords(pool, n) {
+    return shuffle(pool).slice(0, n);
+  }
+
+  function selectGameWords() {
+    const playerLevel = currentPlayerLevel();
+    const sundayBoss = state.isSundayBoss;
+    const { normalSlots, specialSlots, bossSlots } = computeSlotCounts(playerLevel, sundayBoss);
+
+    const normalPool = state.allWords.filter(w => w.tier === 'normal' || !w.tier);
+    const specialPool = state.allWords.filter(w => w.tier === 'special');
+    const bossPool = state.allWords.filter(w => w.tier === 'boss');
+    const missedMap = loadMissedWords();
+
+    let picked = [
+      ...pickRandomWords(normalPool, normalSlots),
+      ...pickRandomWords(specialPool, specialSlots),
+      ...pickWeightedWords(bossPool, bossSlots, missedMap)
+    ];
+
+    // เผื่อบางหมวดมีคำไม่พอ ให้เติมจากคำธรรมดาจนครบจำนวนที่ต้องใช้ต่อเกม
+    if (picked.length < WORDS_PER_GAME) {
+      const usedIds = new Set(picked.map(w => w.id));
+      const filler = normalPool.filter(w => !usedIds.has(w.id));
+      picked = picked.concat(pickRandomWords(filler, WORDS_PER_GAME - picked.length));
+    }
+
+    return shuffle(picked).slice(0, WORDS_PER_GAME);
+  }
+
+  function tierBadge(word) {
+    if (word.tier === 'boss') return '👑 ';
+    if (word.tier === 'special') return '⭐ ';
+    return '';
+  }
+
+  function calcMaxPossibleScore(words) {
+    const bossCount = words.filter(w => w.tier === 'boss').length;
+    const nonBossCount = words.length - bossCount;
+    let max = nonBossCount * POINTS_PER_CORRECT;
+    for (let i = 0; i < bossCount; i++) {
+      const multiplier = BOSS_MULTIPLIERS[Math.min(i, BOSS_MULTIPLIERS.length - 1)];
+      max += Math.round(POINTS_PER_CORRECT * multiplier);
+    }
+    return max;
+  }
+
   // ---------- Game Setup ----------
   function startNewGame() {
     if (state.allWords.length < WORDS_PER_GAME) {
@@ -404,18 +539,21 @@
       return;
     }
 
-    state.currentWords = shuffle(state.allWords).slice(0, WORDS_PER_GAME);
+    state.isSundayBoss = isBossDay();
+    state.currentWords = selectGameWords();
     state.rightOrder = shuffle(state.currentWords);
     state.matched = new Map();
     state.wrongCount = 0;
     state.wrongWordsList = [];
     state.score = 0;
+    state.bossStreak = 0;
     state.gameResults = [];
 
     renderGameBoard();
     resetTimer();
     startTimer();
     updateScoreUI();
+    updateComboUI();
     showScreen('game');
 
     dom.linesSvg.innerHTML = '';
@@ -436,8 +574,9 @@
     row.dataset.id = word.id;
     row.dataset.side = 'left';
     row.dataset.word = word.word;
+    row.dataset.tier = word.tier || 'normal';
     row.innerHTML = `
-      <div class="word-text">${escapeHtml(word.word)}</div>
+      <div class="word-text">${tierBadge(word)}${escapeHtml(word.word)}</div>
       <button type="button" class="speak-btn" aria-label="ฟังเสียง / ลากไปจับคู่">${SPEAKER_SVG}</button>
     `;
     // ปุ่มนี้ทำ 2 หน้าที่ - "แตะ" = ฟังเสียง, "ลาก" = จับคู่คำ (ดู onPointerUp)
@@ -449,9 +588,10 @@
     row.className = 'word-row';
     row.dataset.id = word.id;
     row.dataset.side = 'right';
+    row.dataset.tier = word.tier || 'normal';
     row.innerHTML = `
       <div class="drop-target" data-id="${word.id}"></div>
-      <div class="word-text">${escapeHtml(word.thai)}</div>
+      <div class="word-text">${tierBadge(word)}${escapeHtml(word.thai)}</div>
     `;
     return row;
   }
@@ -478,6 +618,20 @@
   function updateScoreUI() {
     dom.score.textContent = state.score;
     dom.progress.textContent = `${state.matched.size}/${WORDS_PER_GAME}`;
+  }
+
+  function currentBossMultiplier() {
+    return BOSS_MULTIPLIERS[Math.min(state.bossStreak, BOSS_MULTIPLIERS.length - 1)];
+  }
+
+  function updateComboUI() {
+    if (!dom.comboChip) return;
+    if (state.isSundayBoss && state.bossStreak > 0) {
+      dom.comboChip.style.display = 'flex';
+      dom.comboChip.querySelector('b').textContent = `x${currentBossMultiplier()}`;
+    } else {
+      dom.comboChip.style.display = 'none';
+    }
   }
 
   // =========================================================
@@ -623,7 +777,21 @@
 
     if (leftId === rightId) {
       state.matched.set(leftId, rightId);
-      state.score += POINTS_PER_CORRECT;
+
+      const word = state.currentWords.find(w => String(w.id) === String(leftId));
+      let pointsAwarded = POINTS_PER_CORRECT;
+
+      if (word && word.tier === 'boss') {
+        const multiplier = currentBossMultiplier();
+        pointsAwarded = Math.round(POINTS_PER_CORRECT * multiplier);
+        state.bossStreak++;
+        leftRow.classList.add('boss-hit');
+        setTimeout(() => leftRow.classList.remove('boss-hit'), 500);
+      }
+
+      state.score += pointsAwarded;
+      if (word) recordCorrectWord(word.id);
+
       leftRow.classList.add('matched');
       rightRow.classList.add('matched');
 
@@ -632,12 +800,19 @@
 
       drawPermanentLine(leftRow, rightRow);
       updateScoreUI();
+      updateComboUI();
 
-      const word = state.currentWords.find(w => String(w.id) === String(leftId));
       if (word) state.gameResults.push({ word: word.word, thai: word.thai, correct: true });
 
       if (state.matched.size === WORDS_PER_GAME) setTimeout(endGame, 500);
     } else {
+      const word = state.currentWords.find(w => String(w.id) === String(leftId));
+      if (word && word.tier === 'boss') {
+        state.bossStreak = 0; // พลาดคำบอส คอมโบขาด
+        updateComboUI();
+      }
+      if (word) recordMissedWord(word.id);
+
       state.wrongCount++;
       state.wrongWordsList.push(leftRow.dataset.word);
       drawWrongLine(leftRow, rightRow);
@@ -715,7 +890,7 @@
     const elapsed = getElapsedSeconds();
     const correct = state.matched.size;
     const wrong = state.wrongCount;
-    const total = WORDS_PER_GAME * POINTS_PER_CORRECT;
+    const total = calcMaxPossibleScore(state.currentWords);
 
     state.gameDateTime = new Date();
 
@@ -890,7 +1065,7 @@
   function buildShareText() {
     const correct = state.matched.size;
     const wrong = state.wrongCount;
-    const total = WORDS_PER_GAME * POINTS_PER_CORRECT;
+    const total = calcMaxPossibleScore(state.currentWords);
     return [
       '🎯 Word Match Puzzle',
       `⭐ คะแนน: ${state.score}/${total}`,
@@ -969,6 +1144,10 @@
   async function init() {
     initSupabaseClient();
     TTS.init();
+
+    state.isSundayBoss = isBossDay();
+    document.body.classList.toggle('boss-day', state.isSundayBoss);
+    if (dom.bossBannerStart) dom.bossBannerStart.style.display = state.isSundayBoss ? 'flex' : 'none';
 
     await loadWords();
     setupDragListeners();
