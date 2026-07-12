@@ -75,7 +75,13 @@
           🔊 แตะไอคอนลำโพงเพื่อฟังเสียง หรือลากไปจับคู่ได้เลย<br />
           ⭐ ตอบถูกได้ <b>10 คะแนน</b> ต่อคำ ยิ่งไม่ตอบผิดยิ่งได้ XP โบนัส<br />
           ⭐ คำ <b>พิเศษ</b> (TOEFL/IELTS) จะโผล่บ่อยขึ้นตามเลเวล<br />
-          👑 คำ <b>บอส</b> (TOEIC) เจอเฉพาะวันอาทิตย์ ตอบถูกติดกันคะแนนคูณสูงสุด 3 เท่า!
+          👑 คำ <b>บอส</b> (TOEIC) เจอเฉพาะวันอาทิตย์ ตอบถูกติดกันคะแนนคูณสูงสุด 3 เท่า!<br />
+          💰 คะแนนแปลงเป็นเงินได้ (10%) แบ่งเข้ากระปุก/ETF 50/50 อัตโนมัติ
+        </div>
+
+        <div class="earn-widget">
+          <div class="earn-cap-bar"><div id="start-earn-fill" class="earn-cap-bar-fill" style="width:0%"></div></div>
+          <div id="start-earn-caption" class="earn-cap-caption">วันนี้ได้ไปแล้ว 0.00 / 40 บาท</div>
         </div>
 
         <button id="btn-start" class="btn btn-primary btn-block">🚀 เริ่มเล่น</button>
@@ -130,6 +136,8 @@
 
         <div id="xp-gain-banner" class="xp-gain-banner">+<span id="xp-gain-value">0</span> XP</div>
 
+        <div id="earn-banner" class="earn-banner" style="display:none;"></div>
+
         <div class="score-grid">
           <div class="score-cell"><div class="num"><span id="final-score">0</span>/<span id="total-score">100</span></div><div class="label">คะแนน</div></div>
           <div class="score-cell"><div class="num" id="correct-count">0</div><div class="label">ถูก</div></div>
@@ -177,6 +185,9 @@
           <div class="xp-bar profile-xp-bar"><div id="profile-xp-fill" class="xp-bar-fill segmented" style="width:0%"></div></div>
           <div id="profile-xp-caption" class="xp-caption">0 / 100 XP</div>
         </div>
+
+        <div class="profile-section-title">💰 กระปุกเงิน (WordPuzzle Earn)</div>
+        <div id="profile-earn-section" class="profile-earn-grid"></div>
 
         <div id="profile-stats-grid" class="profile-stats-grid"></div>
 

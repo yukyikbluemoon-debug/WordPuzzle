@@ -24,6 +24,10 @@
   const MISSED_KEY_PREFIX = 'wp_missed_';
   const GUEST_STATS_KEY = 'wp_guest_stats';
 
+  // ---------- WordPuzzle Earn: แปลงคะแนนเป็นเงิน (แสดงผลเท่านั้น ไม่จ่ายเงินอัตโนมัติ) ----------
+  const EARN_RATE = 0.10;       // เงินรางวัล = คะแนน x 10%
+  const EARN_DAILY_CAP = 40;    // เพดานรายได้ต่อวัน (บาท) ปรับได้ตามตกลงกับลูก 30-50
+
   // ---------- ระบบ Achievement (เหรียญตรา) ----------
   const ACHIEVEMENTS = [
     { id: 'first_game',   icon: '🎮', title: 'ก้าวแรก',           desc: 'เล่นเกมจบครั้งแรก',                          check: (s) => s.games_played >= 1 },
@@ -120,6 +124,8 @@
     btnStart:        $('btn-start'),
     startAchvCount:  $('start-achv-count'),
     leaderboardStartList: $('leaderboard-start-list'),
+    startEarnFill:   $('start-earn-fill'),
+    startEarnCaption: $('start-earn-caption'),
     bossBannerStart: $('boss-banner-start'),
 
     // achievements
@@ -133,6 +139,7 @@
     profileLevelBadge: $('profile-level-badge'),
     profileXpFill:     $('profile-xp-fill'),
     profileXpCaption:  $('profile-xp-caption'),
+    profileEarnSection: $('profile-earn-section'),
     profileStatsGrid:  $('profile-stats-grid'),
     profileHistoryList: $('profile-history-list'),
     btnProfileBack:    $('btn-profile-back'),
@@ -165,6 +172,7 @@
     finalTime:       $('final-time'),
     myRankLine:      $('my-rank-line'),
     achvUnlockBanner: $('achv-unlock-banner'),
+    earnBanner:      $('earn-banner'),
     resultAchvCount: $('result-achv-count'),
     leaderboardResultList: $('leaderboard-result-list'),
     wordReviewList:  $('word-review-list'),
@@ -404,6 +412,34 @@
     return data || [];
   }
 
+  function renderProfileEarnSection(stats) {
+    if (!dom.profileEarnSection) return;
+    const earn = (stats.earn && typeof stats.earn === 'object') ? stats.earn : defaultStats().earn;
+    const todayBaht = earn.today_date === todayDateStr() ? earn.today_baht : 0;
+    dom.profileEarnSection.innerHTML = `
+      <div class="profile-earn-cell">
+        <div class="profile-earn-icon">💵</div>
+        <div class="profile-earn-value">${(earn.cash_baht || 0).toFixed(2)}</div>
+        <div class="profile-earn-label">เงินสดกระปุก (บาท)</div>
+      </div>
+      <div class="profile-earn-cell">
+        <div class="profile-earn-icon">📈</div>
+        <div class="profile-earn-value">${(earn.etf_baht || 0).toFixed(2)}</div>
+        <div class="profile-earn-label">พอร์ต ETF (บาท)</div>
+      </div>
+      <div class="profile-earn-cell">
+        <div class="profile-earn-icon">💰</div>
+        <div class="profile-earn-value">${(earn.lifetime_baht || 0).toFixed(2)}</div>
+        <div class="profile-earn-label">รวมสะสมทั้งหมด (บาท)</div>
+      </div>
+      <div class="profile-earn-cell">
+        <div class="profile-earn-icon">📅</div>
+        <div class="profile-earn-value">${todayBaht.toFixed(2)}/${EARN_DAILY_CAP}</div>
+        <div class="profile-earn-label">วันนี้ (บาท)</div>
+      </div>
+    `;
+  }
+
   function renderProfileStatsGrid(stats) {
     const unlockedCount = (stats.unlocked || []).length;
     const cells = [
@@ -472,6 +508,7 @@
     dom.profileXpFill.style.width = `${percent}%`;
     dom.profileXpCaption.textContent = `${current} / ${needed} XP`;
 
+    renderProfileEarnSection(statsSource);
     renderProfileStatsGrid(statsSource);
 
     if (dom.btnProfileBack) {
@@ -508,6 +545,8 @@
       const unlockedCount = (loadStats().unlocked || []).length;
       dom.startAchvCount.textContent = `🏅 ${unlockedCount}/${ACHIEVEMENTS.length}`;
     }
+
+    updateStartEarnWidget();
   }
 
   // ---------- Auth screen logic ----------
@@ -640,6 +679,14 @@
   // =========================================================
   // ---------- สถิติสะสม + ปลดล็อก Achievement ----------
   // =========================================================
+  function todayDateStr() {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+
   function defaultStats() {
     return {
       games_played: 0,
@@ -649,7 +696,50 @@
       best_combo: 0,
       fastest_time: null,
       sunday_games: 0,
-      unlocked: []
+      unlocked: [],
+      earn: {
+        lifetime_baht: 0,
+        cash_baht: 0,
+        etf_baht: 0,
+        today_date: null,
+        today_baht: 0
+      }
+    };
+  }
+
+  // คำนวณเงินรางวัลของรอบนี้ + อัปเดตยอดสะสม (แบ่งเงินสด/ETF 50/50) พร้อมกันไม่ให้เกินเพดานรายวัน
+  function calcEarnUpdate(prevEarn, scoreThisGame) {
+    const today = todayDateStr();
+    const earn = prevEarn && typeof prevEarn === 'object' ? { ...prevEarn } : {};
+    if (earn.today_date !== today) {
+      earn.today_date = today;
+      earn.today_baht = 0;
+    }
+    earn.lifetime_baht = earn.lifetime_baht || 0;
+    earn.cash_baht = earn.cash_baht || 0;
+    earn.etf_baht = earn.etf_baht || 0;
+    earn.today_baht = earn.today_baht || 0;
+
+    const round2 = (n) => Math.round(n * 100) / 100;
+    const rawEarned = round2(scoreThisGame * EARN_RATE);
+    const remainingCap = Math.max(0, round2(EARN_DAILY_CAP - earn.today_baht));
+    const awarded = Math.min(rawEarned, remainingCap);
+    const cashPart = round2(awarded / 2);
+    const etfPart = round2(awarded - cashPart); // กันปัดเศษแล้วรวมไม่เท่ากับ awarded
+
+    earn.today_baht = round2(earn.today_baht + awarded);
+    earn.lifetime_baht = round2(earn.lifetime_baht + awarded);
+    earn.cash_baht = round2(earn.cash_baht + cashPart);
+    earn.etf_baht = round2(earn.etf_baht + etfPart);
+
+    return {
+      earn,
+      rawEarned,
+      awarded,
+      cashPart,
+      etfPart,
+      wasCapped: awarded < rawEarned,
+      dailyCapReached: earn.today_baht >= EARN_DAILY_CAP
     };
   }
 
@@ -682,12 +772,64 @@
     stats.fastest_time = stats.fastest_time == null ? summary.elapsed : Math.min(stats.fastest_time, summary.elapsed);
     if (summary.isSunday) stats.sunday_games = (stats.sunday_games || 0) + 1;
 
+    const earnResult = calcEarnUpdate(stats.earn, summary.score);
+    stats.earn = earnResult.earn;
+
     const prevUnlocked = new Set(stats.unlocked || []);
     const nowUnlocked = ACHIEVEMENTS.filter(a => a.check(stats, level)).map(a => a.id);
     const newlyUnlocked = nowUnlocked.filter(id => !prevUnlocked.has(id));
     stats.unlocked = Array.from(new Set([...(stats.unlocked || []), ...nowUnlocked]));
 
-    return { stats, newlyUnlocked };
+    return { stats, newlyUnlocked, earnResult };
+  }
+
+  function renderEarnBanner(earnResult) {
+    if (!dom.earnBanner || !earnResult) return;
+
+    const { awarded, cashPart, etfPart, wasCapped, dailyCapReached, earn } = earnResult;
+
+    let capNote = '';
+    if (awarded === 0 && wasCapped) {
+      capNote = `<div class="earn-cap-note">😅 หมดโควตาวันนี้แล้ว (สูงสุด ${EARN_DAILY_CAP} บาท/วัน) พรุ่งนี้ค่อยมาใหม่นะ</div>`;
+    } else if (wasCapped) {
+      capNote = `<div class="earn-cap-note">⚠️ รอบนี้ได้ไม่เต็มเพราะใกล้แตะเพดานรายวันแล้ว (${EARN_DAILY_CAP} บาท/วัน)</div>`;
+    } else if (dailyCapReached) {
+      capNote = `<div class="earn-cap-note">🎯 แตะเพดานรายวันพอดี (${EARN_DAILY_CAP} บาท) พรุ่งนี้ค่อยมาใหม่นะ</div>`;
+    }
+
+    dom.earnBanner.innerHTML = `
+      <div class="earn-title">🎉 รอบนี้ได้เงินรางวัล ${awarded.toFixed(2)} บาท</div>
+      <div class="earn-split">
+        <div class="earn-cell earn-cash">
+          <div class="earn-cell-label">💵 เงินสดเข้ากระปุก</div>
+          <div class="earn-cell-value">+${cashPart.toFixed(2)} บาท</div>
+          <div class="earn-cell-total">สะสม ${earn.cash_baht.toFixed(2)} บาท</div>
+        </div>
+        <div class="earn-cell earn-etf">
+          <div class="earn-cell-label">📈 เข้าพอร์ต ETF</div>
+          <div class="earn-cell-value">+${etfPart.toFixed(2)} บาท</div>
+          <div class="earn-cell-total">สะสม ${earn.etf_baht.toFixed(2)} บาท</div>
+        </div>
+      </div>
+      <div class="earn-cap-bar">
+        <div class="earn-cap-bar-fill" style="width:${Math.min(100, (earn.today_baht / EARN_DAILY_CAP) * 100)}%"></div>
+      </div>
+      <div class="earn-cap-caption">วันนี้ได้ไปแล้ว ${earn.today_baht.toFixed(2)} / ${EARN_DAILY_CAP} บาท</div>
+      ${capNote}
+      <div class="earn-disclaimer">* ตัวเลขนี้เป็นแค่บันทึกไว้ให้พ่อแม่ตรวจสอบแล้วจ่ายเอง ไม่ใช่การจ่ายเงินอัตโนมัติ</div>
+    `;
+    dom.earnBanner.style.display = 'block';
+  }
+
+  function updateStartEarnWidget() {
+    if (!dom.startEarnCaption) return;
+    const stats = loadStats();
+    const earn = stats.earn && stats.earn.today_date === todayDateStr()
+      ? stats.earn
+      : { today_baht: 0, cash_baht: (stats.earn && stats.earn.cash_baht) || 0, etf_baht: (stats.earn && stats.earn.etf_baht) || 0 };
+    const percent = Math.min(100, (earn.today_baht / EARN_DAILY_CAP) * 100);
+    dom.startEarnFill.style.width = `${percent}%`;
+    dom.startEarnCaption.textContent = `วันนี้ได้ไปแล้ว ${earn.today_baht.toFixed(2)} / ${EARN_DAILY_CAP} บาท`;
   }
 
   function renderAchievementUnlockBanner(newlyUnlocked) {
@@ -1141,14 +1283,14 @@
       saveGuestProgress(newXp);
 
       const prevStats = loadStats();
-      const { stats, newlyUnlocked } = computeUpdatedStats(prevStats, summary, levelFromXp(newXp));
+      const { stats, newlyUnlocked, earnResult } = computeUpdatedStats(prevStats, summary, levelFromXp(newXp));
       saveGuestStats(stats);
 
-      return { oldLevel: levelFromXp(oldXp), newLevel: levelFromXp(newXp), newXp, myId: null, stats, newlyUnlocked };
+      return { oldLevel: levelFromXp(oldXp), newLevel: levelFromXp(newXp), newXp, myId: null, stats, newlyUnlocked, earnResult };
     }
 
     const user = state.currentUser;
-    if (!user) return { oldLevel: 1, newLevel: 1, newXp: 0, myId: null, stats: defaultStats(), newlyUnlocked: [] };
+    if (!user) return { oldLevel: 1, newLevel: 1, newXp: 0, myId: null, stats: defaultStats(), newlyUnlocked: [], earnResult: null };
 
     const oldXp = user.xp;
     const newXp = oldXp + xpEarned;
@@ -1156,7 +1298,7 @@
     const newLevel = levelFromXp(newXp);
 
     const prevStats = loadStats();
-    const { stats, newlyUnlocked } = computeUpdatedStats(prevStats, summary, newLevel);
+    const { stats, newlyUnlocked, earnResult } = computeUpdatedStats(prevStats, summary, newLevel);
 
     if (sb) {
       try {
@@ -1176,7 +1318,7 @@
     user.xp = newXp;
     user.level = newLevel;
     user.stats = stats;
-    return { oldLevel, newLevel, newXp, myId: user.id, stats, newlyUnlocked };
+    return { oldLevel, newLevel, newXp, myId: user.id, stats, newlyUnlocked, earnResult };
   }
 
   // ---------- End Game ----------
@@ -1217,11 +1359,13 @@
       specialCorrect: state.specialCorrectCount,
       bestCombo: state.bestBossMultiplierThisGame,
       elapsed,
-      isSunday: state.isSundayBoss
+      isSunday: state.isSundayBoss,
+      score: state.score
     };
 
-    const { oldLevel, newLevel, newXp, myId, stats, newlyUnlocked } = await applyXpAndSave(xpEarned, summary);
+    const { oldLevel, newLevel, newXp, myId, stats, newlyUnlocked, earnResult } = await applyXpAndSave(xpEarned, summary);
     updateUserChipUI();
+    renderEarnBanner(earnResult);
 
     if (dom.resultAchvCount) {
       const unlockedCount = (stats.unlocked || []).length;
