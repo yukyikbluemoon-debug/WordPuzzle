@@ -78,6 +78,7 @@
         </div>
 
         <button id="btn-start" class="btn btn-primary btn-block">🚀 เริ่มเล่น</button>
+        <button id="btn-achievements" class="btn btn-secondary btn-block" style="margin-top:10px;">🏅 เหรียญตรา (Achievements)</button>
 
         <div id="leaderboard-start" class="leaderboard">
           <div class="leaderboard-header">
@@ -124,6 +125,8 @@
 
         <div id="level-up-banner" class="level-up-banner" style="display:none;">🎊 เลเวลอัพ! ตอนนี้เลเวล <span id="level-up-value"></span> แล้ว</div>
 
+        <div id="achv-unlock-banner" class="achv-unlock-banner" style="display:none;"></div>
+
         <div id="xp-gain-banner" class="xp-gain-banner">+<span id="xp-gain-value">0</span> XP</div>
 
         <div class="score-grid">
@@ -149,6 +152,16 @@
           <button id="btn-share" class="btn btn-share">📤 แชร์ผลลัพธ์</button>
           <button id="btn-home" class="btn btn-secondary">🏠 หน้าหลัก</button>
         </div>
+      </div>
+    </section>
+
+    <!-- หน้าจอเหรียญตรา (Achievements) -->
+    <section id="screen-achievements" class="screen">
+      <div class="card">
+        <h2 class="game-title" style="font-size:1.3rem;">🏅 เหรียญตรา</h2>
+        <p class="subtitle">สะสมเหรียญจากการเล่นและไต่เลเวล</p>
+        <div id="achievements-grid" class="achievements-grid"></div>
+        <button id="btn-achievements-back" class="btn btn-secondary btn-block" style="margin-top:16px;">🏠 กลับหน้าหลัก</button>
       </div>
     </section>
 

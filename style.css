@@ -757,6 +757,95 @@ body.boss-day .level-badge {
   100% { transform: scale(1); opacity: 1; }
 }
 
+/* ---------- Achievement unlock banner (ผลหน้าสรุปเกม) ---------- */
+.achv-unlock-banner {
+  background: linear-gradient(120deg, rgba(255, 200, 87, 0.2), rgba(140, 123, 255, 0.2));
+  border: 1px solid var(--gold);
+  border-radius: 16px;
+  padding: 14px;
+  margin-bottom: 18px;
+  animation: levelUpPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.achv-unlock-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--gold);
+  margin-bottom: 10px;
+  font-size: 0.95rem;
+}
+
+.achv-unlock-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.achv-unlock-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-soft);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.achv-unlock-icon { font-size: 1.1rem; }
+
+/* ---------- Achievements screen (เหรียญตรา) ---------- */
+.achievements-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 18px 0 6px;
+}
+
+.achv-badge {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-soft);
+  border-radius: 14px;
+  padding: 14px 8px;
+  text-align: center;
+  transition: transform 0.15s ease;
+}
+
+.achv-badge.unlocked {
+  border-color: var(--gold);
+  background: linear-gradient(160deg, rgba(255, 200, 87, 0.14), var(--bg-panel));
+  box-shadow: 0 6px 18px rgba(255, 200, 87, 0.18);
+}
+
+.achv-badge.locked {
+  opacity: 0.5;
+  filter: grayscale(1);
+}
+
+.achv-icon {
+  font-size: 1.8rem;
+  margin-bottom: 6px;
+}
+
+.achv-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.82rem;
+  margin-bottom: 3px;
+}
+
+.achv-desc {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+@media (max-width: 480px) {
+  .achievements-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
 .score-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
