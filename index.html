@@ -50,13 +50,14 @@
     <!-- หน้าจอเริ่มเกม -->
     <section id="screen-start" class="screen">
       <div class="topbar">
-        <div id="user-chip" class="user-chip">
+        <div id="user-chip" class="user-chip" role="button" tabindex="0" title="ดูโปรไฟล์ผู้เล่น">
           <div id="start-level-badge" class="level-badge">1</div>
           <div class="user-chip-info">
             <div id="start-user-name" class="user-chip-name">ผู้เล่น</div>
             <div class="xp-bar"><div id="start-xp-fill" class="xp-bar-fill segmented" style="width:0%"></div></div>
             <div id="start-xp-caption" class="xp-caption">0 / 100 XP</div>
           </div>
+          <div class="user-chip-arrow">›</div>
         </div>
         <button id="btn-logout" class="btn btn-ghost" style="padding:10px 14px;">ออก</button>
       </div>
@@ -78,11 +79,11 @@
         </div>
 
         <button id="btn-start" class="btn btn-primary btn-block">🚀 เริ่มเล่น</button>
-        <button id="btn-achievements" class="btn btn-secondary btn-block" style="margin-top:10px;">🏅 เหรียญตรา (Achievements)</button>
 
         <div id="leaderboard-start" class="leaderboard">
           <div class="leaderboard-header">
             <span class="leaderboard-title">🏆 อันดับผู้เล่น</span>
+            <button id="start-achv-count" type="button" class="achv-count-badge" title="ดูเหรียญตราทั้งหมด">🏅 0/0</button>
           </div>
           <div id="leaderboard-start-list"></div>
         </div>
@@ -141,6 +142,7 @@
         <div id="leaderboard-result" class="leaderboard" style="text-align:left;">
           <div class="leaderboard-header">
             <span class="leaderboard-title">🏆 อันดับผู้เล่น</span>
+            <button id="result-achv-count" type="button" class="achv-count-badge" title="ดูเหรียญตราทั้งหมด">🏅 0/0</button>
           </div>
           <div id="leaderboard-result-list"></div>
         </div>
@@ -162,6 +164,26 @@
         <p class="subtitle">สะสมเหรียญจากการเล่นและไต่เลเวล</p>
         <div id="achievements-grid" class="achievements-grid"></div>
         <button id="btn-achievements-back" class="btn btn-secondary btn-block" style="margin-top:16px;">🏠 กลับหน้าหลัก</button>
+      </div>
+    </section>
+
+    <!-- หน้าจอโปรไฟล์ผู้เล่น -->
+    <section id="screen-profile" class="screen">
+      <div class="card">
+        <div class="profile-header">
+          <div id="profile-avatar" class="profile-avatar">?</div>
+          <div id="profile-name" class="profile-name">ผู้เล่น</div>
+          <div class="level-badge big" id="profile-level-badge">1</div>
+          <div class="xp-bar profile-xp-bar"><div id="profile-xp-fill" class="xp-bar-fill segmented" style="width:0%"></div></div>
+          <div id="profile-xp-caption" class="xp-caption">0 / 100 XP</div>
+        </div>
+
+        <div id="profile-stats-grid" class="profile-stats-grid"></div>
+
+        <div class="profile-section-title">🕘 ประวัติการเล่นล่าสุด</div>
+        <div id="profile-history-list" class="profile-history-list"></div>
+
+        <button id="btn-profile-back" class="btn btn-secondary btn-block" style="margin-top:16px;">🏠 กลับหน้าหลัก</button>
       </div>
     </section>
 

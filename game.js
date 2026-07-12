@@ -100,7 +100,8 @@
     learn:  $('screen-learn'),
     game:   $('screen-game'),
     result: $('screen-result'),
-    achievements: $('screen-achievements')
+    achievements: $('screen-achievements'),
+    profile: $('screen-profile')
   };
   const dom = {
     // auth
@@ -117,13 +118,24 @@
     startXpCaption:  $('start-xp-caption'),
     btnLogout:       $('btn-logout'),
     btnStart:        $('btn-start'),
-    btnAchievements: $('btn-achievements'),
+    startAchvCount:  $('start-achv-count'),
     leaderboardStartList: $('leaderboard-start-list'),
     bossBannerStart: $('boss-banner-start'),
 
     // achievements
     achievementsGrid: $('achievements-grid'),
     btnAchievementsBack: $('btn-achievements-back'),
+
+    // profile
+    userChip:          $('user-chip'),
+    profileAvatar:     $('profile-avatar'),
+    profileName:       $('profile-name'),
+    profileLevelBadge: $('profile-level-badge'),
+    profileXpFill:     $('profile-xp-fill'),
+    profileXpCaption:  $('profile-xp-caption'),
+    profileStatsGrid:  $('profile-stats-grid'),
+    profileHistoryList: $('profile-history-list'),
+    btnProfileBack:    $('btn-profile-back'),
 
     // learn
     btnGoGame:       $('btn-go-game'),
@@ -153,6 +165,7 @@
     finalTime:       $('final-time'),
     myRankLine:      $('my-rank-line'),
     achvUnlockBanner: $('achv-unlock-banner'),
+    resultAchvCount: $('result-achv-count'),
     leaderboardResultList: $('leaderboard-result-list'),
     wordReviewList:  $('word-review-list'),
     btnRestart:      $('btn-restart'),
@@ -337,6 +350,109 @@
     renderLeaderboardList(container, list, highlightId);
   }
 
+  // =========================================================
+  // ---------- โปรไฟล์ผู้เล่น ----------
+  // =========================================================
+  const AVATAR_GRADIENTS = [
+    ['#ff6b4a', '#ffc857'],
+    ['#8c7bff', '#35d6a6'],
+    ['#35d6a6', '#ffc857'],
+    ['#ff5c7a', '#8c7bff'],
+    ['#ffc857', '#ff6b4a']
+  ];
+
+  function avatarInitial(name) {
+    const trimmed = (name || '?').trim();
+    return trimmed ? trimmed[0].toUpperCase() : '?';
+  }
+
+  function avatarGradient(name) {
+    let hash = 0;
+    const str = name || 'guest';
+    for (let i = 0; i < str.length; i++) hash = (hash * 31 + str.charCodeAt(i)) >>> 0;
+    const [c1, c2] = AVATAR_GRADIENTS[hash % AVATAR_GRADIENTS.length];
+    return `linear-gradient(135deg, ${c1}, ${c2})`;
+  }
+
+  async function fetchGameHistory(userId, limit = 10) {
+    if (!sb || !userId) return [];
+    const { data, error } = await sb
+      .from('game_stats')
+      .select('score, words_matched, time_spent, played_at')
+      .eq('user_id', userId)
+      .order('played_at', { ascending: false })
+      .limit(limit);
+    if (error) { console.warn('⚠️ โหลดประวัติการเล่นไม่สำเร็จ:', error); return []; }
+    return data || [];
+  }
+
+  function renderProfileStatsGrid(stats) {
+    const unlockedCount = (stats.unlocked || []).length;
+    const cells = [
+      { icon: '🎮', label: 'เกมที่เล่น', value: stats.games_played || 0 },
+      { icon: '🌟', label: 'Perfect Score', value: stats.perfect_games || 0 },
+      { icon: '👑', label: 'คำบอสตอบถูก', value: stats.boss_correct || 0 },
+      { icon: '📚', label: 'คำพิเศษตอบถูก', value: stats.special_correct || 0 },
+      { icon: '⚡', label: 'คอมโบสูงสุด', value: stats.best_combo ? `x${stats.best_combo}` : '-' },
+      { icon: '⏱️', label: 'เร็วที่สุด', value: stats.fastest_time != null ? formatTime(stats.fastest_time) : '-' },
+      { icon: '🎪', label: 'เกมวันอาทิตย์', value: stats.sunday_games || 0 },
+      { icon: '🏅', label: 'เหรียญตรา', value: `${unlockedCount}/${ACHIEVEMENTS.length}` }
+    ];
+    dom.profileStatsGrid.innerHTML = cells.map(c => `
+      <div class="profile-stat-cell">
+        <div class="profile-stat-icon">${c.icon}</div>
+        <div class="profile-stat-value">${c.value}</div>
+        <div class="profile-stat-label">${c.label}</div>
+      </div>
+    `).join('');
+  }
+
+  function renderProfileHistory(rows) {
+    if (!rows || rows.length === 0) {
+      dom.profileHistoryList.innerHTML = state.isGuest
+        ? '<div class="leaderboard-empty">เล่นแบบ Guest ไม่มีการบันทึกประวัติ — เข้าสู่ระบบเพื่อบันทึกทุกเกมที่เล่น</div>'
+        : '<div class="leaderboard-empty">ยังไม่มีประวัติการเล่น</div>';
+      return;
+    }
+    dom.profileHistoryList.innerHTML = rows.map(r => {
+      const d = new Date(r.played_at);
+      const dateLabel = d.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+      return `
+        <div class="profile-history-row">
+          <div class="profile-history-date">${dateLabel}</div>
+          <div class="profile-history-mid">✅ ${r.words_matched}/${WORDS_PER_GAME}</div>
+          <div class="profile-history-score">⭐ ${r.score}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  async function renderProfileScreen() {
+    const name = state.isGuest ? 'Guest' : (state.currentUser ? state.currentUser.name : '-');
+    const xp = currentXp();
+    const { level, current, needed, percent } = xpProgress(xp);
+
+    dom.profileAvatar.textContent = avatarInitial(name);
+    dom.profileAvatar.style.background = avatarGradient(name);
+    dom.profileName.textContent = name;
+    dom.profileLevelBadge.textContent = level;
+    dom.profileXpFill.style.width = `${percent}%`;
+    dom.profileXpCaption.textContent = `${current} / ${needed} XP`;
+
+    const stats = loadStats();
+    renderProfileStatsGrid(stats);
+
+    dom.profileHistoryList.innerHTML = '<div class="leaderboard-empty">กำลังโหลด...</div>';
+    showScreen('profile');
+
+    if (!state.isGuest && state.currentUser) {
+      const history = await fetchGameHistory(state.currentUser.id, 10);
+      renderProfileHistory(history);
+    } else {
+      renderProfileHistory([]);
+    }
+  }
+
   // ---------- User chip / topbar UI ----------
   function currentXp() {
     if (state.isGuest) return loadGuestProgress().xp;
@@ -351,6 +467,11 @@
     dom.startLevelBadge.textContent = level;
     dom.startXpFill.style.width = `${percent}%`;
     dom.startXpCaption.textContent = `${current} / ${needed} XP`;
+
+    if (dom.startAchvCount) {
+      const unlockedCount = (loadStats().unlocked || []).length;
+      dom.startAchvCount.textContent = `🏅 ${unlockedCount}/${ACHIEVEMENTS.length}`;
+    }
   }
 
   // ---------- Auth screen logic ----------
@@ -1063,8 +1184,13 @@
       isSunday: state.isSundayBoss
     };
 
-    const { oldLevel, newLevel, newXp, myId, newlyUnlocked } = await applyXpAndSave(xpEarned, summary);
+    const { oldLevel, newLevel, newXp, myId, stats, newlyUnlocked } = await applyXpAndSave(xpEarned, summary);
     updateUserChipUI();
+
+    if (dom.resultAchvCount) {
+      const unlockedCount = (stats.unlocked || []).length;
+      dom.resultAchvCount.textContent = `🏅 ${unlockedCount}/${ACHIEVEMENTS.length}`;
+    }
 
     if (newLevel > oldLevel) {
       dom.levelUpValue.textContent = newLevel;
@@ -1288,14 +1414,30 @@
 
     if (dom.btnShare) dom.btnShare.addEventListener('click', shareResult);
 
-    if (dom.btnAchievements) {
-      dom.btnAchievements.addEventListener('click', () => {
-        renderAchievementsGrid(dom.achievementsGrid, loadStats());
-        showScreen('achievements');
-      });
-    }
+    const openAchievements = () => {
+      renderAchievementsGrid(dom.achievementsGrid, loadStats());
+      showScreen('achievements');
+    };
+    if (dom.startAchvCount) dom.startAchvCount.addEventListener('click', openAchievements);
+    if (dom.resultAchvCount) dom.resultAchvCount.addEventListener('click', openAchievements);
+
     if (dom.btnAchievementsBack) {
       dom.btnAchievementsBack.addEventListener('click', () => {
+        enterStartScreen();
+      });
+    }
+
+    if (dom.userChip) {
+      dom.userChip.addEventListener('click', renderProfileScreen);
+      dom.userChip.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          renderProfileScreen();
+        }
+      });
+    }
+    if (dom.btnProfileBack) {
+      dom.btnProfileBack.addEventListener('click', () => {
         enterStartScreen();
       });
     }
