@@ -420,6 +420,19 @@ body {
   border-radius: 10px;
 }
 
+.leaderboard-row.clickable {
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.leaderboard-row.clickable:hover {
+  background: rgba(245, 243, 255, 0.06);
+}
+
+.leaderboard-row.clickable:active {
+  background: rgba(245, 243, 255, 0.1);
+}
+
 .leaderboard-row.me {
   background: rgba(140, 123, 255, 0.18);
   border: 1px solid rgba(140, 123, 255, 0.4);

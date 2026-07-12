@@ -316,7 +316,7 @@
   // ---------- Leaderboard ----------
   async function fetchLeaderboard(limit = 10) {
     if (!sb) return [];
-    const { data, error } = await sb.from('users').select('id,name,level,xp').order('xp', { ascending: false }).limit(limit);
+    const { data, error } = await sb.from('users').select('id,name,level,xp,stats').order('xp', { ascending: false }).limit(limit);
     if (error) { console.warn('⚠️ โหลด leaderboard ไม่สำเร็จ:', error); return []; }
     return data || [];
   }
@@ -332,22 +332,40 @@
   function renderLeaderboardList(container, list, highlightId) {
     if (!list || list.length === 0) {
       container.innerHTML = '<div class="leaderboard-empty">ยังไม่มีใครเล่นเลย เป็นคนแรกสิ! 🚀</div>';
+      container.onclick = null;
       return;
     }
     container.innerHTML = list.map((u, i) => {
       const rankIcon = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : String(i + 1);
       const isMe = highlightId && u.id === highlightId;
-      return `<div class="leaderboard-row ${isMe ? 'me' : ''}">
+      return `<div class="leaderboard-row clickable ${isMe ? 'me' : ''}" data-user-id="${u.id}">
         <div class="leaderboard-rank">${rankIcon}</div>
         <div class="leaderboard-name">${escapeHtml(u.name)}</div>
         <div class="leaderboard-xp">Lv.${u.level} · ${u.xp} XP</div>
       </div>`;
     }).join('');
+
+    // ใช้ onclick (แทน addEventListener) เพื่อไม่ให้ listener ซ้อนกันทุกครั้งที่ re-render
+    container.onclick = (e) => {
+      const row = e.target.closest('.leaderboard-row');
+      if (!row) return;
+      const user = list.find(u => String(u.id) === String(row.dataset.userId));
+      if (user) openProfileFromScreen(user);
+    };
   }
 
   async function refreshLeaderboardWidget(container, highlightId) {
     const list = await fetchLeaderboard(10);
     renderLeaderboardList(container, list, highlightId);
+  }
+
+  function getCurrentScreenName() {
+    return Object.keys(screens).find(key => screens[key].classList.contains('active')) || 'start';
+  }
+
+  function openProfileFromScreen(user) {
+    state.profileReturnScreenName = getCurrentScreenName();
+    renderProfileScreen(user);
   }
 
   // =========================================================
@@ -407,9 +425,9 @@
     `).join('');
   }
 
-  function renderProfileHistory(rows) {
+  function renderProfileHistory(rows, isSelf) {
     if (!rows || rows.length === 0) {
-      dom.profileHistoryList.innerHTML = state.isGuest
+      dom.profileHistoryList.innerHTML = (isSelf && state.isGuest)
         ? '<div class="leaderboard-empty">เล่นแบบ Guest ไม่มีการบันทึกประวัติ — เข้าสู่ระบบเพื่อบันทึกทุกเกมที่เล่น</div>'
         : '<div class="leaderboard-empty">ยังไม่มีประวัติการเล่น</div>';
       return;
@@ -427,9 +445,24 @@
     }).join('');
   }
 
-  async function renderProfileScreen() {
-    const name = state.isGuest ? 'Guest' : (state.currentUser ? state.currentUser.name : '-');
-    const xp = currentXp();
+  // viewUser: ไม่ใส่ = ดูโปรไฟล์ตัวเอง, ใส่ {id,name,level,xp,stats} = ดูโปรไฟล์คนอื่นจาก leaderboard
+  async function renderProfileScreen(viewUser) {
+    const isSelf = !viewUser;
+    let name, xp, statsSource, historyUserId;
+
+    if (isSelf) {
+      name = state.isGuest ? 'Guest' : (state.currentUser ? state.currentUser.name : '-');
+      xp = currentXp();
+      statsSource = loadStats();
+      historyUserId = (!state.isGuest && state.currentUser) ? state.currentUser.id : null;
+      state.profileReturnScreenName = state.profileReturnScreenName || 'start';
+    } else {
+      name = viewUser.name;
+      xp = viewUser.xp || 0;
+      statsSource = (viewUser.stats && typeof viewUser.stats === 'object') ? { ...defaultStats(), ...viewUser.stats } : defaultStats();
+      historyUserId = viewUser.id;
+    }
+
     const { level, current, needed, percent } = xpProgress(xp);
 
     dom.profileAvatar.textContent = avatarInitial(name);
@@ -439,17 +472,20 @@
     dom.profileXpFill.style.width = `${percent}%`;
     dom.profileXpCaption.textContent = `${current} / ${needed} XP`;
 
-    const stats = loadStats();
-    renderProfileStatsGrid(stats);
+    renderProfileStatsGrid(statsSource);
+
+    if (dom.btnProfileBack) {
+      dom.btnProfileBack.textContent = isSelf ? '🏠 กลับหน้าหลัก' : '‹ กลับไปหน้าเดิม';
+    }
 
     dom.profileHistoryList.innerHTML = '<div class="leaderboard-empty">กำลังโหลด...</div>';
     showScreen('profile');
 
-    if (!state.isGuest && state.currentUser) {
-      const history = await fetchGameHistory(state.currentUser.id, 10);
-      renderProfileHistory(history);
+    if (historyUserId) {
+      const history = await fetchGameHistory(historyUserId, 10);
+      renderProfileHistory(history, isSelf);
     } else {
-      renderProfileHistory([]);
+      renderProfileHistory([], isSelf);
     }
   }
 
@@ -1428,17 +1464,23 @@
     }
 
     if (dom.userChip) {
-      dom.userChip.addEventListener('click', renderProfileScreen);
+      const openOwnProfile = () => {
+        state.profileReturnScreenName = 'start';
+        renderProfileScreen();
+      };
+      dom.userChip.addEventListener('click', openOwnProfile);
       dom.userChip.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
-          renderProfileScreen();
+          openOwnProfile();
         }
       });
     }
     if (dom.btnProfileBack) {
       dom.btnProfileBack.addEventListener('click', () => {
-        enterStartScreen();
+        const target = state.profileReturnScreenName || 'start';
+        if (target === 'start') enterStartScreen();
+        else showScreen(target);
       });
     }
   }
