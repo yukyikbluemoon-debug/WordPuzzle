@@ -346,10 +346,14 @@
     container.innerHTML = list.map((u, i) => {
       const rankIcon = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : String(i + 1);
       const isMe = highlightId && u.id === highlightId;
+      const lifetimeBaht = (u.stats && u.stats.earn && typeof u.stats.earn.lifetime_baht === 'number') ? u.stats.earn.lifetime_baht : 0;
       return `<div class="leaderboard-row clickable ${isMe ? 'me' : ''}" data-user-id="${u.id}">
         <div class="leaderboard-rank">${rankIcon}</div>
         <div class="leaderboard-name">${escapeHtml(u.name)}</div>
-        <div class="leaderboard-xp">Lv.${u.level} · ${u.xp} XP</div>
+        <div class="leaderboard-meta">
+          <div class="leaderboard-xp">Lv.${u.level} · ${u.xp} XP</div>
+          <div class="leaderboard-baht">💰 ${lifetimeBaht.toFixed(2)} บาท</div>
+        </div>
       </div>`;
     }).join('');
 
