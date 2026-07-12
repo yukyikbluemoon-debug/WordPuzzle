@@ -416,32 +416,70 @@
     return data || [];
   }
 
-  function renderProfileEarnSection(stats) {
+  function formatSettlementDate(iso) {
+    const d = new Date(iso);
+    return d.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit', hour: '2-digit', minute: '2-digit' });
+  }
+
+  function renderProfileEarnSection(stats, isSelf) {
     if (!dom.profileEarnSection) return;
-    const earn = (stats.earn && typeof stats.earn === 'object') ? stats.earn : defaultStats().earn;
+    const earn = { ...defaultStats().earn, ...(stats.earn || {}) };
     const todayBaht = earn.today_date === todayDateStr() ? earn.today_baht : 0;
+
+    const settleButton = (type, amount) => {
+      if (!isSelf || amount <= 0) return '';
+      const label = type === 'cash' ? '✅ ตัดยอด (จ่ายแล้ว)' : '✅ ตัดยอด (ลงทุนแล้ว)';
+      return `<button type="button" class="earn-settle-btn" data-settle-type="${type}">${label}</button>`;
+    };
+
     dom.profileEarnSection.innerHTML = `
-      <div class="profile-earn-cell">
-        <div class="profile-earn-icon">💵</div>
-        <div class="profile-earn-value">${(earn.cash_baht || 0).toFixed(2)}</div>
-        <div class="profile-earn-label">เงินสดกระปุก (บาท)</div>
+      <div class="profile-earn-grid">
+        <div class="profile-earn-cell">
+          <div class="profile-earn-icon">💵</div>
+          <div class="profile-earn-value">${earn.cash_baht.toFixed(2)}</div>
+          <div class="profile-earn-label">เงินสดรอจ่าย (บาท)</div>
+          ${settleButton('cash', earn.cash_baht)}
+        </div>
+        <div class="profile-earn-cell">
+          <div class="profile-earn-icon">📈</div>
+          <div class="profile-earn-value">${earn.etf_baht.toFixed(2)}</div>
+          <div class="profile-earn-label">รอเข้าพอร์ต ETF (บาท)</div>
+          ${settleButton('etf', earn.etf_baht)}
+        </div>
+        <div class="profile-earn-cell">
+          <div class="profile-earn-icon">💰</div>
+          <div class="profile-earn-value">${earn.lifetime_baht.toFixed(2)}</div>
+          <div class="profile-earn-label">รวมหามาทั้งหมด (บาท)</div>
+        </div>
+        <div class="profile-earn-cell">
+          <div class="profile-earn-icon">📅</div>
+          <div class="profile-earn-value">${todayBaht.toFixed(2)}/${EARN_DAILY_CAP}</div>
+          <div class="profile-earn-label">วันนี้ (บาท)</div>
+        </div>
       </div>
-      <div class="profile-earn-cell">
-        <div class="profile-earn-icon">📈</div>
-        <div class="profile-earn-value">${(earn.etf_baht || 0).toFixed(2)}</div>
-        <div class="profile-earn-label">พอร์ต ETF (บาท)</div>
+      <div class="earn-paid-summary">
+        จ่ายเงินสดไปแล้วสะสม <b>${earn.cash_paid_total.toFixed(2)}</b> บาท ·
+        ลงทุน ETF ไปแล้วสะสม <b>${earn.etf_paid_total.toFixed(2)}</b> บาท
       </div>
-      <div class="profile-earn-cell">
-        <div class="profile-earn-icon">💰</div>
-        <div class="profile-earn-value">${(earn.lifetime_baht || 0).toFixed(2)}</div>
-        <div class="profile-earn-label">รวมสะสมทั้งหมด (บาท)</div>
-      </div>
-      <div class="profile-earn-cell">
-        <div class="profile-earn-icon">📅</div>
-        <div class="profile-earn-value">${todayBaht.toFixed(2)}/${EARN_DAILY_CAP}</div>
-        <div class="profile-earn-label">วันนี้ (บาท)</div>
-      </div>
+      ${earn.settlements && earn.settlements.length > 0 ? `
+        <div class="earn-settlement-log">
+          <div class="earn-settlement-log-title">ประวัติการตัดยอดล่าสุด</div>
+          ${earn.settlements.slice(0, 5).map(s => `
+            <div class="earn-settlement-row">
+              <span>${s.type === 'cash' ? '💵 เงินสด' : '📈 ETF'}</span>
+              <span>${s.amount.toFixed(2)} บาท</span>
+              <span class="earn-settlement-date">${formatSettlementDate(s.date)}</span>
+            </div>
+          `).join('')}
+        </div>
+      ` : ''}
     `;
+
+    dom.profileEarnSection.onclick = (e) => {
+      const btn = e.target.closest('.earn-settle-btn');
+      if (!btn) return;
+      settleEarn(btn.dataset.settleType);
+    };
   }
 
   function renderProfileStatsGrid(stats) {
@@ -512,7 +550,7 @@
     dom.profileXpFill.style.width = `${percent}%`;
     dom.profileXpCaption.textContent = `${current} / ${needed} XP`;
 
-    renderProfileEarnSection(statsSource);
+    renderProfileEarnSection(statsSource, isSelf);
     renderProfileStatsGrid(statsSource);
 
     if (dom.btnProfileBack) {
@@ -683,6 +721,10 @@
   // =========================================================
   // ---------- สถิติสะสม + ปลดล็อก Achievement ----------
   // =========================================================
+  function round2(n) {
+    return Math.round(n * 100) / 100;
+  }
+
   function todayDateStr() {
     const d = new Date();
     const y = d.getFullYear();
@@ -705,6 +747,9 @@
         lifetime_baht: 0,
         cash_baht: 0,
         etf_baht: 0,
+        cash_paid_total: 0,
+        etf_paid_total: 0,
+        settlements: [],
         today_date: null,
         today_baht: 0
       }
@@ -723,8 +768,10 @@
     earn.cash_baht = earn.cash_baht || 0;
     earn.etf_baht = earn.etf_baht || 0;
     earn.today_baht = earn.today_baht || 0;
+    earn.cash_paid_total = earn.cash_paid_total || 0;
+    earn.etf_paid_total = earn.etf_paid_total || 0;
+    earn.settlements = earn.settlements || [];
 
-    const round2 = (n) => Math.round(n * 100) / 100;
     const rawEarned = round2(scoreThisGame * EARN_RATE);
     const remainingCap = Math.max(0, round2(EARN_DAILY_CAP - earn.today_baht));
     const awarded = Math.min(rawEarned, remainingCap);
@@ -763,6 +810,55 @@
 
   function saveGuestStats(stats) {
     localStorage.setItem(GUEST_STATS_KEY, JSON.stringify(stats));
+  }
+
+  // บันทึกสถิติ (รวม earn ledger) แบบ standalone ไม่ผูกกับการจบเกม เช่น ตอนกด "ตัดยอด"
+  async function persistStats(stats) {
+    if (state.isGuest) {
+      saveGuestStats(stats);
+      return;
+    }
+    if (state.currentUser) {
+      state.currentUser.stats = stats;
+      if (sb) {
+        try {
+          await sb.from('users').update({ stats }).eq('id', state.currentUser.id);
+        } catch (e) {
+          console.warn('⚠️ บันทึกสถิติไม่สำเร็จ (อาจเน็ตหลุด):', e);
+        }
+      }
+    }
+  }
+
+  // ---------- ตัดยอด (Settlement): กันยอดสะสมพอกจนงงว่าจ่ายไปหรือยัง ----------
+  async function settleEarn(type) {
+    const stats = loadStats();
+    const earn = { ...defaultStats().earn, ...(stats.earn || {}) };
+    const amount = type === 'cash' ? earn.cash_baht : earn.etf_baht;
+
+    if (!amount || amount <= 0) return;
+
+    const label = type === 'cash' ? 'เงินสด' : 'เงินเข้าพอร์ต ETF';
+    const confirmed = window.confirm(
+      `ยืนยันว่าจ่าย${label} ${amount.toFixed(2)} บาท ให้เรียบร้อยแล้วใช่ไหม?\n\nยอดนี้จะถูกล้างและบันทึกไว้ในประวัติการตัดยอด`
+    );
+    if (!confirmed) return;
+
+    const paidKey = type === 'cash' ? 'cash_paid_total' : 'etf_paid_total';
+    earn[paidKey] = round2((earn[paidKey] || 0) + amount);
+    earn.settlements = [
+      { date: new Date().toISOString(), type, amount },
+      ...(earn.settlements || [])
+    ].slice(0, 10);
+
+    if (type === 'cash') earn.cash_baht = 0;
+    else earn.etf_baht = 0;
+
+    stats.earn = earn;
+    await persistStats(stats);
+
+    renderProfileEarnSection(stats);
+    updateStartEarnWidget();
   }
 
   // อัปเดตสถิติหลังจบเกม แล้วเช็คว่ามี achievement ใหม่ที่เพิ่งปลดล็อกไหม

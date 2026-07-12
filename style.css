@@ -930,6 +930,65 @@ body.boss-day .level-badge {
   line-height: 1.3;
 }
 
+.earn-settle-btn {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  padding: 6px 4px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  font-family: var(--font-display);
+  color: #0a1a14;
+  background: var(--mint);
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.earn-settle-btn:hover { opacity: 0.9; }
+.earn-settle-btn:active { transform: scale(0.96); }
+
+.earn-paid-summary {
+  text-align: center;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+}
+
+.earn-paid-summary b {
+  color: var(--gold);
+  font-family: var(--font-display);
+}
+
+.earn-settlement-log {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  padding: 10px 12px;
+  margin-bottom: 20px;
+}
+
+.earn-settlement-log-title {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--text-light);
+  margin-bottom: 8px;
+}
+
+.earn-settlement-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.72rem;
+  padding: 4px 0;
+  border-top: 1px solid var(--border-soft);
+}
+
+.earn-settlement-row:first-of-type { border-top: none; }
+
+.earn-settlement-date { color: var(--text-muted); }
+
 @media (max-width: 480px) {
   .earn-split { grid-template-columns: 1fr 1fr; }
   .profile-earn-grid { grid-template-columns: repeat(2, 1fr); }
