@@ -337,7 +337,76 @@
     return { rank: (higher.count || 0) + 1, total: total.count || 0 };
   }
 
-  function renderLeaderboardList(container, list, highlightId) {
+  // ---------- ระดับพัฒนาการ (Performance Tier S/A/B/C/D) + % การเติบโต ----------
+  // ดึงเกมล่าสุด (สูงสุด perUserLimit เกม/คน) ของหลายคนพร้อมกันในคิวรีเดียว กันยิง query ซ้ำทีละแถว
+  async function fetchRecentGamesForUsers(userIds, perUserLimit = 10) {
+    if (!sb || !userIds || userIds.length === 0) return {};
+    const { data, error } = await sb
+      .from('game_stats')
+      .select('user_id, words_matched, played_at')
+      .in('user_id', userIds)
+      .order('played_at', { ascending: false })
+      .limit(userIds.length * perUserLimit);
+    if (error) { console.warn('⚠️ โหลดประวัติเกม (สำหรับคำนวณอันดับ) ไม่สำเร็จ:', error); return {}; }
+
+    const grouped = {};
+    (data || []).forEach(row => {
+      if (!grouped[row.user_id]) grouped[row.user_id] = [];
+      if (grouped[row.user_id].length < perUserLimit) grouped[row.user_id].push(row);
+    });
+    return grouped;
+  }
+
+  // ความแม่นยำเฉลี่ย (0-1) จากเกมล่าสุดที่มีอยู่
+  function calcAccuracyRate(recentGames) {
+    if (!recentGames || recentGames.length === 0) return null;
+    const total = recentGames.reduce((sum, g) => sum + (g.words_matched || 0), 0);
+    return total / (recentGames.length * WORDS_PER_GAME);
+  }
+
+  // อันดับประสิทธิภาพรวม S/A/B/C/D: ผสมความแม่นยำล่าสุด (60%) + อัตรา Perfect Game สะสมทั้งชีวิต (40%)
+  function calcPerformanceTier(stats, recentGames) {
+    if (!stats || !stats.games_played) return null; // ยังไม่เคยเล่น ไม่มีอันดับ
+    const perfectRate = stats.games_played > 0 ? (stats.perfect_games || 0) / stats.games_played : 0;
+    const accuracy = calcAccuracyRate(recentGames);
+    const score = accuracy != null ? (accuracy * 0.6 + perfectRate * 0.4) : perfectRate;
+
+    if (score >= 0.95) return 'S';
+    if (score >= 0.85) return 'A';
+    if (score >= 0.70) return 'B';
+    if (score >= 0.50) return 'C';
+    return 'D';
+  }
+
+  // % เติบโต: เทียบความแม่นยำ "ครึ่งหลัง" (เกมล่าสุด) กับ "ครึ่งแรก" (เกมก่อนหน้า) ของเกมที่ดึงมา
+  // ใช้บอกลูกว่าช่วงนี้เล่นดีขึ้นหรือแย่ลงเมื่อเทียบกับตัวเอง ไม่ต้องมี snapshot ใหม่ในระบบ
+  function calcGrowthPercent(recentGames) {
+    if (!recentGames || recentGames.length < 4) return null; // ข้อมูลน้อยเกินไป ยังบอกเทรนด์ไม่ได้
+    const half = Math.floor(recentGames.length / 2);
+    const newer = recentGames.slice(0, half);       // ล่าสุด (index 0 = ใหม่สุด)
+    const older = recentGames.slice(half, half * 2); // ก่อนหน้า
+    const avgMatched = arr => arr.reduce((s, g) => s + (g.words_matched || 0), 0) / arr.length;
+    const olderAvg = avgMatched(older);
+    if (olderAvg === 0) return null;
+    return Math.round(((avgMatched(newer) - olderAvg) / olderAvg) * 100);
+  }
+
+  // บรรทัดที่ 3 ของแถว leaderboard: 🏆 อันดับ + 📈/📉 % เติบโต (รวมในบรรทัดเดียว เพราะ parent เป็น flex-column)
+  function renderPerformanceLine(tier, growth) {
+    if (!tier) return '<div class="leaderboard-tier-badge d"><span class="tier-icon">🆕</span> ยังไม่มีอันดับ</div>';
+
+    let growthHtml = '';
+    if (growth != null && growth !== 0) {
+      const cls = growth > 0 ? 'positive' : 'negative';
+      const arrow = growth > 0 ? '📈' : '📉';
+      const sign = growth > 0 ? '+' : '';
+      growthHtml = ` <span class="leaderboard-growth-indicator ${cls}">${arrow} ${sign}${growth}%</span>`;
+    }
+
+    return `<div class="leaderboard-tier-badge ${tier.toLowerCase()}"><span class="tier-icon">🏆</span> ${tier}${growthHtml}</div>`;
+  }
+
+  function renderLeaderboardList(container, list, highlightId, gamesByUser = {}) {
     if (!list || list.length === 0) {
       container.innerHTML = '<div class="leaderboard-empty">ยังไม่มีใครเล่นเลย เป็นคนแรกสิ! 🚀</div>';
       container.onclick = null;
@@ -346,13 +415,18 @@
     container.innerHTML = list.map((u, i) => {
       const rankIcon = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : String(i + 1);
       const isMe = highlightId && u.id === highlightId;
-      const lifetimeBaht = (u.stats && u.stats.earn && typeof u.stats.earn.lifetime_baht === 'number') ? u.stats.earn.lifetime_baht : 0;
+      const stats = { ...defaultStats(), ...(u.stats || {}) };
+      const lifetimeBaht = (stats.earn && typeof stats.earn.lifetime_baht === 'number') ? stats.earn.lifetime_baht : 0;
+      const recentGames = gamesByUser[u.id] || [];
+      const tier = calcPerformanceTier(stats, recentGames);
+      const growth = calcGrowthPercent(recentGames);
       return `<div class="leaderboard-row clickable ${isMe ? 'me' : ''}" data-user-id="${u.id}">
         <div class="leaderboard-rank">${rankIcon}</div>
         <div class="leaderboard-name">${escapeHtml(u.name)}</div>
         <div class="leaderboard-meta">
           <div class="leaderboard-xp">Lv.${u.level} · ${u.xp} XP</div>
           <div class="leaderboard-baht">💰 ${lifetimeBaht.toFixed(2)} บาท</div>
+          ${renderPerformanceLine(tier, growth)}
         </div>
       </div>`;
     }).join('');
@@ -368,7 +442,8 @@
 
   async function refreshLeaderboardWidget(container, highlightId) {
     const list = await fetchLeaderboard(10);
-    renderLeaderboardList(container, list, highlightId);
+    const gamesByUser = await fetchRecentGamesForUsers(list.map(u => u.id));
+    renderLeaderboardList(container, list, highlightId, gamesByUser);
   }
 
   function getCurrentScreenName() {
