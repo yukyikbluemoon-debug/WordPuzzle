@@ -706,11 +706,19 @@ outline-offset: 2px;
 }
 /* ---------- Responsive ---------- */
 @media (max-width: 480px) {
-.card { padding: 24px 16px; border-radius: 18px; }
-.game-title { font-size: 1.7rem; }
-.word-row { padding: 6px 10px; height: 36px; }
-.speak-btn { width: 30px; height: 30px; }
-.speak-btn svg { width: 14px; height: 14px; }
-.score-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
-.level-badge.big { --size: 76px; font-size: 1.5rem; }
+  .card { padding: 24px 16px; border-radius: 18px; }
+  .game-title { font-size: 1.7rem; }
+   .column {
+    gap: 12px; /* ← เพิ่มระยะห่างบนมือถือด้วย */
+  }
+   .word-row { 
+    padding: 8px 12px; 
+    height: 40px; 
+    width: 100%; /* ← แก้เป็น 100% เช่นกัน */
+  }
+  
+  .speak-btn { width: 30px; height: 30px; }
+  .speak-btn svg { width: 14px; height: 14px; }
+  .score-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .level-badge.big { --size: 76px; font-size: 1.5rem; }
 }
