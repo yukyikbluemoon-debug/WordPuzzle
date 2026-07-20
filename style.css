@@ -503,20 +503,20 @@ border-radius: 20px;
 flex: 1;
 display: flex;
 flex-direction: column;
-gap: 12px;
+gap: 16px;
 min-width: 0;
 }
 .word-row {
-display: flex;
-align-items: center;
-gap: 8px;
-padding: 8px 12px;
-background: var(--bg-panel-2);
-border: 1px solid var(--border-soft);
-border-radius: 12px;
-height: 40px;
-width: 100%;
-transition: background 0.2s ease, border-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;  /* ← เพิ่มจาก 8px 12px เป็น 10px 14px */
+  background: var(--bg-panel-2);
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  height: 44px;  /* ← เพิ่มจาก 40px เป็น 44px */
+  width: 100%;
+  transition: background 0.2s ease, border-color 0.2s ease;
 }
 .word-row.matched {
 background: rgba(53, 214, 166, 0.15);
@@ -712,4 +712,11 @@ outline-offset: 2px;
 .speak-btn svg { width: 14px; height: 14px; }
 .score-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .level-badge.big { --size: 76px; font-size: 1.5rem; }
+  .column {
+    gap: 12px;  /* ← เพิ่มจาก 10px */
+  }
+  .word-row { 
+    padding: 8px 12px;  /* ← เพิ่มจาก 6px 10px */
+    height: 40px;  /* ← เพิ่มจาก 36px */
+  }
 }
