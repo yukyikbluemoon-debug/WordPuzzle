@@ -475,11 +475,61 @@ body {
   color: var(--gold);
 }
 
+/* เพิ่มหลังจาก .leaderboard-xp */
+.leaderboard-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex-shrink: 0;
+  text-align: right;
+  min-width: 60px;
+}
+
+.leaderboard-tier {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+}
+
+.leaderboard-tier.s { color: var(--gold); }
+.leaderboard-tier.a { color: var(--mint); }
+.leaderboard-tier.b { color: var(--violet); }
+.leaderboard-tier.c { color: var(--coral); }
+.leaderboard-tier.d { color: var(--text-muted); }
+
+.leaderboard-growth {
+  font-size: 0.72rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 3px;
+}
+
+.leaderboard-growth.positive {
+  color: var(--mint);
+}
+
+.leaderboard-growth.negative {
+  color: var(--rose);
+}
+
 .leaderboard-baht {
+  font-size: 0.75rem;
+  color: var(--gold);
+  text-align: right;
+  margin-top: 2px;
+}
+
+/* .leaderboard-baht {
   font-size: 0.68rem;
   color: var(--mint);
   font-weight: 600;
-}
+} 
+*/
 
 .leaderboard-empty {
   text-align: center;
