@@ -500,23 +500,24 @@ border: 1px solid var(--border-soft);
 border-radius: 20px;
 }
 .column {
-flex: 1;
-display: flex;
-flex-direction: column;
-gap: 12px;
-min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px; /* ← เพิ่มจาก 12px เป็น 16px (ทำให้กล่องห่างกันมากขึ้น) */
+  min-width: 0;
 }
+
 .word-row {
-display: flex;
-align-items: center;
-gap: 8px;
-padding: 8px 12px;
-background: var(--bg-panel-2);
-border: 1px solid var(--border-soft);
-border-radius: 12px;
-height: 40px;
-width: 100%;
-transition: background 0.2s ease, border-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px; /* ← เพิ่ม padding จาก 8px 12px ให้กล่องดูอวบขึ้น */
+  background: var(--bg-panel-2);
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  height: 44px; /* ← เพิ่มความสูงจาก 40px เป็น 44px */
+  width: 100%; /* ← แก้จาก 90% เป็น 100% เพื่อให้เต็มคอลัมน์สวยงาม */
+  transition: background 0.2s ease, border-color 0.2s ease;
 }
 .word-row.matched {
 background: rgba(53, 214, 166, 0.15);
