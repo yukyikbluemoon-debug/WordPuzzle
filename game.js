@@ -292,15 +292,29 @@
   async function loginOrRegister(name, pin) {
     if (!sb) return { error: 'offline' };
     try {
-      const { data: existing, error } = await sb.from('users').select('*').eq('name', name).maybeSingle();
+      // 1) ตรวจ/สร้างบัญชีกลาง (ใช้ร่วมกับ Math Puzzle — เช็คแค่ชื่อ+PIN)
+      const { data: existingAccount, error: accError } = await sb.from('accounts').select('*').eq('name', name).maybeSingle();
+      if (accError) return { error: 'network' };
+
+      let account;
+      if (existingAccount) {
+        if (existingAccount.pin !== pin) return { error: 'wrong_pin' };
+        account = existingAccount;
+      } else {
+        const { data: newAccount, error: newAccError } = await sb.from('accounts').insert({ name, pin }).select().single();
+        if (newAccError) return { error: 'network' };
+        account = newAccount;
+      }
+
+      // 2) ตรวจ/สร้างผู้ใช้ของ WordPuzzle เอง ผูกกับ account_id (XP ไม่รวมกับ Math Puzzle)
+      const { data: existing, error } = await sb.from('users').select('*').eq('account_id', account.id).maybeSingle();
       if (error) return { error: 'network' };
 
       if (existing) {
-        if (existing.pin !== pin) return { error: 'wrong_pin' };
         return { user: existing };
       }
 
-      const { data: created, error: insErr } = await sb.from('users').insert({ name, pin }).select().single();
+      const { data: created, error: insErr } = await sb.from('users').insert({ name, pin, account_id: account.id }).select().single();
       if (insErr) return { error: 'network' };
       return { user: created, isNew: true };
     } catch (e) {
